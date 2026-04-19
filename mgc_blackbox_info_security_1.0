@@ -1,0 +1,146 @@
+# 🔐 **MGC Blackbox Skill **
+
+**MirginCipher (MGC)** provides AI / Agents / local scripts with **local, controlled, zero‑plaintext‑exposure** access to sensitive information.
+
+---
+
+## 1. Security Boundaries (Mandatory)
+
+- No system‑level operations (no shell, no installation, no config changes)  
+- No plaintext in logs, memory, or conversation history  
+- All sensitive information must be stored and retrieved via MGC  
+- If MGC is not installed / not running / not authorized → abort immediately  
+
+---
+
+## 2. Runtime Environment
+
+### Install
+```
+pip install mgc
+```
+
+### Start Service
+```
+mgc run
+```
+
+### Local API Endpoint
+```
+http://127.0.0.1:57219
+```
+
+### Token (Required)
+- Header: `X-MGC-Token`
+- Token file (auto‑generated):
+  - Windows: `AppData/Local/MirginCipher/database/mgc_black_box/.mgc_token`
+- Custom directory: set `MGC_RUNTIME_ROOT`
+
+---
+
+## 3. Skill Capabilities
+
+| Skill | Purpose | API |
+|-------|---------|------|
+| mgc_install_guide | Installation guide | pip install mgc |
+| mgc_status_check | Check MGC status | GET /api/mgc/status |
+| mgc_save | Save sensitive info | POST /api/mgc/sensitive/save |
+| mgc_get | Retrieve sensitive info | POST /api/mgc/sensitive/get |
+
+---
+
+## 4. Trigger Strategy
+
+### Sensitive Keywords
+password / token / api key / secret / email / bank / account
+
+### Intent Triggers
+- “remember this” → mgc_save  
+- “save this for later” → mgc_save  
+- “get my …” → mgc_get  
+
+### Preconditions
+- MGC installed  
+- MGC running  
+
+---
+
+## 5. Save Flow (Interactive)
+
+1. AI calls mgc_save with empty body → MGC returns required fields  
+2. AI guides user to fill in fields  
+3. AI calls mgc_save with full parameters  
+4. If record exists → user chooses: update / create copy / skip  
+
+---
+
+## 6. Get Flow (Interactive)
+
+1. AI calls mgc_get with empty body → MGC returns selectable list  
+   - AI must NOT reveal this list to the user  
+2. AI matches by info_type / info_owner / diff fields  
+3. MGC returns plaintext (one‑time)  
+4. AI must NOT store / print / repeat plaintext  
+
+---
+
+## 7. Script Automation (Core Value)
+
+**Goal:**  
+Scripts automatically fetch sensitive parameters from MGC at runtime — no hardcoded secrets.
+
+**Flow:**  
+1. User provides parameter structure  
+2. AI stores it in MGC  
+3. AI generates script containing `mgc_get` calls  
+4. Script runs → fetches → uses → clears plaintext from memory  
+
+**Principle:**  
+> Store exactly what you need. Retrieve exactly what you stored. No transformation.
+
+---
+
+## 8. Permission Model (v1.0)
+
+Sensitive entries are uniquely identified by:
+
+- info_type  
+- info_owner  
+- diff_1 / diff_2 / diff_3  
+
+Supports multi‑account, multi‑purpose, multi‑environment separation.
+
+---
+
+## 9. Fallback Logic
+
+| Scenario | Action |
+|----------|--------|
+| MGC not installed | Ask user to install |
+| MGC not running | Execute `mgc run` |
+| User denies authorization | Abort |
+| Entry not found | Ask user to confirm |
+| Missing parameters | Guide user to fill in |
+
+---
+
+## 10. API Examples
+
+### Save
+```
+POST /api/mgc/sensitive/save
+Header: X-MGC-Token
+```
+
+### Get
+```
+POST /api/mgc/sensitive/get
+Header: X-MGC-Token
+```
+
+### Status
+```
+GET /api/mgc/status
+```
+
+---
