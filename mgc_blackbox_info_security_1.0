@@ -15,9 +15,11 @@
 
 ## 2. Runtime Environment
 
+> ⚠️ **v1.0 Support Windows only
+
 ### Install
 ```
-pip install mgc
+pip install mgc-blackbox
 ```
 
 ### Start Service
@@ -32,9 +34,11 @@ http://127.0.0.1:57219
 
 ### Token (Required)
 - Header: `X-MGC-Token`
-- Token file (auto‑generated):
-  - Windows: `AppData/Local/MirginCipher/database/mgc_black_box/.mgc_token`
-- Custom directory: set `MGC_RUNTIME_ROOT`
+- Token file (read **fresh every time** before use):
+  - **Windows**: `AppData/Local/MirginCipher/database/mgc_black_box/.mgc_token`
+  - **macOS**: `~/Library/Application Support/MirginCipher/database/mgc_black_box/.mgc_token`
+  - **Linux**: `~/.local/share/MirginCipher/database/mgc_black_box/.mgc_token`
+  - Or set custom path: `MGC_RUNTIME_ROOT` environment variable
 
 ---
 
