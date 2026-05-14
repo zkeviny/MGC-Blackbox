@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mgc-blackbox": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mgc.main",
+        "--mcp"
+      ]
+    }
+  }
+}
