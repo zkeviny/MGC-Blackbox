@@ -1,0 +1,16 @@
+MirginCipher Blackbox (MGC)
+Copyright © 2026 MirginCipher Team
+
+This software includes proprietary components owned by the MirginCipher Team.
+All rights are reserved unless explicitly granted in the LICENSE file.
+
+This project provides a local encrypted execution environment designed to protect
+sensitive human intent. No part of the MGC core system may be modified,
+redistributed, or used to create derivative works without official authorization.
+
+Use of this software is subject to the terms described in:
+- LICENSE (legal terms and restrictions)
+- AUTHORIZATION.md (integration authorization requirements)
+- docs/user_notice.md (user-facing operational and safety notice)
+
+The MGC core system is provided “as is” without warranties of any kind.
