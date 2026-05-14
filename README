@@ -1,25 +1,67 @@
-# MGC Blackbox
-**Official Short Name: MGC**
-Powered by MirginCipher
+**MirginCipher Blackbox (MGC)**
 
-# Privacy-preserving collaborative blackbox system
-MGC Blackbox is a privacy-first collaboration framework built on cryptography.
-It enables secure task delegation and result settlement without exposing sensitive credentials or private data.
+MirginCipher Blackbox (MGC) is a Local Encrypted Execution Tool designed to protect sensitive human intent and enable secure, deterministic AI execution.
+MGC provides a trusted device‑level encrypted boundary for agents — it is not an agent itself.
 
-## Core Mechanism
-- 🔒 **Privacy Never Leaves Your Domain**: All sensitive data remains strictly within the user's local private domain, never exposed to third parties.
-- 🔐 **End-to-End Encrypted Flow**: Tasks and results are transmitted in ciphertext across trusted nodes.
-- 🛡️ **Tamper-Proof by Design**: Any modification to encrypted data breaks decryption, automatically proving malicious behavior.
-- ⚖️ **Non-Custodial Trust**: No access to user accounts, funds, or execution; trust is guaranteed through cryptography, not promises.
+**Authorization**
+Integration into any third‑party products or AI agents is free of charge,
+but requires official authorization to ensure ecosystem integrity and security.
 
-## Use Cases
-- Privacy-sensitive task automation & delegation
-- Secure cross-device/ cross-node collaboration
-- Trusted AI agent orchestration & task chaining
-- Confidential data sharing for enterprises & individuals
+For authorization requests, please contact:
+zkeviny@icloud.com
 
-## Installation
-Install the official MGC package via pip:
-```bash
+**Core Capabilities**
+- Local storage — All sensitive data stays on the device and is never uploaded to the cloud.
+- Local encrypted storage & execution — Data is encrypted using a combination of the user’s personal key and device‑specific environmental factors.
+- Store‑once authorization — Once stored, an item is authorized for future use within the same device environment without repeated confirmation.
+- Environment migration — If hardware changes, access can be restored using a user‑defined migration key. Stored data remains usable.
+- Lightweight integration — Install the MGC package and configure the dedicated MGC Skill. Even if Skill‑level communication is intercepted or modified, MGC’s secure storage and retrieval remain unaffected.
+- Cross‑agent availability — Any agent platform that supports Skills can integrate with MGC with zero additional development.
+- Cross‑platform support — Distributed as a Python package for easy installation, with all security‑critical components compiled via Cython and executed inside a local encrypted service.This design ensures portability, tamper‑resistance, and consistent behavior across macOS, Windows, and Linux.
+
+**Installation**
 pip install mgc-blackbox
-v1.0 Support Windows only
+
+Start the local encrypted execution service:
+mgc run
+
+**Usage Overview**
+MGC can be used in two ways:
+
+1. Through AI agents (via Skills / MCP)
+Agents can:
+
+- Store sensitive information
+- Retrieve encrypted items
+- Execute stored scripts
+- All without accessing plaintext.
+
+MCP configuration: See `mcp_config.json` in installation directory.
+
+2. Through scripts (via REST API)
+External scripts can fetch encrypted items at runtime.
+Plaintext is never exposed to AI logs or external systems.
+
+For detailed usage, see:
+MGC_GUIDE.md
+
+**Security Model**
+All data remains local
+No cloud upload
+No plaintext logging
+Deterministic execution
+User‑controlled authorization
+Protection Mode available for high‑security environments
+Minimal network usage: only version checks and service health checks require network access;no user data, secrets, scripts, or metadata are ever transmitted.
+
+For safety details, see:
+docs/user_notice.md
+
+**AI Skill Specification**
+For AI behavior boundaries and tool definitions, see:
+docs/skill_spec.md
+
+**License**
+See the LICENSE file for full terms.
+
+© 2026 MirginCipher Team. All rights reserved.
