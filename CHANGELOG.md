@@ -18,3 +18,7 @@
 
 ## 1.3.0
 - Packaging & engineering improvements for multi-platform and multi‑Python‑version distribution.
+
+## 1.3.3
+- Fixed MCP auto-start MGC; optimized MCP interaction.
+- Other: hide copy skill button in Safari; updated skill_spec.md with MCP config.
