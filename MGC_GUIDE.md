@@ -1,174 +1,308 @@
-# MGC Blackbox — AI Skill / User Guide
+# 📘 **MGC Blackbox — AI Skill / User Guide**
 
-## version
-1.2.0
+## Version  
+**1.4.0**
 
 ---
-## Purpose
-Store/retrieve/run sensitive info/script **without exposing plaintext**. All data encrypted locally.
+
+# Purpose  
+Store / retrieve / run sensitive info or scripts **without unauthorized plaintext exposure**.  
+All data is encrypted locally and executed inside a secure boundary.
+
+---
 
 # Environment Requirements (User Consent Required)
 
-- Install:
-  ```
-  pip install mgc-blackbox
-  ```
-- Run:
-  ```
-  mgc run
-  ```
+## Install
+```bash
+pip install mgc-blackbox
+```
+
+## Run
+```bash
+mgc
+```
+
+### WebUI Port  
+- Default: **57218**  
+- If occupied → automatically decrements (57217, 57216, …)  
+- The actual port is shown in the startup log.
+
+WebUI URL:
+```
+http://127.0.0.1:<port>
+```
+
 ---
-## Trigger Keywords for AI skills
 
-The skill activates when the user says anything like:
+# Trigger Keywords for AI Skills
 
-- "Store into MGC Blackbox"
-- "Save to MGC" / "Get from MGC" / "Fetch from the Blackbox"
-- "Put this into the Blackbox" / "Retrieve from MGC Blackbox"
-- "Write a script that automatically reads from the Blackbox"
-- "Run this script inside the Blackbox"
+The skill activates when the user says:
+
+- “Store into MGC Blackbox”
+- “Save to MGC / Get from MGC”
+- “Fetch from the Blackbox”
+- “Put this into the Blackbox”
+- “Retrieve my token/password/script”
+- “Run this script inside the Blackbox”
+- “Seal this script for another node”
 
 ---
-## Quick Reference
+
+# Quick Reference
 
 | Scenario | Method | Tools |
 |----------|--------|-------|
-| AI stores/retrieves | MCP | mgc_save, mgc_get, mgc_list, mgc_open_webui |
+| AI stores/retrieves | MCP | mgc_save, mgc_get, mgc_list, mgc_seal, mgc_open_webui |
 | Script runtime fetch | REST API | POST /api/mgc/sensitive/save/get |
-| Human | webui | Base URL: `http://127.0.0.1:57218`(default, if port is occupied, follow the MGC startup prompt) |
+| Human | WebUI | `http://127.0.0.1:<port>` |
 
 MCP configuration: See `mcp_config.json` in installation directory.
 
 ---
-## Parameters
 
-**info_type**: password / token / api_key / script / etc (see mgc_save example)
+# Parameters
 
-**info_owner**: "user's GitHub" / "Amy's Aliyun" (who + where)
+**info_type**  
+`password / token / api_key / script / config / ...`
 
-**iff_1/2/3**: Differentiate same info_type + info_owner
-- Example: Two GitHub tokens → diff_1="work" / diff_1="personal"
+**info_owner**  
+“user’s GitHub” / “Amy’s Aliyun” (who + where)
+
+**diff_1 / diff_2 / diff_3**  
+Differentiate entries with same type + owner  
+Example:  
+- GitHub token (work)  
+- GitHub token (personal)
+
 ---
 
-## AI Usage — MCP Tools
+# AI Usage — MCP Tools
 
-### mgc_save
-Store sensitive information (type: token/password/api_key/script/prompt/task/config/etc):
+## mgc_save  
+Store sensitive information or scripts.
+
 ```
 Tool: mgc_save
-Arguments: {"info_type": "token", "info_owner": "user's GitHub", "content": "ghp_xxx"}
+Arguments: {
+  "info_type": "token",
+  "info_owner": "user's GitHub",
+  "content": "ghp_xxx"
+}
 ```
-MGC will auto-detect if the content is script and the platform.
 
-### mgc_get
+MGC auto-detects script content and platform.
+
+---
+
+## mgc_get  
+Retrieve sensitive info or execute scripts.
+
 ```
 Tool: mgc_get
 Arguments: {"info_type": "token", "info_owner": "user's GitHub"}
 ```
-Empty args → list all entries.
 
-Run script:
+### List all entries  
 ```
 Tool: mgc_get
-Arguments: {"info_type": "script", "info_owner": "backup_script", "action": "run"}
+Arguments: {}
 ```
 
-### mgc_list
+### Run script  
+```
+Tool: mgc_get
+Arguments: {
+  "info_type": "script",
+  "info_owner": "backup_script",
+  "action": "run"
+}
+```
+
+### 🔹 MGC 1.4 Behavior: Partial Match  
+If parameters match multiple entries:
+
+- No sensitive content returned  
+- A filtered metadata list is returned  
+- AI must ask user to choose  
+
+---
+
+## mgc_list  
 ```
 Tool: mgc_list
 Arguments: {}
 ```
 
-### mgc_open_webui
+---
+
+## mgc_seal (New in 1.4)  
+Seal a script for **trusted external node execution**.
+
+### Step 1 — Retrieve target node’s public key  
+```
+Tool: mgc_get
+Arguments: {
+  "info_type": "__NODE_PUB__",
+  "info_owner": "__NODE_PUB__"
+}
+```
+
+### Step 2 — Seal script  
+```
+Tool: mgc_seal
+Arguments: {
+  "info_owner": "my_script",
+  "ext02": "-----BEGIN PUBLIC KEY-----\n..."
+}
+```
+
+### Seal Output  
+Returned sealed data contains:
+
+- `content` — AES‑encrypted script  
+- `ext_01` — startup command  
+- `ext_02` — original args  
+- `ext_03` — RSA‑encrypted AES key  
+
+**Store each field as separate MGC entries.**
+
+### What Seal Enables  
+- Execution rights can be granted to another node  
+- Script logic remains unreadable  
+- Only the target node can decrypt & execute  
+- Seal is **irreversible** (ownership retained)
+
+---
+
+## mgc_open_webui  
 ```
 Tool: mgc_open_webui
 Arguments: {}
 ```
+
 ---
 
-## Script Usage — REST API
+# Script Usage — REST API
 
-When scripts need sensitive credentials at runtime, fetch from MGC.
-**Note**: Script assumes MGC is running.
+Scripts can fetch sensitive credentials at runtime.  
+**MGC must be running.**
 
-**Base URL**: `http://127.0.0.1:57219`
-**Token**: `~/.mgc/database/mgc_black_box/.mgc_token`
+### Base URL  
+```
+http://127.0.0.1:<port>
+```
+
+### Token  
+```
+~/.mgc/database/mgc_black_box/.mgc_token
+```
+
+---
+
+## Python Example
 
 ```python
 import requests, os
-token = open(os.path.expanduser("~/.mgc/database/mgc_black_box/.mgc_token")).read().strip()
 
-# Store
-requests.post("http://127.0.0.1:57219/api/mgc/sensitive/save",
+token = open(os.path.expanduser(
+    "~/.mgc/database/mgc_black_box/.mgc_token"
+)).read().strip()
+
+base = "http://127.0.0.1:57218"  # replace with actual port
+```
+
+### Store
+```python
+requests.post(f"{base}/api/mgc/sensitive/save",
     headers={"X-MGC-Token": token},
-    json={"info_type": "config", "info_owner": "user's QQ", "content": "{\"pwd\":\"xxx\"}"})
+    json={
+        "info_type": "config",
+        "info_owner": "user's QQ",
+        "content": "{\"pwd\":\"xxx\"}"
+    })
+```
 
-# Retrieve
-requests.post("http://127.0.0.1:57219/api/mgc/sensitive/get",
+### Retrieve
+```python
+requests.post(f"{base}/api/mgc/sensitive/get",
     headers={"X-MGC-Token": token},
     json={"info_type": "config", "info_owner": "user's QQ"})
+```
 
-# List all
-requests.post("http://127.0.0.1:57219/api/mgc/sensitive/get",
+### List all
+```python
+requests.post(f"{base}/api/mgc/sensitive/get",
     headers={"X-MGC-Token": token},
     json={})
-
-# Update: add "update_if_exists": true
 ```
 
-### Run Script (action=run)
-
-Execute stored script and return result.
-
+### Run script
 ```python
-# Run script - returns pid and status
-requests.post("http://127.0.0.1:57219/api/mgc/sensitive/get",
+requests.post(f"{base}/api/mgc/sensitive/get",
     headers={"X-MGC-Token": token},
     json={"info_type": "script", "info_owner": "my_script", "action": "run"})
-
-# Response: {"code":200,"msg":"success","data":{"pid":1234,"status":"success"}}
 ```
+
 ---
 
-### Toggle Protection Mode
+# Protection Mode
 
-**Note**: Protection mode requires root key on every startup. MGC save and get can only use via MCP/API.
+Requires root key on every startup.  
+Save/get only allowed via MCP or API.
 
+### Check mode
 ```python
-import requests, os
-token = open(os.path.expanduser("~/.mgc/database/mgc_black_box/.mgc_token")).read().strip()
-
-# Get current protection mode
-resp = requests.get("http://127.0.0.1:57218/api/user/settings")
-print(resp.json())  # {"protection_mode": False}
-
-# Change protection mode
-requests.post("http://127.0.0.1:57218/api/user/settings",
-    headers={"X-MGC-Token": token, "Content-Type": "application/json"},
-    json={"protection_mode": True})  # or False
+requests.get(f"{base}/api/user/settings")
 ```
+
+### Toggle mode
+```python
+requests.post(f"{base}/api/user/settings",
+    headers={"X-MGC-Token": token},
+    json={"protection_mode": True})
+```
+
 ---
 
 # AI Behavior Boundaries (Mandatory)
 
 AI **must not**:
-- Print plaintext
-- Repeat plaintext
-- Store plaintext in memory
-- Display Blackbox internal lists
-- Display script contents
+
+- Print plaintext  
+- Repeat plaintext  
+- Store plaintext in memory  
+- Display script contents  
+- Display internal encrypted data  
 
 AI **may**:
-- Call save / get
-- Guide the user to fill fields
-- Use ephemeral plaintext to complete a task
-- Present execution results
+
+- Call mgc_save / mgc_get / mgc_list / mgc_seal  
+- Guide user to fill required fields  
+- Use ephemeral plaintext for immediate tool calls  
+- Present execution results  
+
 ---
 
-## Error Handling
+# Delete Policy
+
+**MGC considers all stored info as user assets.  
+Delete functionality is NOT provided.**
+
+To delete manually:
+
+1. Open WebUI → Database Audit  
+2. Retrieve DB key  
+3. Delete via DB Browser  
+
+---
+
+# Error Handling
 
 | Status | Meaning | AI Action |
 |--------|---------|-----------|
-| NOT_FOUND | Entry not found | Check mgc_list first; if unsure, confirm with user |
-| Connection failed | MGC not running | MCP will auto-start (~15s) |
+| NOT_FOUND | Entry not found | Use mgc_list or ask user |
+| MULTIPLE_MATCHES | Partial match | Ask user to choose |
+| Connection failed | MGC not running | MCP auto-start (~15s) |
+
 ---
