@@ -22,3 +22,10 @@
 ## 1.3.3
 - Fixed MCP auto-start MGC; optimized MCP interaction.
 - Other: hide copy skill button in Safari; updated skill_spec.md with MCP config.
+
+## 1.4.0
+- NEW: Seal script for external node execution (mgc_seal).
+- NEW: Get page Smart Seal detection for stored data.
+- Enhanced MCP tools with improved descriptions.
+- Optimized UI interactions and field truncation.
+- Fixed ext01-ext30 fields in SEAL response.
