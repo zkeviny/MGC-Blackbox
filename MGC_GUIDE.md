@@ -1,7 +1,7 @@
 # 📘 **MGC Blackbox — AI Skill / User Guide**
 
 ## Version  
-**1.4.0**
+**1.4.1**
 
 ---
 
