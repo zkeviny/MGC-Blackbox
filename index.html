@@ -1,10 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>MGC-Blackbox</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGC Blackbox — MCP Manifest</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #0f1117;
+            color: #c9d1d9;
+        }
+        h1 {
+            color: #f0f6fc;
+        }
+        a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .box {
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            background: #161b22;
+            margin: 20px 0;
+        }
+        code {
+            background: #0d1117;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h1>MGC Blackbox MCP</h1>
-    <p>Manifest: <a href="/manifest.json">manifest.json</a></p>
+    <h1>MGC Blackbox — MCP Server</h1>
+
+    <p>
+        A trusted local encrypted execution boundary for AI agents.
+        Store encrypted data, retrieve encrypted data, and execute stored scripts in a secure sandbox without exposing plaintext.
+        Supports cross-node script sealing.
+    </p>
+
+    <div class="box">
+        <h2>Manifest (for MCP Store)</h2>
+        <p>
+            <a href="./manifest.json" target="_blank">manifest.json</a>
+        </p>
+        <p>
+            URL: <code>https://zkeviny.github.io/MGC-Blackbox/manifest.json</code>
+        </p>
+    </div>
+
+    <div class="box">
+        <h2>Install</h2>
+        <pre>pip install mgc-blackbox</pre>
+        <pre>mgc --mcp</pre>
+    </div>
+
+    <p>
+        Repository:
+        <a href="https://github.com/zkeviny/MGC-Blackbox" target="_blank">
+            github.com/zkeviny/MGC-Blackbox
+        </a>
+    </p>
 </body>
 </html>
