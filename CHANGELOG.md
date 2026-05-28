@@ -29,3 +29,9 @@
 - Enhanced MCP tools with improved descriptions.
 - Optimized UI interactions and field truncation.
 - Fixed ext01-ext30 fields in SEAL response.
+
+## 1.4.1
+- Fixed missing BaseDialog import in WebUI.
+- MCP: Improved UTF-8 encoding for requests.
+- MCP: Filter None values from request payload.
+- Note: MCP tools may not support Chinese content (use WebUI or REST API).
