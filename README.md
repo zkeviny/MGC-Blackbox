@@ -159,6 +159,7 @@ MGC exposes a local MCP tools interface:
 - `mgc_save`
 - `mgc_get`
 - `mgc_list`
+- `mgc_seal`
 - `mgc_open_webui`
 
 Compatible with:
