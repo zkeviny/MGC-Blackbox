@@ -23,13 +23,28 @@ MGC ensures:
 
 ## **Why MGC?**
 
-- 🔐 **Encrypted Data Vault** — AES‑256 encrypted storage for API keys, passwords, configs  
-- 🧱 **Local Security Boundary** — plaintext never leaves the local node  
-- 🧩 **Sealed Script Execution** — run scripts only on trusted nodes  
-- ⚡ **Deterministic Local Execution** — no cloud dependency  
-- 🛠️ **MCP Tools Interface** — mgc_save / mgc_get / mgc_list / mgc_open_webui  
-- 🔄 **Cross‑Agent Compatibility** — Copilot / Claude / Trae / IDE Agents  
-- 🧩 **Zero Integration Cost** — any MCP/Skill‑based agent can use MGC immediately  
+- 🔐 End‑to‑End Encrypted Storage  
+AES‑256 encrypted vault for API keys, credentials, configs — never exposed to AI agents or external systems.
+
+- 🧱 Local‑First Security Boundary  
+All execution and decryption happen on‑device. No cloud dependency, no plaintext leakage, no telemetry.
+
+- 🧩 Sealed Script Execution (Unique)  
+Convert scripts into unreadable execution capsules.
+Only trusted nodes can decrypt & run them — even the sender cannot read sealed scripts.
+
+- ⚡ Deterministic Local Execution  
+Stable, reproducible behavior across macOS / Linux with a Cython‑compiled secure core.
+
+- 🛠️ Native MCP / Skill Integration  
+Exposes mgc_save / mgc_get / mgc_list / mgc_open_webui as standard MCP tools.
+Works out‑of‑the‑box with Copilot, Claude, Trae, IDE Agents.
+
+- 🔄 Zero Integration Cost  
+Any MCP‑compatible agent can immediately use MGC as its secure execution backend — no SDK, no custom code.
+
+- 🛡️ Designed for AI Agent Security  
+Protects human intent, prevents agent overreach, and enforces strict execution boundaries. 
 
 ---
 
