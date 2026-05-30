@@ -1,35 +1,56 @@
-# **MirginCipher Blackbox (MGC)**
+# **MirginCipher Blackbox (MGC)**  
+A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.
 
-MirginCipher Blackbox (MGC) is a **Local Encrypted Execution Layer** designed to protect sensitive human intent and enable secure, deterministic AI execution.  
-MGC provides a trusted device‑level encrypted boundary for agents — **it is not an agent itself**.
-
----
-
-## Architecture
-
-![MGC Architecture](./assets/architecture.png)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux-blue)
+![MCP](https://img.shields.io/badge/MCP-Compatible-orange)
 
 ---
 
-## **Authorization**
-Integration into any third‑party products or AI agents is free of charge,  
-but requires official authorization to ensure ecosystem integrity and security.
+## **What is MGC Blackbox?**
 
-For authorization requests:  
-**zkeviny@icloud.com**
+MirginCipher Blackbox (MGC) is a **Local Encrypted Execution Layer** designed to protect sensitive human intent and enable **secure, deterministic AI execution**.  
+It provides a trusted device‑level encrypted boundary for agents — **MGC is not an agent itself**.
+
+MGC ensures:
+
+- Sensitive data never leaves the device  
+- AI agents cannot access plaintext  
+- Scripts execute inside a sealed, encrypted environment  
+- Cross‑node execution is possible without exposing code  
 
 ---
 
-## **Core Capabilities**
+## **Why MGC?**
+
+- 🔐 **Encrypted Data Vault** — AES‑256 encrypted storage for API keys, passwords, configs  
+- 🧱 **Local Security Boundary** — plaintext never leaves the local node  
+- 🧩 **Sealed Script Execution** — run scripts only on trusted nodes  
+- ⚡ **Deterministic Local Execution** — no cloud dependency  
+- 🛠️ **MCP Tools Interface** — mgc_save / mgc_get / mgc_list / mgc_open_webui  
+- 🔄 **Cross‑Agent Compatibility** — Copilot / Claude / Trae / IDE Agents  
+- 🧩 **Zero Integration Cost** — any MCP/Skill‑based agent can use MGC immediately  
+
+---
+
+## **Architecture**
+
+<p align="center">
+  <img src="./assets/architecture.png" width="90%">
+</p>
+
+---
+
+## **Features**
 
 - **Local encrypted storage**  
-  All sensitive data stays on the device and is never uploaded to the cloud.
+  Sensitive data is encrypted and never uploaded to the cloud.
 
 - **Encrypted execution**  
   Scripts run inside the encrypted boundary; plaintext is never exposed to AI or external systems.
 
 - **Store‑once authorization**  
-  Once stored, an item can be reused within the same device environment without repeated confirmation.
+  Items can be reused within the same device environment without repeated confirmation.
 
 - **Environment migration**  
   If hardware changes, access can be restored using a user‑defined migration key.
@@ -45,31 +66,21 @@ For authorization requests:
   To delete: use WebUI → Database Audit → manually delete via DB Browser.
 
 - **NEW: Script Sealing (Cross‑Node Execution Rights)**  
-  MGC can **seal scripts** into non‑readable execution capsules.  
+  MGC can **seal scripts** into non‑readable execution capsules:  
   - Ownership remains with the user  
   - Execution rights can be granted to trusted external nodes  
-  - Only the target node can decrypt and execute  
-  - No one (including the sender) can read the sealed script  
-  This enables **secure cross‑node execution without unauthorized plaintext exposure**.
+  - Only the target node can decrypt & execute  
+  - Sender cannot read sealed script contents  
+  Enables **secure cross‑node execution without plaintext exposure**.
 
 ---
 
-## **Installation**
+## **Quick Start**
 
 ```bash
 pip install mgc-blackbox
-```
-
----
-
-## **Start the Local Encrypted Execution Service**
-
-```bash
 mgc
 ```
-
-Default WebUI port: **57218**  
-If the port is occupied, MGC automatically decrements (`57217`, `57216`, …).
 
 WebUI URL:
 
@@ -77,13 +88,45 @@ WebUI URL:
 http://127.0.0.1:<port>
 ```
 
+Default port: **57218**  
+If occupied, MGC automatically decrements (`57217`, `57216`, …).
+
+---
+
+## **Example: Save & Retrieve Secrets**
+
+```python
+from mgc import save, get
+
+save("openai_key", "sk-xxxx")
+print(get("openai_key"))
+```
+
+---
+
+## **MCP Integration**
+
+MGC exposes a local MCP tools interface:
+
+- `mgc_save`
+- `mgc_get`
+- `mgc_list`
+- `mgc_open_webui`
+
+Compatible with:
+
+- Copilot Agent  
+- Claude Agent  
+- Trae Agent  
+- IDE Agents  
+- Custom Agents  
+
+MCP configuration file:  
+`mcp_config.json` (auto‑generated on installation)
+
 ---
 
 ## **Usage Overview**
-
-MGC can be used in two ways:
-
----
 
 ### **1. Through AI agents (Skills / MCP)**  
 Agents can:
@@ -93,11 +136,6 @@ Agents can:
 - Execute stored scripts  
 - **Seal scripts for trusted nodes (external / local)**  
 - All without unauthorized plaintext access  
-
-MCP configuration:  
-See `mcp_config.json` in the installation directory.
-
----
 
 ### **2. Through system scripts (REST API)**  
 External scripts can fetch encrypted items at runtime.  
@@ -130,10 +168,21 @@ For AI behavior boundaries and tool definitions:
 
 ---
 
+## **Authorization**
+
+Integration into any third‑party products or AI agents is free of charge,  
+but requires official authorization to ensure ecosystem integrity and security.
+
+For authorization requests:  
+**zkeviny@icloud.com**
+
+---
+
 ## **License**
 
 See the LICENSE file for full terms.
 
 © 2026 MirginCipher Team. All rights reserved.
+```
 
 ---
