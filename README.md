@@ -1,9 +1,11 @@
-# **MirginCipher Blackbox (MGC)**  
-A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.
+# **MirginCipher Blackbox (MGC)** — Encrypted AI Agent Execution Layer
+
+A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage. Protect API keys, credentials, and scripts from AI agents with military‑grade AES‑256 encryption.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux-blue)
+![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux%20%7C%20Windows-blue)
 ![MCP](https://img.shields.io/badge/MCP-Compatible-orange)
+![PyPI](https://img.shields.io/badge/PyPI-mgc--blackbox-orange)
 
 ---
 
@@ -23,28 +25,59 @@ MGC ensures:
 
 ## **Why MGC?**
 
-- 🔐 End‑to‑End Encrypted Storage  
-AES‑256 encrypted vault for API keys, credentials, configs — never exposed to AI agents or external systems.
+- 🔐 **End‑to‑End Encrypted Storage**  
+  AES‑256 encrypted vault for API keys, credentials, configs — never exposed to AI agents or external systems.
 
-- 🧱 Local‑First Security Boundary  
-All execution and decryption happen on‑device. No cloud dependency, no plaintext leakage, no telemetry.
+- 🧱 **Local‑First Security Boundary**  
+  All execution and decryption happen on‑device. No cloud dependency, no plaintext leakage, no telemetry.
 
-- 🧩 Sealed Script Execution (Unique)  
-Convert scripts into unreadable execution capsules.
-Only trusted nodes can decrypt & run them — even the sender cannot read sealed scripts.
+- 🧩 **Sealed Script Execution (Unique)**  
+  Convert scripts into unreadable execution capsules.  
+  Only trusted nodes can decrypt & run them — even the sender cannot read sealed scripts.
 
-- ⚡ Deterministic Local Execution  
-Stable, reproducible behavior across macOS / Linux with a Cython‑compiled secure core.
+- ⚡ **Deterministic Local Execution**
+  Stable, reproducible behavior across macOS / Linux with a Cython‑compiled secure core.
 
-- 🛠️ Native MCP / Skill Integration  
-Exposes mgc_save / mgc_get / mgc_list / mgc_open_webui as standard MCP tools.
-Works out‑of‑the‑box with Copilot, Claude, Trae, IDE Agents.
+- 🛠️ **Native MCP / Skill Integration**
+  Exposes mgc_save / mgc_get / mgc_list / mgc_seal / mgc_open_webui as standard MCP tools.
+  Works out‑of‑the‑box with Copilot, Claude, Trae, IDE Agents.
 
-- 🔄 Zero Integration Cost  
-Any MCP‑compatible agent can immediately use MGC as its secure execution backend — no SDK, no custom code.
+- 🔄 **Zero Integration Cost**
+  Any MCP‑compatible agent can immediately use MGC as its secure execution backend — no SDK, no custom code.
 
-- 🛡️ Designed for AI Agent Security  
-Protects human intent, prevents agent overreach, and enforces strict execution boundaries. 
+- 🛡️ **Designed for AI Agent Security**
+  Protects human intent, prevents agent overreach, and enforces strict execution boundaries.
+
+---
+
+## **Use Cases**
+
+### **1. Protect API Keys & Credentials from AI Agents**  
+Store secrets encrypted. Agents can use them, but never see plaintext.
+
+### **2. Secure Local Automation**  
+Run Python / Shell / Node scripts locally without exposing sensitive data to AI logs or cloud systems.
+
+### **3. Sealed Script Distribution**  
+Share scripts with collaborators or devices **without暴露源码** — they can execute but cannot read.
+
+### **4. Cross‑Node Execution**
+Send sealed scripts to trusted remote nodes:
+- Sender cannot read the sealed content
+- Recipient cannot read the sealed content
+- Only the target node can decrypt and execute
+
+Ideal for enterprise automation, multi‑node collaboration, and privacy‑sensitive workflows.
+
+### **5. Local‑First AI Agent Security Boundary**
+Provides a local security layer for Copilot / Claude / Trae / IDE Agents:
+- Local encrypted storage
+- Local execution
+- Local permission control
+- No cloud dependency
+
+### **6. Privacy‑Preserving AI Workflows**
+Enables financial automation, personal data processing, and enterprise internal workflows with privacy protection.
 
 ---
 
@@ -196,6 +229,8 @@ For authorization requests:
 ## **License**
 
 See the LICENSE file for full terms.
+
+mcp-name: io.github.zkeviny/mgc-blackbox
 
 © 2026 MirginCipher Team. All rights reserved.
 ```
