@@ -91,7 +91,7 @@ Agents can:
 - Store sensitive information  
 - Retrieve encrypted items  
 - Execute stored scripts  
-- **Seal scripts for trusted external nodes**  
+- **Seal scripts for trusted nodes (external / local)**  
 - All without unauthorized plaintext access  
 
 MCP configuration:  
