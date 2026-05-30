@@ -59,7 +59,7 @@ Store secrets encrypted. Agents can use them, but never see plaintext.
 Run Python / Shell / Node scripts locally without exposing sensitive data to AI logs or cloud systems.
 
 ### **3. Sealed Script Distribution**  
-Share scripts with collaborators or devices **without暴露源码** — they can execute but cannot read.
+Share scripts with collaborators or devices **without exposing source code** — they can execute but cannot read.
 
 ### **4. Cross‑Node Execution**
 Send sealed scripts to trusted remote nodes:
