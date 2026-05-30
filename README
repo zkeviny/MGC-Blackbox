@@ -5,6 +5,12 @@ MGC provides a trusted device‑level encrypted boundary for agents — **it is 
 
 ---
 
+## Architecture
+
+![MGC Architecture](./assets/architecture.png)
+
+---
+
 ## **Authorization**
 Integration into any third‑party products or AI agents is free of charge,  
 but requires official authorization to ensure ecosystem integrity and security.
