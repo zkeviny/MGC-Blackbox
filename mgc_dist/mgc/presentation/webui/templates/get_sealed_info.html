@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGC Blackbox - SEALED INFO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .content-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .content-text {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-copy {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .btn-copy:hover {
+            background: #2563eb;
+        }
+        .btn-download {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">MGC Blackbox</div>
+            <button class="btn btn-secondary" onclick="location.href='/get'">← Back</button>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button class="btn btn-primary" onclick="location.href='/get'">GET</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Sealed Script</h1>
+        <p style="text-align: center; color: #f59e0b; font-size: 13px; margin-bottom: 20px;">Sealed successfully. Only the target node can run after saving to MGC. Ensure the node is trusted.</p>
+        
+        <div class="content-box">
+            <div class="content-text" id="jsonContent">Loading...</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-copy" onclick="copyContent()">Copy</button>
+            <button class="btn btn-download" onclick="downloadContent()">Download</button>
+            <button class="btn btn-primary" onclick="location.href='/get'">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let sealedData = null;
+
+        function init() {
+            const dataStr = localStorage.getItem('mgc_sealed_data');
+            
+            if (!dataStr) {
+                document.getElementById('jsonContent').textContent = 'No sealed data found';
+                return;
+            }
+
+            try {
+                sealedData = JSON.parse(dataStr);
+                const formattedJson = JSON.stringify(sealedData, null, 2);
+                document.getElementById('jsonContent').textContent = formattedJson;
+            } catch (e) {
+                console.error('Failed to parse sealed data:', e);
+                document.getElementById('jsonContent').textContent = 'Error parsing sealed data';
+            }
+        }
+
+        function copyContent() {
+            if (!sealedData) return;
+            const formattedJson = JSON.stringify(sealedData, null, 2);
+            navigator.clipboard.writeText(formattedJson).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Copy failed');
+            });
+        }
+
+        function downloadContent() {
+            if (!sealedData) return;
+            const formattedJson = JSON.stringify(sealedData, null, 2);
+            const blob = new Blob([formattedJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sealed_script_' + Date.now() + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        init();
+    </script>
+</body>
+</html>
