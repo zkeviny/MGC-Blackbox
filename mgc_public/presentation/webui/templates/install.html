@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGC Blackbox - Installation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans', 'DejaVu Sans', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo {
+            width: 84px;
+            height: 50px;
+            border-radius: 12px;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #8b9dc3;
+            line-height: 1.4;
+        }
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .notice-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .notice-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+        .notice-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #c9d1d9;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 35px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,212,255,0.4);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        .btn-danger {
+            background: rgba(255,59,48,0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255,59,48,0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255,59,48,0.3);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/MGC_LOGO.png" class="logo" alt="MGC Logo">
+        <div class="slogan">
+            A trusted boundary for intent‑safe AI execution.
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="notice-box">
+            <div class="notice-title"># MirginCipher Security Notice</div>
+            <div class="notice-content" id="noticeContent">
+                Loading...
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="startInstall('new_install')">
+                1 - Confirm
+            </button>
+            <button class="btn btn-secondary" onclick="startInstall('reload')">
+                2 - Migrate (database exist)
+            </button>
+            <button class="btn btn-danger" onclick="cancel()">
+                0 - Exit
+            </button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        MGC Blackbox v1.3.3 - A trusted boundary for intent‑safe AI execution.
+    </div>
+    
+    <script>
+        async function startInstall(mode) {
+            try {
+                const response = await fetch('/api/install/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({mode: mode})
+                });
+                const data = await response.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (!response.ok) {
+                    alert('Error: ' + (data.detail || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Error: ' + e);
+            }
+        }
+        
+        async function cancel() {
+            const btn = document.querySelector('.btn-danger');
+            btn.disabled = true;
+            let countdown = 3;
+            btn.innerText = 'Closing (' + countdown + 's)...';
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.innerText = 'Closing (' + countdown + 's)...';
+                } else {
+                    clearInterval(timer);
+                    try {
+                        document.body.innerHTML = '<div style="text-align:center;margin-top:100px;color:#666;">Installation cancelled.</div>';
+                    } catch (e) {}
+                    window.close();
+                    window.location.href = 'about:blank';
+                    setTimeout(() => window.close(), 100);
+                }
+            }, 1000);
+            
+            try {
+                await fetch('/api/install/cancel', {method: 'POST'});
+                await fetch('/api/mgc/service/stop', {method: 'POST'});
+            } catch (e) {}
+        }
+        
+        fetch('/api/install/notice')
+            .then(r => r.text())
+            .then(text => {
+                text = text
+                    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+                    .replace(/^\*(.+)$/gm, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+                document.getElementById('noticeContent').innerHTML = text;
+            });
+    </script>
+</body>
+</html>
