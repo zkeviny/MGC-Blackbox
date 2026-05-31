@@ -35,3 +35,8 @@
 - MCP: Improved UTF-8 encoding for requests.
 - MCP: Filter None values from request payload.
 - Note: MCP tools may not support Chinese content (use WebUI or REST API).
+
+## 1.4.2
+- REMOVED: Remote Gist heartbeat collection (privacy-first).
+- Heartbeat now defaults to OFF; can be enabled via config.
+- Improved security: zero telemetry, local-only operation.
