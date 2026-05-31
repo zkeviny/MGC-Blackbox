@@ -147,19 +147,43 @@ Compilation reduces attack surface and improves performance — not “security 
 
 ## **Quick Start**
 
+### **1. Install**
+
 ```bash
 pip install mgc-blackbox
+```
+
+### **2. Start Service**
+
+```bash
 mgc
 ```
 
-WebUI URL:
+Launches the encrypted execution layer and WebUI.
 
-```
-http://127.0.0.1:<port>
-```
-
-Default port: **57218**  
+Default WebUI port: **57218**  
 If occupied, MGC automatically decrements (`57217`, `57216`, …).
+
+### **3. Open WebUI**
+
+```
+http://127.0.0.1:57218
+```
+
+### **4. Store a Secret**
+
+```python
+from mgc import save
+
+save("openai_key", "sk-xxxx")
+```
+
+Or via WebUI.
+
+### **5. Execute Scripts Securely**
+
+Scripts run inside MGC's encrypted boundary. Result is notified only (success/failure) —  
+output goes to external destinations (files, emails, webhooks, etc.), not returned to the caller.
 
 ---
 
