@@ -1,0 +1,38 @@
+# 远程配置
+remote:
+  region:
+    auto_detect: true
+    manual_region: china
+  china:
+    registry:
+      primary: ""
+      secondary: ""
+    heartbeat:
+      url: "https://pypi.org/pypi/mgc-blackbox/json"
+      timeout: 5
+    version_check:
+      url: "https://pypi.org/pypi/mgc-blackbox/json"
+      timeout: 5
+  global:
+    registry:
+      primary: ""
+      secondary: ""
+    heartbeat:
+      url: ""
+      timeout: 5
+    version_check:
+      url: "https://pypi.org/pypi/mgc-blackbox/json"
+      timeout: 3
+
+#gist_token: "github_pat_xxx"
+
+check:
+  cache_expire: 24
+  cycle: 12
+  timeout: 3
+
+upgrade:
+  max_retry: 3
+  retry_interval: 2
+  max_package_size: 500
+  batch_limit: 3
