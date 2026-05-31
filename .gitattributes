@@ -1,0 +1,10 @@
+# Treat HTML and JSON as documentation (not counted in language stats)
+*.html linguist-documentation
+*.json linguist-documentation
+
+# Force GitHub to treat mgc_public as Python code
+mgc_public/* linguist-detectable=true
+mgc_public/* linguist-language=Python
+
+# Ignore build artifacts
+mgc_dist/* linguist-vendored
