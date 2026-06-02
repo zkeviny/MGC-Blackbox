@@ -1,3 +1,6 @@
+# ✅ **Final English README with Value Scenarios Integrated**
+
+```markdown
 # **MirginCipher Blackbox (MGC)** — Encrypted AI Agent Execution Layer
 
 A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.  
@@ -68,17 +71,27 @@ Send sealed scripts to trusted remote nodes:
 - Recipient cannot read the sealed content  
 - Only the target node can decrypt and execute  
 
-Ideal for enterprise automation, multi‑node collaboration, and privacy‑sensitive workflows.
-
 ### **5. Local‑First AI Agent Security Boundary**  
-Provides a local security layer for Copilot / Claude / Trae / IDE Agents:
-- Local encrypted storage  
-- Local execution  
-- Local permission control  
-- No cloud dependency  
+Provides a local security layer for Copilot / Claude / Trae / IDE Agents.
 
 ### **6. Privacy‑Preserving AI Workflows**  
 Enables financial automation, personal data processing, and enterprise internal workflows with privacy protection.
+
+---
+
+## 📘 **Value Scenarios**
+
+MGC Blackbox provides a **trusted, encrypted execution boundary** for different roles and environments.  
+Detailed scenario documents:
+
+- 🔐 **Sensitive Credentials Authorization**  
+  [docs/Sensitive_Credentials_Authorization.md](docs/Sensitive_Credentials_Authorization.md)
+
+- 🧠 **Encrypted Cognitive Script Execution**  
+  [docs/Encrypted_Cognitive_Script_Execution.md](docs/Encrypted_Cognitive_Script_Execution.md)
+
+- 🌐 **Cross‑Node Execution Grant (Encrypted Capability Sharing)**  
+  [docs/Cross‑Node_Execution_Grant%20(Encrypted_Capability_Sharing).md](docs/Cross‑Node_Execution_Grant%20(Encrypted_Capability_Sharing).md)
 
 ---
 
@@ -94,54 +107,28 @@ Enables financial automation, personal data processing, and enterprise internal 
 
 MGC uses a **hybrid cryptographic design**:
 
-- **AES‑256‑GCM** — bulk data encryption (vault items, sealed script payloads)  
-- **RSA‑2048/4096** — key encapsulation, node authorization, cross‑node execution rights  
+- **AES‑256‑GCM** — bulk data encryption  
+- **RSA‑2048/4096** — key encapsulation & node authorization  
 
-The crypto_layer is **Cython‑compiled** to:
+The crypto layer is **Cython‑compiled** to:
 
-- Improve AES and especially RSA performance  
-- Reduce Python‑level overhead for large integer arithmetic  
+- Improve AES & RSA performance  
+- Reduce Python overhead  
 - Provide a sealed, tamper‑resistant execution boundary  
-- Prevent monkey‑patching and unauthorized modification  
 - Maintain deterministic behavior across nodes  
-
-**Security does not rely on code being hidden.**  
-We rely on standard cryptographic primitives and a clear threat model.  
-Compilation reduces attack surface and improves performance — not “security through obscurity”.
 
 ---
 
 ## **Features**
 
-- **Local encrypted storage**  
-  Sensitive data is encrypted and never uploaded to the cloud.
-
-- **Encrypted execution**  
-  Scripts run inside the encrypted boundary; plaintext is never exposed to AI or external systems.
-
-- **Store‑once authorization**  
-  Items can be reused within the same device environment without repeated confirmation.
-
-- **Environment migration**  
-  If hardware changes, access can be restored using a user‑defined migration key.
-
-- **Cross‑agent availability**  
-  Any agent platform supporting Skills / MCP can integrate with MGC with zero additional development.
-
-- **Cross‑platform support**  
-  Distributed as a Python package with security‑critical components compiled via Cython.
-
-- **No delete function**  
-  MGC treats all stored info as user assets.  
-  To delete: use WebUI → Database Audit → manually delete via DB Browser.
-
-- **Script Sealing (Cross‑Node Execution Rights)**  
-  MGC can **seal scripts** into non‑readable execution capsules:  
-  - Ownership remains with the user  
-  - Execution rights can be granted to trusted external nodes  
-  - Only the target node can decrypt & execute  
-  - Sender cannot read sealed script contents  
-  Enables **secure cross‑node execution without plaintext exposure**.
+- Local encrypted storage  
+- Encrypted execution  
+- Store‑once authorization  
+- Environment migration  
+- Cross‑agent availability  
+- Cross‑platform support  
+- No delete function (manual DB deletion only)  
+- Script sealing for cross‑node execution  
 
 ---
 
@@ -159,11 +146,6 @@ pip install mgc-blackbox
 mgc
 ```
 
-Launches the encrypted execution layer and WebUI.
-
-Default WebUI port: **57218**  
-If occupied, MGC automatically decrements (`57217`, `57216`, …).
-
 ### **3. Open WebUI**
 
 ```
@@ -174,16 +156,12 @@ http://127.0.0.1:57218
 
 ```python
 from mgc import save
-
 save("openai_key", "sk-xxxx")
 ```
 
-Or via WebUI.
-
 ### **5. Execute Scripts Securely**
 
-Scripts run inside MGC's encrypted boundary. Result is notified only (success/failure) —  
-output goes to external destinations (files, emails, webhooks, etc.), not returned to the caller.
+Scripts run inside MGC's encrypted boundary.
 
 ---
 
@@ -208,36 +186,17 @@ MGC exposes a local MCP tools interface:
 - `mgc_seal`  
 - `mgc_open_webui`  
 
-Compatible with:
-
-- Copilot Agent  
-- Claude Agent  
-- Trae Agent  
-- IDE Agents  
-- Custom Agents  
-
-MCP configuration file:  
-`mcp_config.json` (auto‑generated on installation)
+Compatible with Copilot, Claude, Trae, IDE Agents.
 
 ---
 
 ## **Usage Overview**
 
 ### **1. Through AI agents (Skills / MCP)**  
-Agents can:
-
-- Store sensitive information  
-- Retrieve encrypted items  
-- Execute stored scripts  
-- **Seal scripts for trusted nodes (external / local)**  
-- All without unauthorized plaintext access  
+Agents can store secrets, retrieve encrypted items, execute scripts, and seal scripts.
 
 ### **2. Through system scripts (REST API)**  
-External scripts can fetch encrypted items at runtime.  
-Plaintext is never exposed to AI logs or external systems.
-
-For detailed usage:  
-**MGC_GUIDE.md**
+External scripts can fetch encrypted items at runtime.
 
 ---
 
@@ -248,28 +207,21 @@ For detailed usage:
 - No plaintext logging  
 - Deterministic execution  
 - User‑controlled authorization  
-- Protection Mode for high‑security environments  
-- Minimal network usage (only version & health checks)
-
-For safety details:  
-`docs/user_notice.md`
 
 ---
 
 ## **AI Skill Specification**
 
-For AI behavior boundaries and tool definitions:  
-`docs/skill_spec.md`
+See: `docs/skill_spec.md`
 
 ---
 
 ## **Authorization**
 
-Integration into any third‑party products or AI agents is free of charge,  
-but requires official authorization to ensure ecosystem integrity and security.
+Integration into any third‑party products or AI agents is free,  
+but requires official authorization to ensure ecosystem integrity.
 
-For authorization requests:  
-**zkeviny@icloud.com**
+Contact: **zkeviny@icloud.com**
 
 ---
 
