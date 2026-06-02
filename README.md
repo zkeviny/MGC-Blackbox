@@ -209,8 +209,7 @@ External scripts can fetch encrypted items at runtime.
 
 ## **AI Skill Specification**
 
-See: 
-👉 **[docs/skill_spec.md](docs/skill_spec.md)**  
+See: `docs/skill_spec.md`
 
 ---
 
@@ -220,6 +219,11 @@ Integration into any third‑party products or AI agents is free,
 but requires official authorization to ensure ecosystem integrity.
 
 Contact: **zkeviny@icloud.com**
+
+---
+
+## **License**
+
 See the LICENSE file for full terms.
 
 © 2026 MirginCipher Team. All rights reserved.
