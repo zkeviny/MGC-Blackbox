@@ -209,7 +209,8 @@ External scripts can fetch encrypted items at runtime.
 
 ## **AI Skill Specification**
 
-See: `docs/skill_spec.md`
+See: 
+👉 **[docs/skill_spec.md](docs/skill_spec.md)**  
 
 ---
 
