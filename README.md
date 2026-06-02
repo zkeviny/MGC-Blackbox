@@ -8,6 +8,7 @@ Protect API keys, credentials, and scripts from AI agents with AES‑256 + RSA h
 ![MCP](https://img.shields.io/badge/MCP-Compatible-orange)
 ![PyPI](https://img.shields.io/badge/PyPI-mgc--blackbox-orange)
 
+> 📌 **Roadmap:** [MGC Blackbox — 2026 Development Plan](https://github.com/zkeviny/MGC-Blackbox/issues/4)
 ---
 
 ## **What is MGC Blackbox?**
