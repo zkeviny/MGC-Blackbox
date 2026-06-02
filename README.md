@@ -220,11 +220,6 @@ Integration into any third‑party products or AI agents is free,
 but requires official authorization to ensure ecosystem integrity.
 
 Contact: **zkeviny@icloud.com**
-
----
-
-## **License**
-
 See the LICENSE file for full terms.
 
 © 2026 MirginCipher Team. All rights reserved.
