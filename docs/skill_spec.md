@@ -98,6 +98,22 @@ Used for:
 
 ---
 
+## **Ext Field Protocol — MGC Parameter Agreement**
+
+| Field | Usage | Description |
+|-------|-------|-------------|
+| **ext01** | Startup Platform | Script execution command, e.g., "python" |
+| **ext02** | Runtime Args | Parameters passed at script runtime |
+| **ext03** | Sealed Key | RSA-encrypted AES key for sealed script |
+| **ext04** | Node Pub | Target node RSA public key (used in seal) |
+
+### Usage Rules
+- All ext fields (ext01-ext30) are dynamically passed via MCP/API/WebUI
+- ext02 takes effect only when action=run
+- ext04 is required only when action=SEAL (target node public key)
+
+---
+
 # 3. Invocation Model — Who Uses MGC and How
 
 ### **① AI Invocation (via MCP Tools)**  
@@ -143,12 +159,17 @@ Used for:
 {
   "info_type": "token | script | config | ...",
   "info_owner": "unique identifier",
-  "diff_1": "optional",
+  "diff_1": "optional - identifier for multi-entry scenarios",
   "diff_2": "optional",
   "diff_3": "optional",
+  "ext01": "startup command (e.g., python) - required for executable scripts",
+  "ext02": "default script runtime parameters (used when action=run)",
+  "ext03": "optional - target node RSA public key (for sealing)",
   "content": "plaintext to store"
 }
 ```
+
+Note: `ext01` is auto-detected by WebUI. For MCP/API, explicitly set it (e.g., "python"). All ext01-ext30 fields are dynamically passed to API.
 
 ---
 
@@ -162,9 +183,16 @@ Used for:
   "diff_1": "optional",
   "diff_2": "optional",
   "diff_3": "optional",
-  "action": "run"   // optional
+  "action": "run",   // optional: executes script, returns start status only
+  "params": {},      // optional: override runtime parameters (supersedes ext02)
+  "ext01": "startup command (auto-retrieved from storage)",
+  "ext02": "runtime parameters (defaults from storage)",
+  "ext03": "stored sealed RSA key",
+  "ext04": "target node RSA public key (for sealed script runtime)"
 }
 ```
+
+Note: For script execution, MGC returns only "success/failure". All parameters are dynamically passed to API.
 
 ### 🔹 **MGC 1.4 Behavior: Partial Matching Returns Filtered List**  
 If parameters match multiple entries:
@@ -210,7 +238,7 @@ Returned `content` contains PEM public key.
 ```json
 {
   "info_owner": "script identifier",
-  "ext02": "target node RSA public key (PEM)",
+  "ext04": "target node public key (PEM) - stored in ext03 after seal",
   "info_type": "script",
   "diff_1": "optional",
   "diff_2": "optional",
@@ -251,6 +279,7 @@ Token file:
 
 ## **POST /api/mgc/sensitive/save**
 
+**Request:**
 ```json
 {
   "info_type": "...",
@@ -266,6 +295,7 @@ Token file:
 
 Retrieve sensitive data or execute scripts.
 
+**Request:**
 ```json
 {
   "info_type": "...",
@@ -274,11 +304,23 @@ Retrieve sensitive data or execute scripts.
 }
 ```
 
+**Response:**
+```json
+{
+  "code": 200,
+  "msg": "Operation successful",
+  "hint": "Decrypted from MGC. Burn after use.",
+  "data": "decrypted content"
+}
+```
+
 ---
 
 ## **POST /api/mgc/sensitive/get (empty body)**  
+
 List all stored entries (metadata only).
 
+**Request:**
 ```json
 {}
 ```
