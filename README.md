@@ -1,14 +1,27 @@
 # **MirginCipher Blackbox (MGC)** — Encrypted AI Agent Execution Layer
 
+<p align="left">
+  <a href="https://github.com/zkeviny/MGC-Blackbox/issues/4">
+    <img src="https://img.shields.io/badge/Roadmap-2026-blue?style=flat-square" alt="Roadmap">
+  </a>
+  <a href="https://pypi.org/project/mgc-blackbox/">
+    <img src="https://img.shields.io/pypi/v/mgc-blackbox?style=flat-square&color=brightgreen" alt="PyPI Version">
+  </a>
+  <a href="https://github.com/zkeviny/MGC-Blackbox/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MGC--Custom--License-orange?style=flat-square" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/Platforms-MacOS%20%7C%20Linux%20%7C%20Windows-lightgrey?style=flat-square" alt="Platforms">
+  <img src="https://img.shields.io/badge/MCP-Compatible-blueviolet?style=flat-square" alt="MCP Compatible">
+  <a href="https://registry.modelcontextprotocol.io/servers/io.github.zkeviny/mgc-blackbox">
+    <img src="https://img.shields.io/badge/MCP-Registry-000000?style=flat-square" alt="MCP Registry">
+  </a>
+</p>
+
 A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.  
 Protect API keys, credentials, and scripts from AI agents with AES‑256 + RSA hybrid encryption and a Cython‑compiled secure core.
 
-![License](https://img.shields.io/badge/license-MGC--Custom--License-blue)
-![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux%20%7C%20Windows-blue)
-![MCP](https://img.shields.io/badge/MCP-Compatible-orange)
-![PyPI](https://img.shields.io/badge/PyPI-mgc--blackbox-orange)
-
 > 📌 **Roadmap:** [MGC Blackbox — 2026 Development Plan](https://github.com/zkeviny/MGC-Blackbox/issues/4)
+
 ---
 
 ## **What is MGC Blackbox?**
