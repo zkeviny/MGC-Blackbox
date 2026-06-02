@@ -38,5 +38,13 @@
 
 ## 1.4.2
 - REMOVED: Remote Gist heartbeat collection (privacy-first).
+- Disabled hardcoded GitHub PAT token.
 - Heartbeat now defaults to OFF; can be enabled via config.
 - Improved security: zero telemetry, local-only operation.
+
+## 1.4.3
+- Fixed MCP ext parameters not passing to API.
+- Fixed sealed script run returning null.
+- Added minimal response for sealed script execution (security).
+- Updated skill_spec.md with ext field protocol.
+- Updated WebUI seal to use ext04 for node_pub.
