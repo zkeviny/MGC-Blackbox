@@ -1,6 +1,3 @@
-# ✅ **Final English README with Value Scenarios Integrated**
-
-```markdown
 # **MirginCipher Blackbox (MGC)** — Encrypted AI Agent Execution Layer
 
 A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.  
