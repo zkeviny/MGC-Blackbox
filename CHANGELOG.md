@@ -48,3 +48,6 @@
 - Added minimal response for sealed script execution (security).
 - Updated skill_spec.md with ext field protocol.
 - Updated WebUI seal to use ext04 for node_pub.
+
+## 1.4.4
+- Updated project metadata (keywords, classifiers, dependency declarations).
