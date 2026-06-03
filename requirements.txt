@@ -10,3 +10,4 @@ fdb==2.0.4
 requests==2.32.3
 sqlcipher3==0.6.2
 cryptography>=41.0.0
+pycryptodome>=3.19.0
