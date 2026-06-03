@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/MGC_LOGO.png" type="image/png">
+    <title>MGC Blackbox - Installing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans', 'DejaVu Sans', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .logo {
+            width: 84px;
+            height: 50px;
+            border-radius: 12px;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #8b9dc3;
+            line-height: 1.4;
+        }
+        .container {
+            text-align: center;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0,212,255,0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .text {
+            font-size: 24px;
+            color: #00d4ff;
+        }
+        .subtext {
+            margin-top: 10px;
+            color: #8b9dc3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/MGC_LOGO.png" class="logo" alt="MGC Logo" onclick="const l=navigator.language||'';if(l.startsWith('zh'))window.open('https://gitee.com/zkeviny/mgc-blackbox','_blank');else window.open('https://github.com/zkeviny/MGC-Blackbox/discussions','_blank');" style="cursor:pointer"
+        <div class="slogan">
+            A trusted boundary for intent‑safe AI execution.
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="spinner"></div>
+        <div class="text">Installing...</div>
+        <div class="subtext">Please wait while MGC is being configured.</div>
+    </div>
+    
+    <script>
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.pushState(null, null, location.href);
+        };
+        
+        let retryCount = 0;
+        const maxRetries = 12;
+        
+        async function checkStatus() {
+            console.log('Checking MGC service status via proxy...');
+            try {
+                const response = await fetch('/api/mgc/proxy/status', {
+                    method: 'GET'
+                });
+                console.log('Status response:', response.status);
+                if (response.ok) {
+                    const json = await response.json();
+                    console.log('Status data:', json);
+                    retryCount = 0;
+                    if (json.data && json.data.status === 'running') {
+                        window.location.href = '/skill';
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('Status error:', e);
+            }
+            
+            retryCount++;
+            if (retryCount >= maxRetries) {
+                document.querySelector('.container').innerHTML = 
+                    '<div style="color:#ff6b6b;text-align:center;">' +
+                    '<p style="font-size:18px;margin-bottom:15px;">Failed to get MGC status</p>' +
+                    '<p style="font-size:14px;">Please check if MGC started successfully</p>' +
+                    '<button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;cursor:pointer;">Retry</button>' +
+                    '</div>';
+                return;
+            }
+            
+            setTimeout(checkStatus, 5000);
+        }
+        
+        checkStatus();
+    </script>
+</body>
+</html>
