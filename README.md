@@ -23,6 +23,10 @@ Protect API keys, credentials, and scripts from AI agents with AES‑256 + RSA h
 > 📌 **Roadmap:** [MGC Blackbox — 2026 Development Plan](https://github.com/zkeviny/MGC-Blackbox/issues/4)
 
 ---
+🚀 We’re launching on Product Hunt today!
+If you find MGC Blackbox valuable, your support means a lot:
+https://www.producthunt.com/products/mgc-blackbox
+
 
 ## **What is MGC Blackbox?**
 
@@ -232,7 +236,9 @@ See: `docs/skill_spec.md`
 Integration into any third‑party products or AI agents is free,  
 but requires official authorization to ensure ecosystem integrity.
 
-Contact: **zkeviny@icloud.com**
+Contact:
+**mirgincipher@outlook.com**
+**zkeviny@icloud.com**
 
 ---
 
