@@ -1,0 +1,78 @@
+{
+  "name": "secure_slack_bot",
+  "version": "1.0.0",
+  "author": "MirginCipher",
+  "description": "Send Slack messages securely using MGC Blackbox. No plaintext credentials, no leaks.",
+  "category": "Communication",
+  "license": "MIT",
+  "source": "local",
+  "skills": [
+    {
+      "name": "slack_send",
+      "description": "Send a Slack message using stored credentials from MGC Blackbox",
+      "parameters": {
+        "text": {
+          "type": "string",
+          "required": true,
+          "description": "Message text to send"
+        },
+        "channel": {
+          "type": "string",
+          "required": false,
+          "description": "Target channel"
+        },
+        "username": {
+          "type": "string",
+          "required": false,
+          "description": "Custom bot name"
+        },
+        "icon_emoji": {
+          "type": "string",
+          "required": false,
+          "description": "Emoji icon (e.g., :robot:)"
+        },
+        "info_type": {
+          "type": "string",
+          "required": false,
+          "description": "MGC info_type (default: config)"
+        },
+        "info_owner": {
+          "type": "string",
+          "required": false,
+          "description": "MGC info_owner (default: slack_bot)"
+        }
+      }
+    }
+  ],
+  "mcp_tools": [
+    "mgc_save",
+    "mgc_get"
+  ],
+  "example_code": "mgc_get action=run type=script owner=secure_slack_bot",
+  "install": {
+    "pip": ["requests"],
+    "mcp": ["mgc"]
+  },
+  "config": {
+    "webhook_url": {
+      "type": "string",
+      "required": false,
+      "description": "Slack Incoming Webhook URL"
+    },
+    "bot_token": {
+      "type": "string",
+      "required": false,
+      "description": "Bot User OAuth Token"
+    },
+    "default_channel": {
+      "type": "string",
+      "required": false,
+      "description": "Default channel name"
+    }
+  },
+  "security": {
+    "storage": "MGC Blackbox (encrypted)",
+    "zero_exposure": true,
+    "no_plaintext": true
+  }
+}
