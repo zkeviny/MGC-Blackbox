@@ -51,3 +51,7 @@
 
 ## 1.4.4
 - Updated project metadata (keywords, classifiers, dependency declarations).
+
+## 1.4.5
+- Fixed non-sealed script internal MGC API call timeout issue.
+- Changed script execution to non-blocking (return PID immediately).
