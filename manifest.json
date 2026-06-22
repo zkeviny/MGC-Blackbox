@@ -1,6 +1,6 @@
 {
   "name": "mgc-blackbox",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "A trusted local encrypted execution boundary for AI agents. Store encrypted data, retrieve encrypted data, and execute stored scripts in a secure sandbox without exposing plaintext. Supports cross-node script sealing.",
   "author": "MirginCipher Team",
   "license": "MIT",
