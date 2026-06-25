@@ -55,3 +55,8 @@
 ## 1.4.5
 - Fixed non-sealed script internal MGC API call timeout issue.
 - Changed script execution to non-blocking (return PID immediately).
+
+## 1.4.6
+- Added WebUI delete functionality (info_type + diff_1/2/3 conditions).
+- MCP delete tool not supported (prevents AI-triggered deletion).
+- Updated skill spec documentation.
