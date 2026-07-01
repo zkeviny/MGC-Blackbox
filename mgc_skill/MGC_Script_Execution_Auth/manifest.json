@@ -1,0 +1,26 @@
+{
+  "id": "cross_node_script_auth",
+  "version": "1.0.0",
+  "name": "Cross‑Device Encrypted Script Authorization (Zero‑Exposure)",
+  "description": "Zero‑exposure cross‑device script authorization using MGC Blackbox seal functionality. Scripts are encrypted with target node's public key, transferred as ciphertext, and executed only on authorized node. Complete zero‑exposure throughout the entire chain.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["security", "cross-device", "encryption", "zero-exposure", "mgc", "authorization", "seal"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_get", "mgc_seal", "mgc_list", "mgc_open_webui"],
+  "install": "pip install mgc-blackbox",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "cross-device",
+    "encrypted authorization",
+    "script sealing",
+    "zero trust",
+    "delegation"
+  ]
+}
