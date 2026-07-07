@@ -1,0 +1,48 @@
+{
+  "id": "data-analyst-secure-suite",
+  "version": "1.1.0",
+  "name": "Secure Data Analyst Skill Suite",
+  "description": "A secure data analysis workflow suite based on MGC Blackbox, providing credential protection, zero-exposure script application, script sealing collaboration, and knowledge management. Also includes a Data Analyst Agent system prompt template (agent_system_prompt.md) for building secure Data Analyst Agents that follow strict authorization rules.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": [
+    "security",
+    "data analysis",
+    "mgc",
+    "zero-exposure",
+    "local sandbox",
+    "credential management",
+    "script management",
+    "knowledge management",
+    "agent template"
+  ],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_get", "mgc_seal", "mgc_list", "mgc_open_webui"],
+  "install": "pip install mgc-blackbox",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "data analyst",
+    "secure workflow",
+    "credential protection",
+    "script management",
+    "knowledge management",
+    "local sandbox",
+    "agent template"
+  ],
+  "agent_template": {
+    "name": "Secure Data Analyst Agent",
+    "file": "agent_system_prompt.md",
+    "description": "A system prompt template for building a secure Data Analyst Agent, all sensitive operations require explicit user authorization."
+  },
+  "disclaimers": [
+    "This skill suite does not provide automated data access capabilities, all scripts must be user-owned.",
+    "All sensitive operations require explicit user authorization.",
+    "Scripts must comply with organizational security and compliance policies."
+  ]
+}
