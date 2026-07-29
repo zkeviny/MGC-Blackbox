@@ -1,0 +1,26 @@
+{
+  "id": "mgc-task-chain-meta-skill",
+  "name": "多Agent安全协作(单设备)",
+  "version": "1.0.0",
+  "description": "基于 MGC 的单设备多 Agent 任务链协作方法论，提供主 Agent、脚本角色、执行 Agent 的提示词模板，实现敏感资源零暴露的安全协作。",
+  "author": "MirginCipher Team",
+  "tags": ["MGC", "multi-agent", "collaboration", "cooperation", "security", "task-chain"],
+  "runtime": "mgc",
+  "language": "cn",
+  "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+  "repository": "https://github.com/zkeviny/MGC-Blackbox",
+  "license": "MIT",
+  "disclaimers": [
+    "此技能仅提供协作方法论和提示词模板",
+    "此技能不指导agent执行任何敏感操作，所有敏感操作由 MGC 黑盒执行",
+    "此技能依赖 MGC v1.4.7+ ",
+    "Agent 之间的权限差异由提示词约束实现，非 MGC 强制管控",
+    "用户需确保敏感资源通过 MGC WebUI 存入"
+  ],
+  "required_mgc_tools": [
+    "mgc_save",
+    "mgc_run",
+    "mgc_list",
+    "mgc_open_webui"
+  ]
+}

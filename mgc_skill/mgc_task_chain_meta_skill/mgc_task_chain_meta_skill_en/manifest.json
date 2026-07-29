@@ -1,0 +1,26 @@
+{
+  "id": "mgc_task_chain_meta_skill",
+  "name": "Multi-Agent Safe-Cooperation (Single Device)",
+  "version": "1.0.0",
+  "description": "A single-device multi-Agent task chain collaboration methodology based on MGC. Provides prompt templates for Master Agent, Script Agent, and Executor Agent to achieve zero-exposure security collaboration for sensitive resources.",
+  "author": "MirginCipher Team",
+  "tags": ["MGC", "multi-agent", "collaboration", "cooperation", "security", "task-chain"],
+  "runtime": "mgc",
+  "language": "en",
+  "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+  "repository": "https://github.com/zkeviny/MGC-Blackbox",
+  "license": "MIT",
+  "disclaimers": [
+    "This skill only provides collaboration methodology and prompt templates",
+    "This skill does not instruct agents to perform any sensitive operations; all sensitive operations are executed by MGC Blackbox",
+    "This skill requires MGC v1.4.7+",
+    "Permission differences between agents are implemented through prompt constraints, not MGC enforced control",
+    "Users must ensure sensitive resources are stored via MGC WebUI"
+  ],
+  "required_mgc_tools": [
+    "mgc_save",
+    "mgc_run",
+    "mgc_list",
+    "mgc_open_webui"
+  ]
+}
