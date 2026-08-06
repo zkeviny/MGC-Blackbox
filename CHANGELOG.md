@@ -60,3 +60,20 @@
 - Added WebUI delete functionality (info_type + diff_1/2/3 conditions).
 - MCP delete tool not supported (prevents AI-triggered deletion).
 - Updated skill spec documentation.
+
+## 1.4.7
+- NEW MCP tool: `mgc_run` — dedicated script execution. `mgc_get action=run` retained for backward compatibility.
+- WebUI: Hide Delete button for `__NODE_PUB__` row to prevent accidental deletion.
+- WebUI: New Settings dropdown in skill page consolidating Root Key Change, Database Audit, Protection Mode, and Node Public Key viewer.
+- WebUI: New "MGC Skills" button in skill page top bar (blue, language-aware routing to skillhub.cn / clawhub.ai).
+- WebUI: Logo now always links to GitHub repo, no more language-based routing.
+
+## 1.4.8
+- WebUI: Personal key validation — minimum 8 characters required.
+- Fixed retry button state not resetting after validation error on root key change page.
+
+## 1.4.9
+- Added sandbox mode to adapt to sandbox Agents, such as Trae Work and Workbuddy.
+- Added `mgc --status` command to check MGC status and sandbox mode.
+- Fixed Windows stdio MCP Chinese encoding issue.
+- Users can update the MGC version via the WebUI.
