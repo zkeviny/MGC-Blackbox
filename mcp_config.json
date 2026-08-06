@@ -4,7 +4,10 @@
       "command": "mgc",
       "args": [
         "--mcp"
-      ]
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
     }
   }
 }
