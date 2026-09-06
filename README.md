@@ -1,40 +1,25 @@
-# **MirginCipher Blackbox (MGC)** — Encrypted AI Agent Execution Layer
+# **MirginCipher Blackbox (MGC)** — Multi-Agent Cross-Node Privacy Execution Base
 
-<p align="left">
-  <a href="https://github.com/zkeviny/MGC-Blackbox/issues/4">
-    <img src="https://img.shields.io/badge/Roadmap-2026-blue?style=flat-square" alt="Roadmap">
-  </a>
-  <a href="https://pypi.org/project/mgc-blackbox/">
-    <img src="https://img.shields.io/pypi/v/mgc-blackbox?style=flat-square&color=brightgreen" alt="PyPI Version">
-  </a>
-  <a href="https://github.com/zkeviny/MGC-Blackbox/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MGC--Custom--License-orange?style=flat-square" alt="License">
-  </a>
-  <img src="https://img.shields.io/badge/Platforms-MacOS%20%7C%20Linux%20%7C%20Windows-lightgrey?style=flat-square" alt="Platforms">
-  <img src="https://img.shields.io/badge/MCP-Compatible-blueviolet?style=flat-square" alt="MCP Compatible">
-  <a href="https://registry.modelcontextprotocol.io/servers/io.github.zkeviny/mgc-blackbox">
-    <img src="https://img.shields.io/badge/MCP-Registry-000000?style=flat-square" alt="MCP Registry">
-  </a>
-</p>
+A local encrypted execution base for **multi-agent, cross-node, privacy-preserving task execution** — sensitive operations never leave the device in plaintext; scripts, files, and skill / workflow folders can be sealed and dispatched across trusted nodes without exposing source code.
 
-A secure local execution layer for AI agents — encrypted storage, sealed scripts, zero plaintext leakage.  
-Protect API keys, credentials, and scripts from AI agents with AES‑256 + RSA hybrid encryption and a Cython‑compiled secure core.
+![License](https://img.shields.io/badge/license-MGC--Custom--License-blue)
+![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux%20%7C%20Windows-blue)
+![MCP](https://img.shields.io/badge/MCP-Compatible-orange)
+![PyPI](https://img.shields.io/badge/PyPI-mgc--blackbox-orange)
 
 > 📌 **Roadmap:** [MGC Blackbox — 2026 Development Plan](https://github.com/zkeviny/MGC-Blackbox/issues/4)
-
 ---
 
 ## **What is MGC Blackbox?**
 
-MirginCipher Blackbox (MGC) is a **Local Encrypted Execution Layer** designed to protect sensitive human intent and enable **secure, deterministic AI execution**.  
-It provides a trusted device‑level encrypted boundary for agents — **MGC is not an agent itself**.
+MirginCipher Blackbox (MGC) is a **Multi-Agent Cross-Node Privacy Execution Base**. It is **not an agent itself** — it is the encrypted execution layer underneath your agents.
 
-MGC ensures:
+MGC provides:
 
-- Sensitive data never leaves the device  
-- AI agents cannot access plaintext  
-- Scripts execute inside a sealed, encrypted environment  
-- Cross‑node execution is possible without exposing code  
+- A local encrypted execution base for AI agents, system scripts, and human users
+- Cross-node task delegation via sealed, node-bound script capsules
+- Zero plaintext leakage: secrets stay inside the encrypted boundary
+- A trusted device-level boundary shared by Copilot / Claude / Trae / IDE Agents  
 
 ---
 
@@ -46,15 +31,15 @@ MGC ensures:
 - 🧱 **Local‑First Security Boundary**  
   All execution and decryption happen on‑device. No cloud dependency, no plaintext leakage, no telemetry.
 
-- 🧩 **Sealed Script Execution (Unique)**  
-  Convert scripts into unreadable execution capsules.  
-  Only trusted nodes can decrypt & run them — even the sender cannot read sealed scripts.
+- 🧩 **Sealed Script & Folder Execution (Unique)**  
+  Convert scripts, files, and skill / workflow folders into unreadable, node-bound execution capsules.  
+  Only the target node can decrypt & run them — neither sender nor third parties can read the source.
 
 - ⚡ **Deterministic Local Execution**  
   Stable, reproducible behavior across macOS / Linux / Windows with a Cython‑compiled secure core.
 
 - 🛠️ **Native MCP / Skill Integration**  
-  Exposes mgc_save / mgc_get / mgc_list / mgc_seal / mgc_open_webui as standard MCP tools.  
+  Exposes mgc_save / mgc_get / mgc_list / mgc_run / mgc_find / mgc_package / mgc_seal_package / mgc_open_webui as standard MCP tools.  
   Works out‑of‑the‑box with Copilot, Claude, Trae, IDE Agents.
 
 - 🔄 **Zero Integration Cost**  
@@ -87,6 +72,9 @@ Provides a local security layer for Copilot / Claude / Trae / IDE Agents.
 
 ### **6. Privacy‑Preserving AI Workflows**  
 Enables financial automation, personal data processing, and enterprise internal workflows with privacy protection.
+
+### **7. Skill / Workflow Folder Sealing**  
+Bulk-import a skill / workflow folder via `mgc_save(info_type='file', content=<local folder path>)`, then ship it as a sealed `.mgc_file` via `mgc_seal_package` — the recipient node decrypts and runs each script in its own encrypted boundary, with no source code exposure.
 
 ---
 
@@ -191,11 +179,14 @@ print(get("openai_key"))
 
 MGC exposes a local MCP tools interface:
 
-- `mgc_save`  
-- `mgc_get`  
-- `mgc_list`  
-- `mgc_seal`  
-- `mgc_open_webui`  
+- `mgc_save` — store secrets, scripts, files, or folder snapshots  
+- `mgc_get` — retrieve encrypted content  
+- `mgc_list` — browse stored entries  
+- `mgc_run` — execute a stored script in the encrypted boundary  
+- `mgc_find` — fuzzy-search entries by `info_type` / `info_owner` / `diff_1..3`  
+- `mgc_package` — bundle a folder into a sealed `.mgc_file`  
+- `mgc_seal_package` — ship a sealed package to a trusted node  
+- `mgc_open_webui` — open the local WebUI  
 
 Compatible with Copilot, Claude, Trae, IDE Agents.
 
@@ -218,6 +209,7 @@ External scripts can fetch encrypted items at runtime.
 - No plaintext logging  
 - Deterministic execution  
 - User‑controlled authorization  
+- Sandbox mode support (fallback hardware fingerprint for restricted environments)  
 
 ---
 
@@ -232,9 +224,7 @@ See: `docs/skill_spec.md`
 Integration into any third‑party products or AI agents is free,  
 but requires official authorization to ensure ecosystem integrity.
 
-Contact:
-**mirgincipher@outlook.com**
-**zkeviny@icloud.com**
+Contact: **mirgincipher@outlook.com**
 
 ---
 
