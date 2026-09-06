@@ -13,9 +13,10 @@ import os
 import asyncio
 import shutil
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,6 +53,10 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# 挂载升级 API
+from mgc.presentation.webui.update_router import router as update_router
+app.include_router(update_router)
 
 install_state = {
     "mode": None,
@@ -99,6 +104,10 @@ async def root():
     if _is_initialized():
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/skill")
+    # DB_KEY 解密失败时，直接跳转到 root-key 页
+    if os.environ.get("MGC_DB_KEY_DECRYPT_FAILED") == "1":
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/root-key?reason=db_key_failed")
     return await load_template("install.html")
 
 
@@ -111,8 +120,15 @@ async def root_key_page():
 
 
 @app.get("/installing", response_class=HTMLResponse)
-async def installing_page():
-    if _is_initialized():
+async def installing_page(updating: Optional[str] = Query(None)):
+    # Upgrade flow: ?updating=1 bypasses the _is_initialized guard so the
+    # user lands on the installing/updating spinner page and waits for the
+    # new mgc to come up (the page itself polls and auto-redirects to
+    # /skill when ready). Without this bypass, the route returns 302 to
+    # /skill the moment the user clicks the update confirm button,
+    # because the old mgc is still healthy for the first ~3s before
+    # delayed_stop fires.
+    if updating != "1" and _is_initialized():
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/skill")
     return await load_template("installing.html")
@@ -120,7 +136,12 @@ async def installing_page():
 
 @app.get("/skill", response_class=HTMLResponse)
 async def skill_page():
-    return await load_template("skill.html")
+    try:
+        from mgc import __version__
+        version = __version__
+    except Exception:
+        version = "1.5.0"
+    return await load_template("skill.html", current_version=version)
 
 
 @app.get("/save", response_class=HTMLResponse)
@@ -151,6 +172,41 @@ async def get_sealed_info_page():
 @app.get("/root-key-change", response_class=HTMLResponse)
 async def root_key_change_page():
     return await load_template("root_key_change.html")
+
+
+# Change log page and API endpoint.
+# Single source of truth: the package's CHANGELOG.md (shipped with the
+# wheel). Falls back to the developer's repo-root CHANGELOG.md when the
+# package-relative file is missing (e.g. running from source tree).
+
+
+def _read_changelog_text() -> Optional[str]:
+    """Return CHANGELOG.md text. Prefer package-relative path, then repo root.
+
+    Returns None when neither file exists.
+    """
+    from mgc.config.path_config import CHANGELOG_FILE, REPO_CHANGELOG_FILE
+    for path in (CHANGELOG_FILE, REPO_CHANGELOG_FILE):
+        if path.is_file():
+            try:
+                return path.read_text(encoding="utf-8")
+            except Exception:
+                continue
+    return None
+
+
+@app.get("/change-log", response_class=HTMLResponse)
+async def change_log_page():
+    return await load_template("change_log.html")
+
+
+@app.get("/api/changelog")
+async def changelog_get():
+    """Return CHANGELOG.md as markdown. 404 if missing on disk."""
+    text = _read_changelog_text()
+    if text is None:
+        raise HTTPException(status_code=404, detail="Changelog not found")
+    return PlainTextResponse(text, media_type="text/markdown; charset=utf-8")
 
 
 @app.get("/api/install/status")
@@ -190,6 +246,9 @@ async def start_install(data: StartInstallRequest):
 async def submit_root_key(data: RootKeyRequest):
     if not data.personal_key or not data.weight_param:
         raise HTTPException(status_code=400, detail="Personal key and weight required")
+
+    if len(data.personal_key) < 8:
+        raise HTTPException(status_code=400, detail="Personal key must be at least 8 characters")
 
     if len(data.weight_param) != 1 or not data.weight_param.isdigit():
         raise HTTPException(status_code=400, detail="Weight must be single digit 1-9")
@@ -285,6 +344,9 @@ async def verify_root_key(data: RootKeyVerifyRequest):
 @app.post("/api/root-key/change")
 async def change_root_key(data: RootKeyChangeRequest):
     try:
+        if len(data.new_personal_key) < 8:
+            return {"status": "failed", "message": "New personal key must be at least 8 characters"}
+
         from mgc.core.mgc_service.root_key_change_service import RootKeyChangeService
         from mgc.core.mgc_service.database.database_handler import DatabaseHandler
 
@@ -501,10 +563,54 @@ async def proxy_mgc_get(req: Request):
     return {"code": 500, "msg": "Unknown error"}
 
 
+@app.post("/api/mgc/proxy/delete")
+async def proxy_mgc_delete(req: Request):
+    import urllib.request
+    import json
+    import logging
+    logger = logging.getLogger("MirginCipher")
+    try:
+        body = await req.json()
+        token = req.headers.get("x-mgc-token", "")
+        logger.info(f"proxy_mgc_delete called")
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["X-MGC-Token"] = token
+        data = json.dumps(body).encode("utf-8")
+        logger.info(f"proxy_mgc_delete sending to 57219: {list(body.keys())}")
+        request_obj = urllib.request.Request(
+            "http://127.0.0.1:57219/api/mgc/sensitive/delete",
+            data=data,
+            headers=headers,
+            method="POST"
+        )
+        with urllib.request.urlopen(request_obj, timeout=10) as response:
+            result = response.read().decode()
+            logger.info(f"proxy_mgc_delete response: {response.status}")
+            if response.status == 200:
+                return json.loads(result)
+    except urllib.error.HTTPError as e:
+        try:
+            error_body = e.read().decode()
+            logger.error(f"proxy_mgc_delete HTTPError {e.code}: {error_body[:500]}")
+            return json.loads(error_body)
+        except Exception:
+            logger.error(f"proxy_mgc_delete HTTPError {e.code}: {str(e)}")
+            return {"code": e.code, "msg": str(e)}
+    except Exception as e:
+        logger.error(f"proxy_mgc_delete error: {e}")
+        return {"code": 500, "msg": str(e)}
+    return {"code": 500, "msg": "Unknown error"}
+
+
 @app.get("/api/user/settings")
 async def get_user_settings():
     from mgc.config.user_settings import get_protection_mode
-    return {"protection_mode": get_protection_mode()}
+    from mgc.domain.crypto_layer.hardware_fingerprint import is_sandbox_mode
+    return {
+        "protection_mode": get_protection_mode(),
+        "sandbox_mode": is_sandbox_mode()
+    }
 
 
 @app.post("/api/user/settings")
@@ -570,11 +676,16 @@ async def shutdown():
         stop_event.set()
 
 
-async def load_template(name: str) -> str:
+async def load_template(name: str, **kwargs) -> str:
     path = os.path.join(TEMPLATES_DIR, name)
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
-            return f.read()
+            content = f.read()
+        # 简单字符串替换：支持 {{ var_name or "default" }} 语法
+        for key, value in kwargs.items():
+            placeholder = "{{ " + key + " }}"
+            content = content.replace(placeholder, str(value))
+        return content
     return get_default_template(name)
 
 
