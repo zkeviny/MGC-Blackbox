@@ -1,379 +1,110 @@
-# 📘 **MGC Blackbox — AI Skill / User Guide**
+# 📘 MGC Blackbox — User Guide
+
+**Version 1.5.0**
+
+A local encrypted execution base for AI agents, system scripts, and human users to store, retrieve, run, and delegate sensitive data or scripts — without unauthorized plaintext exposure.
+
+For the full specification, see [`mgc/docs/skill_spec.md`](mgc/docs/skill_spec.md). This guide covers the essentials only.
 
 ---
 
-# 1. Overview — What MGC Blackbox Is  
-**MGC Blackbox is a local encrypted execution layer.**  
-It allows AI agents, system scripts, and human users to **store, execute, and delegate sensitive information or scripts without ever exposing plaintext**.
+## Install & Run
 
-Core capabilities:
-
-- Store sensitive data (tokens, passwords, configs)  
-- Store scripts (logic, workflows, automation)  
-- Execute stored scripts with optional parameters  
-- Seal scripts for delegated execution (ownership retained)  
-- List stored entries (metadata only)  
-- Open WebUI for human operations  
-
-All data is encrypted locally.  
-**AI can execute but can never read plaintext.**
-
----
-
-# 2. Installation & Runtime — How to Install and Run MGC
-
-## 2.1 Install MGC Blackbox
-
-**Via pip (recommended):**
 ```bash
 pip install mgc-blackbox
-```
-
-Ensure installation happens in the same Python environment where your MCP agent runs.
-
----
-
-## 2.2 Run MGC in normal mode
-
-Start MGC as a standalone local service:
-
-```bash
 mgc
 ```
 
-Default behavior:
+WebUI starts at `http://127.0.0.1:57218` (auto-decrements if occupied; actual port shown in startup log).
 
-- Starts HTTP server at `http://127.0.0.1:57219`  
-- Initializes encrypted database on first run  
-- Generates access token at:  
-  `~/.mgc/database/mgc_black_box/.mgc_token`
-
-This token is required for all REST API calls.
+**First-time setup**: open WebUI, set the **root key** (human-memorized phrase) that encrypts the local database.
 
 ---
 
-## 2.3 Run MGC as an MCP server
+## Three Invocation Channels
 
-If your agent supports MCP, configure:
+| Caller | Channel | Typical use |
+|---|---|---|
+| AI agent | MCP tools | Store / retrieve / run / seal / seal-package |
+| System script | REST API | Embed in CI / cron / internal services |
+| Human | WebUI | Setup, manual entry, audit |
 
-```json
-{
-  "mcpServers": {
-    "mgc-blackbox": {
-      "command": "mgc",
-      "args": ["--mcp"]
-    }
-  }
-}
-```
-
-In MCP mode:
-
-- MGC exposes tools:  
-  `mgc_save`, `mgc_get`, `mgc_list`, `mgc_seal`, `mgc_open_webui`  
-- AI interacts **only** through MCP tools  
-- REST API is still available for system scripts
+All three share the same encrypted backend; no plaintext crosses the API surface for stored entries.
 
 ---
 
-## 2.4 WebUI access
+## MCP Tools (AI agent)
 
-When MGC is running, WebUI is available at:
-
-```
-http://127.0.0.1:57218
-```
-
-⚠️ **Port conflict resolution**: If port 57218 is occupied, MGC will automatically try 57217, 57216... sequentially.
-
-**Tip**: Check the WebUI address in the MGC startup output for the exact URL.
-
-Used for:
-
-- Initialization  
-- Manual storage  
-- Metadata inspection  
-- Database Audit (for manual deletion)  
-- Logs & settings  
+| Tool | Purpose |
+|---|---|
+| `mgc_save` | Store an entry (info_type + info_owner + content). For `info_type='file'`, content is a local folder path or a `.mgc_file` path. |
+| `mgc_get` | Retrieve / list / run an entry. Actions: `run` (script), `package` / `seal_package` (folder). Prefer the dedicated tools below. |
+| `mgc_run` | Execute a stored script. Returns `pid + status` only; observe results via stdout / files / external services. |
+| `mgc_find` | Fuzzy-search entries. **Single-field only** — `info_type` cannot be combined with other filters. |
+| `mgc_list` | List all entries (metadata only). |
+| `mgc_seal` | Seal a single script for another node (RSA-wrapped AES key in `ext04`). |
+| `mgc_package` | Export a stored folder as plaintext. |
+| `mgc_seal_package` | Seal a folder into a `.mgc_file` (max 100 files / 50 MB). |
+| `mgc_open_webui` | Open WebUI in browser. |
 
 ---
 
-## **Ext Field Protocol — MGC Parameter Agreement**
+## REST API (system scripts)
 
-| Field | Usage | Description |
-|-------|-------|-------------|
-| **ext01** | Startup Platform | Script execution command, e.g., "python" |
-| **ext02** | Runtime Args | Parameters passed at script runtime |
-| **ext03** | Sealed Key | RSA-encrypted AES key for sealed script |
-| **ext04** | Node Pub | Target node RSA public key (used in seal) |
+**Base URL**: `http://127.0.0.1:57218`  
+**Header**: `X-MGC-Token: <token>` (token at `~/.mgc/database/mgc_black_box/.mgc_token`)
 
-### Usage Rules
-- All ext fields (ext01-ext30) are dynamically passed via MCP/API/WebUI
-- ext02 takes effect only when action=run
-- ext04 is required only when action=SEAL (target node public key)
+| Endpoint | Purpose |
+|---|---|
+| `POST /api/mgc/sensitive/save` | Store an entry |
+| `POST /api/mgc/sensitive/get` | Retrieve / list / run an entry (with `action` field) |
+| `POST /api/mgc/proxy/get` | Package / seal-package a folder |
 
 ---
 
-# 3. Invocation Model — Who Uses MGC and How
+## Key Concepts
 
-### **① AI Invocation (via MCP Tools)**  
-Used when AI needs to:
+### Fields
 
-- Store sensitive information  
-- Retrieve sensitive information (encrypted execution)  
-- Execute stored scripts  
-- Seal scripts for other nodes  
-- List stored entries  
-- Open the WebUI  
+- `info_type`: `password` / `token` / `api_key` / `script` / `config` / `file`
+- `info_owner`: who + where (e.g. `"user's GitHub"`, `"Amy's Aliyun"`)
+- `diff_1` / `diff_2` / `diff_3`: differentiate entries with same type + owner
+- `ext01`–`ext07`: script-specific metadata; `ext03` carries RSA-wrapped AES key for sealed scripts; `ext05` lists dependencies; `ext06` lists compatible platforms; `ext07` records source node's public key for sealed packages
 
----
+### Cross-node delegation
 
-### **② System / Script Invocation (via REST API)**  
-Used when:
+When Node A sends a sealed script / folder to Node B, **Node B's MGC decrypts and runs it locally**. No plaintext leaves Node B's boundary.
 
-- External scripts need sensitive data at runtime  
-- Automated workflows need to execute stored scripts  
-- System-level integrations require secure credential access  
+⚠️ Before running a sealed script on Node B, verify that:
+- dependencies in `ext05` are installed on Node B (MGC does **not** install them automatically)
+- the OS in `ext06` is supported on Node B
 
----
+Otherwise `mgc_run` will return `DEP_MISSING` or `PLATFORM_INCOMPAT` warnings and the script may fail.
 
-### **③ Human Invocation (via WebUI)**  
-Used for:
+### Workflows by chained calls
 
-- First-time initialization  
-- Manual storage  
-- Metadata inspection  
-- Manual deletion (via DB Audit)  
-- Viewing logs  
+A stored script can call MGC's HTTP API to invoke another stored script or read a stored config — so credentials never leave MGC. Any caller works: AI agent, CI job, system script, or another stored script.
 
 ---
 
-# 4. MCP Tools — AI-Callable Interfaces
+## AI Behavior Boundaries
+
+AI **must not**:
+- Print, repeat, or store plaintext
+- Display script contents or internal encrypted data
+
+AI **may**:
+- Call `mgc_save` / `mgc_get` / `mgc_run` / `mgc_find` / `mgc_list` / `mgc_seal` / `mgc_package` / `mgc_seal_package`
+- Guide the user to fill required fields
+- Present execution results (which the AI reads from stdout / files / external services, not from MGC's response)
 
 ---
 
-## **mgc_save — Store Sensitive Data or Scripts**
+## Error Handling
 
-**Arguments:**  
-```json
-{
-  "info_type": "token | script | config | ...",
-  "info_owner": "unique identifier",
-  "diff_1": "optional - identifier for multi-entry scenarios",
-  "diff_2": "optional",
-  "diff_3": "optional",
-  "ext01": "startup command (e.g., python) - required for executable scripts",
-  "ext02": "default script runtime parameters (used when action=run)",
-  "ext03": "optional - target node RSA public key (for sealing)",
-  "content": "plaintext to store"
-}
-```
+| Status | Meaning | Action |
+|---|---|---|
+| `NOT_FOUND` | Entry not found | Use `mgc_find` / `mgc_list` to discover |
+| Connection failed | MGC not running | MCP auto-starts (~15s); retry |
 
-Note: `ext01` is auto-detected by WebUI. For MCP/API, explicitly set it (e.g., "python"). All ext01-ext30 fields are dynamically passed to API.
-
----
-
-## **mgc_get — Retrieve Sensitive Data or Execute Scripts**
-
-**Arguments:**  
-```json
-{
-  "info_type": "token | script | ...",
-  "info_owner": "unique identifier",
-  "diff_1": "optional",
-  "diff_2": "optional",
-  "diff_3": "optional",
-  "action": "run",   // optional: executes script, returns start status only
-  "params": {},      // optional: override runtime parameters (supersedes ext02)
-  "ext01": "startup command (auto-retrieved from storage)",
-  "ext02": "runtime parameters (defaults from storage)",
-  "ext03": "stored sealed RSA key",
-  "ext04": "target node RSA public key (for sealed script runtime)"
-}
-```
-
-Note: For script execution, MGC returns only "success/failure". All parameters are dynamically passed to API.
-
-### 🔹 **MGC 1.4 Behavior: Partial Matching Returns Filtered List**  
-If parameters match multiple entries:
-
-- No sensitive content is returned  
-- A filtered metadata list is returned  
-- AI must ask user to refine selection  
-
----
-
-## **mgc_list — List Stored Entries (Metadata Only)**
-
-**Arguments:**  
-```json
-{
-  "info_type": "optional",
-  "info_owner": "optional",
-  "diff_1": "optional",
-  "diff_2": "optional",
-  "diff_3": "optional"
-}
-```
-
----
-
-## **mgc_seal — Seal Script for Delegated Execution**
-
-### **Prerequisite: Retrieve target node’s public key**
-
-```json
-{
-  "name": "mgc_get",
-  "arguments": {
-    "info_type": "__NODE_PUB__",
-    "info_owner": "__NODE_PUB__"
-  }
-}
-```
-
-Returned `content` contains PEM public key.
-
-### **Seal Arguments:**  
-```json
-{
-  "info_owner": "script identifier",
-  "ext04": "target node public key (PEM) - stored in ext03 after seal",
-  "info_type": "script",
-  "diff_1": "optional",
-  "diff_2": "optional",
-  "diff_3": "optional"
-}
-```
-
----
-
-## **mgc_open_webui — Open Local WebUI**
-
-Opens WebUI in the default browser. Default port is 57218 (or lower if occupied).
-
-```json
-{}
-```
-
----
-
-# 5. REST API — System / Script Integration
-
-**Base URL:**  
-```
-http://127.0.0.1:57219
-```
-
-**Header:**  
-```
-X-MGC-Token: <token>
-```
-
-Token file:  
-```
-~/.mgc/database/mgc_black_box/.mgc_token
-```
-
----
-
-## **POST /api/mgc/sensitive/save**
-
-**Request:**
-```json
-{
-  "info_type": "...",
-  "info_owner": "...",
-  "content": "...",
-  "update_if_exists": true
-}
-```
-
----
-
-## **POST /api/mgc/sensitive/get**
-
-Retrieve sensitive data or execute scripts.
-
-**Request:**
-```json
-{
-  "info_type": "...",
-  "info_owner": "...",
-  "action": "run"
-}
-```
-
-**Response:**
-```json
-{
-  "code": 200,
-  "msg": "Operation successful",
-  "hint": "Decrypted from MGC. Burn after use.",
-  "data": "decrypted content"
-}
-```
-
----
-
-## **POST /api/mgc/sensitive/get (empty body)**  
-
-List all stored entries (metadata only).
-
-**Request:**
-```json
-{}
-```
-
----
-
-# 6. Trigger Rules — When AI Should Use Which Tool
-
-- “Save this token/password/script” → **mgc_save**  
-- “Run my script X” → **mgc_get (action=run)**  
-- “What do I have stored?” → **mgc_list**  
-- “Seal this script for node B” → **mgc_seal**  
-- “Open the interface” → **mgc_open_webui**  
-
----
-
-# 7. Security Model — How MGC Protects Data
-
-- All data is encrypted locally  
-- AI can execute but never read plaintext  
-- Seal is irreversible  
-- Execution rights ≠ ownership  
-- Content never leaves the device in plaintext  
-- Script execution happens inside the encrypted boundary  
-
----
-
-# 8. Delete Policy (MGC 1.4)
-
-**MGC considers all info stored in the Blackbox as the user’s valuable assets,  
-so delete functionality is NOT provided.**
-
-To delete manually:
-
-1. Open WebUI → Database Audit  
-2. Retrieve the database key  
-3. Use DB Browser to manually delete entries  
-
-This prevents:
-
-- Accidental deletion  
-- AI-triggered deletion  
-- Unauthorized deletion  
-
----
-
-# 9. Error Handling
-
-| Status | Meaning | AI Action |
-|--------|---------|-----------|
-| NOT_FOUND | Entry not found | Use mgc_list or ask user |
-| MULTIPLE_MATCHES | Partial match | Present filtered list |
-| Connection failed | MGC not running | MCP auto-starts |
-| Initialization required | First-time setup | Call mgc_open_webui |
-
----
+For the full error code list, see `skill_spec.md`.
