@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0
+- **Folder workflow & cross-node delegation**：Support bulk-storage of skill / workflow folders, and cross-node authorization via sealed folder packages, using `mgc_package` (plain export) or `mgc_seal_package` (sealed `.mgc_file`).
+- **Script intelligence & experience- When saving a script, MGC now auto-extracts its third-party dependency list**: into `ext05` and its compatible platform list into `ext06`.
+- **Documentation**: Updated `mgc/docs/skill_spec.md` to reflect the latest capabilities (folder workflow, sealed packages, script intelligence, cross-node delegation).
+
 ## 1.0.0
 - Core functionality completed: internal encrypted execution and plaintext storage/retrieval interfaces.
 - External scripts can call and operate on internal encrypted information.
@@ -77,3 +82,9 @@
 - Added `mgc --status` command to check MGC status and sandbox mode.
 - Fixed Windows stdio MCP Chinese encoding issue.
 - Users can update the MGC version via the WebUI.
+
+## 1.4.10
+- When a script is stored, MGC automatically parses and extracts its args.
+- WebUI experience optimizations.
+- NEW MCP tool: `mgc_find` — fuzzy-search entries with auto-applied LIKE wildcards (`match_mode`: substring / prefix / suffix / exact). `mgc_list` retained for backward compatibility.
+- Updated `mgc_seal` MCP tool schema description.
