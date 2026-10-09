@@ -1,6 +1,6 @@
 # 📘 MGC Blackbox — User Guide
 
-**Version 1.5.0**
+**Version 1.5.3**
 
 A local encrypted execution base for AI agents, system scripts, and human users to store, retrieve, run, and delegate sensitive data or scripts — without unauthorized plaintext exposure.
 
