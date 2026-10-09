@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.3
+- Improved first-time setup experience: introduced interactive CLI initialization flow and a strong random key generator for personal key / weight parameter, lowering the barrier for new users.
+
+## 1.5.2
+- Fixed several issues when MGC executes sealed workflows.
+
+## 1.5.1
+- **Cross-script auto-recognition in skill packages & workflows** — when a skill package or workflow is stored, MGC now automatically detects how scripts inside it call each other (`import`, `from-import`, relative-path subprocess). At runtime, those cross-script calls are intercepted and routed through sealed execution, so the whole package runs as a coherent workflow with no plaintext on disk. The same auto-recognition also works seamlessly with sealed cross-node delivery — the receiving node runs the package locally, without re-importing or rewriting the original workflow.
+
 ## 1.5.0
 - **Folder workflow & cross-node delegation**：Support bulk-storage of skill / workflow folders, and cross-node authorization via sealed folder packages, using `mgc_package` (plain export) or `mgc_seal_package` (sealed `.mgc_file`).
 - **Script intelligence & experience- When saving a script, MGC now auto-extracts its third-party dependency list**: into `ext05` and its compatible platform list into `ext06`.
