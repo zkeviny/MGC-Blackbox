@@ -1,0 +1,77 @@
+{
+  "id": "seal-workflow-licensing-en",
+  "spec": "usk/3.0",
+  "version": "1.2.0",
+  "name": "Seal and License Workflows or Skill Packages (Anti-Piracy, Node-Authorized Delivery)",
+  "description": "For small-system and workflow local delivery scenarios: seal Python script collections into single-node-authorized local packages. Scripts keep their original code (import / relative paths / subprocess all supported) — MGC 1.5.2 auto-routes through sealed execution. Delivered packages cannot be read, modified, or resold. Zero cloud, zero exposure.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["anti-piracy", "encrypted-delivery", "zero-exposure", "workflow-licensing", "local-delivery", "node-authorized", "sealed-cross-script", "auto-recognized-workflow", "script-sales", "small-system-delivery", "knowledge-products", "mgc", "blackbox"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_open_webui"],
+  "requirements": {
+    "mgc_version": ">=1.5.2"
+  },
+  "install": "pip install mgc-blackbox>=1.5.2",
+  "runtime": "mgc",
+  "port": 57219,
+  "files": {
+    "skill": "SKILL.md",
+    "readme": "README.md",
+    "example_dir": "example/"
+  },
+  "example": {
+    "path": "./example",
+    "entry": "script_d.py",
+    "scripts": [
+      {"name": "config_a.py", "role": "config", "called_by": ["script_b", "script_c", "script_d"]},
+      {"name": "script_b.py", "role": "importer", "calls": ["config_a"]},
+      {"name": "script_c.py", "role": "subprocess_caller", "calls": ["config_a"]},
+      {"name": "script_d.py", "role": "driver", "calls": ["script_b", "script_c"]}
+    ],
+    "covers_ext08": [
+      "from_import",
+      "import",
+      "subprocess_literal_list",
+      "path_relative"
+    ]
+  },
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "sell python script",
+    "small system delivery",
+    "workflow licensing",
+    "sealed delivery",
+    "anti-piracy",
+    "no-rewrite sealing",
+    "sealed cross-script import",
+    "auto-recognized workflow",
+    "local delivery",
+    "one key per node",
+    "node-locked",
+    "MGC sealed package"
+  ],
+  "changelog": [
+    {
+      "version": "1.2.0",
+      "changes": [
+        "Upgraded to MGC 1.5.2: included ext08 auto-recognition and sealed cross-script import",
+        "Added market scenario opener (script sales / small system delivery / workflow licensing / knowledge products)",
+        "Added problem-to-solution map (hardcoded paths, config dependencies, missing libraries, platform incompatibility)",
+        "Added error code handling (DIFF2_MISMATCH / DEP_MISSING / PLATFORM_INCOMPAT)",
+        "Rewrote Rule 1: changed from 'forbidden paths' to 'same-package paths auto-sealed'",
+        "Added tags/keywords: sealed-cross-script, auto-recognized-workflow, script-sales, small-system-delivery, local-delivery, one-key-per-node"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "Initial release. Based on MGC 1.5.0, introduces sealing & licensing of skill packages / workflow folders"
+      ]
+    }
+  ]
+}

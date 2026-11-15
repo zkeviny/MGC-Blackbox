@@ -1,0 +1,82 @@
+{
+  "id": "data-analyst-secure-suite",
+  "version": "1.3.0",
+  "name": "Secure Data Analyst Skill Suite",
+  "description": "A secure data analysis workflow suite based on MGC Blackbox 1.5.2+, providing credential protection, zero-exposure script & workflow application, sealed-package collaboration, and knowledge management. Supports MGC 1.5.2 workflow auto-recognition (import / from-import / relative paths / subprocess runtime routing). Includes a Data Analyst Agent system prompt template.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": [
+    "security",
+    "data analysis",
+    "mgc",
+    "zero-exposure",
+    "local sandbox",
+    "credential management",
+    "workflow management",
+    "sealed collaboration",
+    "knowledge management",
+    "agent template",
+    "fuzzy search",
+    "auto-recognized workflow",
+    "sealed cross-script"
+  ],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_list", "mgc_find", "mgc_open_webui"],
+  "install": "pip install mgc-blackbox>=1.5.2",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "data analyst",
+    "secure workflow",
+    "credential protection",
+    "workflow management",
+    "sealed collaboration",
+    "knowledge management",
+    "local sandbox",
+    "agent template",
+    "fuzzy search",
+    "workflow sealing"
+  ],
+  "agent_template": {
+    "name": "Secure Data Analyst Agent",
+    "file": "agent_system_prompt.md",
+    "description": "A system prompt template for building a secure Data Analyst Agent. All sensitive operations require explicit user authorization."
+  },
+  "disclaimers": [
+    "This skill suite does not provide automated data access; all scripts must be user-owned.",
+    "All sensitive operations require explicit user authorization.",
+    "Scripts must comply with organizational security and compliance policies."
+  ],
+  "changelog": [
+    {
+      "version": "1.3.0",
+      "changes": [
+        "Upgraded to MGC 1.5.2+: added mgc_save_file (workflow folder storage), mgc_seal_package (workflow sealing), mgc_package (plaintext packaging).",
+        "Script management refactor: upgraded from single-script to workflow-folder mode, with import/from-import/relative-path/subprocess auto-recognition.",
+        "Added prompts/collaboration_management.md: dedicated workflow / skill-package sealed-authorization guide.",
+        "Credential management: unified info_type from 'credential' to 'token' to align with skill_spec.",
+        "Agent template: workflow examples upgraded from 5-step manual chain to find -> save_file -> run pattern.",
+        "Added sealed-collaboration chapter (mgc_seal_package one-click seal of an entire workflow).",
+        "Added recognizable cross-script patterns table (from-import / import / Path / subprocess).",
+        "MCP tools list expanded to 10 (added mgc_save_file, mgc_seal_package, mgc_package)."
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "changes": [
+        "Synced with MGC Blackbox 1.4.10: added mgc_find (fuzzy search) and mgc_run (preferred over mgc_get action=run).",
+        "Script management: replaced mgc_get(action='run') with dedicated mgc_run tool.",
+        "Script management: added mgc_find workflow for locating scripts by name.",
+        "Script sealing: clarified ext04 must be a multi-line PEM public key.",
+        "Credential management: added mgc_find workflow.",
+        "Knowledge management: added mgc_find workflow.",
+        "Agent system prompt: documented the find -> get/run workflow pattern."
+      ]
+    }
+  ]
+}

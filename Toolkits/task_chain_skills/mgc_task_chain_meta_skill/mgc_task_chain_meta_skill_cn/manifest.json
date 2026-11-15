@@ -1,0 +1,48 @@
+{
+  "id": "mgc_task_chain_meta_skill",
+  "name": "多Agent安全协作(单设备)",
+  "version": "1.1.0",
+  "description": "基于 MGC 的单设备多 Agent 任务链协作方法论，提供主 Agent、脚本角色、执行 Agent 的提示词模板，实现敏感资源零暴露的安全协作。适配 MGC 1.4.10（mgc_find 模糊搜索、ext02 自动解析、mgc_run 黑盒执行）。",
+  "author": "MirginCipher Team",
+  "tags": ["MGC", "multi-agent", "collaboration", "cooperation", "security", "task-chain", "zero-exposure"],
+  "runtime": "mgc",
+  "language": "cn",
+  "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+  "repository": "https://github.com/zkeviny/MGC-Blackbox",
+  "license": "MIT",
+  "disclaimers": [
+    "此技能仅提供协作方法论和提示词模板",
+    "此技能不指导agent执行任何敏感操作，所有敏感操作由 MGC 黑盒执行",
+    "此技能依赖 MGC v1.4.10",
+    "Agent 之间的权限差异由提示词约束实现，非 MGC 强制管控",
+    "用户需确保敏感资源通过 MGC WebUI 存入",
+    "ext02 必须是 JSON 数组字符串（如 [\"--flag\",\"value\"]），不得用 dict 风格"
+  ],
+  "required_mgc_tools": [
+    "mgc_save",
+    "mgc_run",
+    "mgc_list",
+    "mgc_find",
+    "mgc_open_webui"
+  ],
+  "changelog": [
+    {
+      "version": "1.1.0",
+      "changes": [
+        "升级至适配 MGC 1.4.10",
+        "修正 mgc_run ext02 签名：必须为 JSON 数组字符串（与 1.4.10 argparse 自动解析对齐）",
+        "新增 mgc_find 模糊搜索工具支持",
+        "补充 ext02 自动解析说明（1.4.10）：脚本角色存好脚本后可省略 ext02",
+        "补充 mgc_run 只返回 pid+status 不返回 stdout 的提示",
+        "补充 1.4.9 沙箱模式注意事项",
+        "更新 MGC 主技能文档路径为 WebUI 'MGC Skills' 按钮入口"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "初始版本，提供主 Agent / 脚本角色 / 执行 Agent 提示词模板"
+      ]
+    }
+  ]
+}

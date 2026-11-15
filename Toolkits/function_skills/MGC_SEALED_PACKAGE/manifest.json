@@ -1,0 +1,46 @@
+{
+  "id": "seal-and-license-workflow-skills",
+  "usk": "3.0",
+  "version": "1.0.0",
+  "name": "Seal and License Workflows or Skill Packages (Anti‑Piracy, Node‑Authorized Delivery)",
+  "name_zh": "技能包/工作流防盗版授权（加密交付、节点授权）",
+  "description": "Seal skill packages and workflow folders so they execute only on authorized nodes — no read, no modify, no resell. 100% local, single‑node bound, zero‑exposure IP protection powered by MGC Blackbox 1.5.0+.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["security", "encryption", "zero-exposure", "ip-protection", "sealed-package", "anti-piracy", "node-authorized", "encrypted-delivery", "workflow-licensing", "skill-licensing", "single-node-license", "no-resell", "mgc", "blackbox"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_open_webui"],
+  "requirements": {
+    "mgc_version": ">=1.5.0"
+  },
+  "install": "pip install mgc-blackbox",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "seal workflow",
+    "license script",
+    "anti-piracy AI skill",
+    "node-locked execution",
+    "sealed skill package",
+    "encrypted workflow delivery",
+    "prevent resell",
+    "single node license",
+    "MGC seal package",
+    "IP protection AI workflow"
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "changes": [
+        "Initial release — teaching skill for sealing and licensing skill packages / workflows through MGC 1.5.0+",
+        "Covers author side and consumer side workflows",
+        "Defines three critical rules for IP-safe cross-node delivery"
+      ]
+    }
+  ]
+}

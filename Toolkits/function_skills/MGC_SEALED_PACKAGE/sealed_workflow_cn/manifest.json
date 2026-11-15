@@ -1,0 +1,78 @@
+{
+  "id": "sealed-workflow-licensing-cn",
+  "spec": "usk/3.0",
+  "version": "1.2.0",
+  "name": "工作流防盗版授权（加密交付、节点授权）",
+  "name_en": "Seal and License Workflows or Skill Packages (Anti-Piracy, Node-Authorized Delivery)",
+  "description": "针对小系统与工作流本地交付场景，把 Python 脚本集合密封为单节点授权的本地包：脚本可保持原貌（import / 相对路径 / subprocess 均支持），MGC 1.5.2 自动密封路由；交付包无法被读取、改写、二次转售，全链路零云端、零暴露。",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["安全", "加密交付", "防盗版", "零暴露", "工作流授权", "本地交付", "单节点授权", "密封跨脚本", "工作流自动识别", "脚本销售", "小系统交付", "知识产品", "mgc", "blackbox"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_open_webui"],
+  "requirements": {
+    "mgc_version": ">=1.5.2"
+  },
+  "install": "pip install mgc-blackbox>=1.5.2",
+  "runtime": "mgc",
+  "port": 57219,
+  "files": {
+    "skill": "SKILL.md",
+    "readme": "README.md",
+    "example_dir": "example/"
+  },
+  "example": {
+    "path": "./example",
+    "entry": "script_d.py",
+    "scripts": [
+      {"name": "config_a.py", "role": "config", "called_by": ["script_b", "script_c", "script_d"]},
+      {"name": "script_b.py", "role": "importer", "calls": ["config_a"]},
+      {"name": "script_c.py", "role": "subprocess_caller", "calls": ["config_a"]},
+      {"name": "script_d.py", "role": "driver", "calls": ["script_b", "script_c"]}
+    ],
+    "covers_ext08": [
+      "from_import",
+      "import",
+      "subprocess_literal_list",
+      "path_relative"
+    ]
+  },
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "脚本销售",
+    "小系统交付",
+    "工作流授权",
+    "密封交付",
+    "防盗版",
+    "零改造密封",
+    "密封跨脚本导入",
+    "工作流自动识别",
+    "本地交付",
+    "一次一密",
+    "节点绑定",
+    "MGC 密封包"
+  ],
+  "changelog": [
+    {
+      "version": "1.2.0",
+      "changes": [
+        "升级适配 MGC 1.5.1：纳入 ext08 工作流自动识别与密封跨脚本导入",
+        "新增市场场景开篇（脚本销售 / 小系统交付 / 工作流授权 / 知识产品）",
+        "新增问题-方案对照表（路径硬编码、配置依赖、依赖库未装、平台不兼容）",
+        "新增错误码处理（DIFF2_MISMATCH / DEP_MISSING / PLATFORM_INCOMPAT）",
+        "重写关键规则 1：从「禁止路径」改为「同包路径自动密封」",
+        "tags/keywords 新增：密封跨脚本、工作流自动识别、脚本销售、小系统交付、本地交付、一次一密"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "初始版本，基于 MGC 1.5.0 介绍技能包 / 工作流文件夹的密封与授权"
+      ]
+    }
+  ]
+}

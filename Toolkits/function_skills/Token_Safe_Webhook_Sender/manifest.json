@@ -1,0 +1,51 @@
+{
+  "id": "token_safe_webhook_sender",
+  "version": "1.2.0",
+  "name": "Webhook Token Security (Zero‑Exposure Edition)",
+  "description": "Secure webhook token management using MGC Blackbox. Supports DingTalk, WeCom, Feishu, Telegram, Slack and more. Two execution modes: local script with MGC-stored config, or full zero-exposure via mgc_run. Tokens never exposed to AI models.",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "category": "Developer Tools",
+  "tags": ["webhook", "token", "security", "credential-management", "zero-exposure", "mgc", "dingtalk", "wecom", "feishu", "telegram", "slack"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "source": "local",
+  "skills": [
+    {
+      "name": "webhook_token_security",
+      "description": "Manage webhook tokens securely using MGC Blackbox",
+      "parameters": {}
+    }
+  ],
+  "mcp_tools": ["mgc_save", "mgc_run", "mgc_list", "mgc_open_webui", "mgc_seal"],
+  "install": {
+    "pip": ["mgc-blackbox>=1.4.9"],
+    "mcp": ["mgc"]
+  },
+  "security": {
+    "storage": "MGC Blackbox (encrypted)",
+    "zero_exposure": true,
+    "no_plaintext": true,
+    "no_executable_code": true
+  },
+  "links": {
+    "github": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "changelog": [
+    {
+      "version": "1.2.0",
+      "changes": [
+        "Add mgc_run full zero-exposure execution mode (Mode B)",
+        "Add mgc_open_webui / mgc_list / mgc_seal tool references",
+        "Document ext02 message-passing parameter",
+        "Adapt to MGC 1.4.9 (sandbox mode note, Windows MCP encoding fix)",
+        "Unify info_type to config; require MGC 1.4.9+"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "changes": ["Initial release with webhook token zero-exposure pattern"]
+    }
+  ]
+}

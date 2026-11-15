@@ -1,0 +1,67 @@
+{
+  "id": "secure_script_runner",
+  "version": "1.1.1",
+  "name": "安全脚本运行器（零暴露沙箱）",
+  "description": "使用 MGC Blackbox 实现脚本零暴露运行。脚本加密存储，黑盒执行，AI 零暴露。支持 MCP (mgc_run) / API / WebUI 执行、内部凭据调用、脚本密封。含 MGC 1.4.9 临时绕行规范。此技能仅在用户明确授权时执行脚本，不会自动执行任何脚本。",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["安全", "脚本", "零暴露", "mgc", "沙箱", "执行", "黑盒执行"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_run", "mgc_list", "mgc_seal", "mgc_open_webui"],
+  "install": "pip install mgc-blackbox>=1.4.9",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "脚本执行",
+    "零信任",
+    "沙箱",
+    "加密执行",
+    "脚本密封",
+    "黑盒执行"
+  ],
+  "disclaimers": [
+    "此技能仅在用户明确授权时执行脚本。",
+    "此技能不会自动执行任何脚本。",
+    "此技能不会自动调用任何凭据。",
+    "执行脚本前请确认脚本来源可信。",
+    "用户必须承担执行风险。",
+    "MGC 1.4.9 存在 ext02 参数解析与 stdout 阻塞等已知问题，请按文档中的临时绕行规范编写脚本，后续版本将修复。"
+  ],
+  "changelog": [
+    {
+      "version": "1.1.1",
+      "changes": [
+        "新增 MGC 1.4.9 临时绕行方案章节（parse_known_args / _strip_quotes / 输出走文件）",
+        "补充 ext02 参数格式建议（正斜杠路径、T 替代空格）",
+        "提供完整脚本模板",
+        "标注已知问题将在后续版本修复"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "changes": [
+        "核心流程升级：使用 mgc_run 黑盒执行脚本",
+        "移除 mgc_get(action=run) 的推荐用法",
+        "增加 ext02 参数传递规范",
+        "适配 MGC 1.4.9 沙箱模式"
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "changes": [
+        "安全修复更新：添加强安全警告、权限边界、脚本来源审查流程",
+        "删除危险的安全声明",
+        "添加授权要求说明"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": ["初始版本，零暴露脚本执行"]
+    }
+  ]
+}

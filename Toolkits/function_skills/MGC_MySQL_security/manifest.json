@@ -1,0 +1,72 @@
+{
+  "id": "mgc_database_security",
+  "version": "1.2.0",
+  "name": "Database Credential Security (Zero‑Exposure Edition)",
+  "description": "Secure database credential management using MGC Blackbox 1.4.10. Supports MySQL, PostgreSQL, SQLite, MariaDB and other databases. Credentials are stored encrypted; local scripts retrieve them via HTTP API at runtime, while AI agents never touch plaintext (true zero‑exposure via mgc_run blackbox execution).",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "category": "Developer Tools",
+  "tags": ["database", "mysql", "postgresql", "sqlite", "mariadb", "security", "credential-management", "zero-exposure", "mgc", "mgc_run", "mgc_find"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "source": "local",
+  "skills": [
+    {
+      "name": "mysql_security",
+      "description": "Manage MySQL credentials securely using MGC Blackbox",
+      "parameters": {}
+    }
+  ],
+  "mcp_tools": ["mgc_save", "mgc_run", "mgc_list", "mgc_find", "mgc_seal", "mgc_open_webui"],
+  "install": {
+    "pip": ["mgc-blackbox>=1.4.10"],
+    "mcp": ["mgc"]
+  },
+  "security": {
+    "storage": "MGC Blackbox (encrypted)",
+    "zero_exposure": true,
+    "no_plaintext": true,
+    "no_executable_code": true,
+    "note": "AI agents must NEVER call mgc_get to retrieve credentials. Credentials are read by local scripts inside MGC blackbox execution via mgc_run; AI only sees SQL results."
+  },
+  "changelog": [
+    {
+      "version": "1.2.0",
+      "changes": [
+        "Upgraded to adapt to MGC 1.4.10",
+        "Refactored zero-exposure flow: AI calls mgc_run, local script reads config via HTTP API; credentials never enter AI context",
+        "Replaced mgc_get with mgc_run for executing sealed scripts (1.4.7+ blackbox)",
+        "Added mgc_find (1.4.10 fuzzy search) and mgc_open_webui to mcp_tools; removed mgc_get",
+        "Documented mgc_seal ext02/ext03 packaging (1.4.10 auto-parse) and multi-line PEM requirement for ext04",
+        "Added update_if_exists=true for credential rotation",
+        "Added 1.4.9 sandbox mode note",
+        "Updated MGC main skill doc reference to WebUI MGC Skills button (1.4.7+)",
+        "Templates updated with parse_known_args and JSON array ext02 contract"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "changes": [
+        "Added complete example section with workflow templates",
+        "Added comprehensive troubleshooting section",
+        "Added FAQ section",
+        "Added anti-patterns section",
+        "Added when-to-use / when-not-to-use sections",
+        "Added capability boundary explanation",
+        "Added advanced scenarios section",
+        "Added templates for SKILL.md and local scripts"
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "changes": [
+        "Updated to emphasize MCP tools over CLI"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "Initial release with MySQL zero-exposure pattern"
+      ]
+    }
+  ]
+}

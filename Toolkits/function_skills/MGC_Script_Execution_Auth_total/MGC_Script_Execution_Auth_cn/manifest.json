@@ -1,0 +1,55 @@
+{
+  "id": "cross_node_script_auth",
+  "version": "1.1.0",
+  "name": "脚本跨设备加密授权（零暴露）",
+  "description": "使用 MGC Blackbox 密封功能实现零暴露跨设备脚本授权。脚本使用目标节点 RSA 公钥加密，以密文形式传输，仅在授权节点执行时解密。完整覆盖 1.4.10 的 mgc_run 黑盒执行、ext02 自动解析、mgc_find 模糊搜索等能力。",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "tags": ["安全", "跨设备", "加密", "零暴露", "mgc", "授权", "密封", "RSA"],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "mcp_tools": ["mgc_save", "mgc_run", "mgc_seal", "mgc_list", "mgc_find", "mgc_open_webui"],
+  "install": "pip install mgc-blackbox>=1.4.9",
+  "runtime": "mgc",
+  "port": 57219,
+  "links": {
+    "homepage": "https://github.com/zkeviny/MGC-Blackbox",
+    "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
+    "contact": "mirgincipher@outlook.com"
+  },
+  "keywords": [
+    "跨设备",
+    "加密授权",
+    "脚本密封",
+    "零信任",
+    "委托",
+    "RSA",
+    "黑盒执行"
+  ],
+  "changelog": [
+    {
+      "version": "1.1.0",
+      "changes": [
+        "升级至适配 MGC 1.4.10",
+        "执行密封脚本改用 mgc_run（1.4.7+）替代 mgc_get(action=run)",
+        "补充 ext02 自动解析（1.4.10）：密封时 argparse 默认参数会打包到 ext_02",
+        "补充 mgc_seal 必填参数修正：info_type 改为可选，ext04 必须为多行 PEM",
+        "新增 mgc_find 模糊搜索工具（1.4.10）",
+        "WebUI 获取 node_pub 流程更新：Settings → Node Public Key 可直接查看",
+        "新增 update_if_exists 参数说明，目标节点可覆盖同名脚本",
+        "新增 1.4.9 沙箱模式简要提示"
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "changes": [
+        "明确 node_pub 懒生成机制的差异（MCP/API vs WebUI）"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "初始版本，跨设备加密脚本授权"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "key_safe_skill_generator",
+  "version": "1.3.0",
+  "name": "Key‑Safe Skill Generator (Zero‑Exposure Edition)",
+  "description": "A documentation‑only meta‑skill that teaches AI agents how to generate secure, zero‑exposure skills using MGC Blackbox 1.4.10 for credential management. Credentials are stored encrypted; local scripts read them via HTTP API at runtime, while AI agents never touch plaintext (true zero‑exposure via mgc_run blackbox execution).",
+  "author": "MirginCipher Team",
+  "license": "MIT",
+  "category": "Developer Tools",
+  "tags": [
+    "zero-exposure",
+    "key-safe",
+    "mgc",
+    "security",
+    "credential-management",
+    "skill-generator",
+    "meta-skill",
+    "mgc_run",
+    "mgc_find"
+  ],
+  "platform_compatibility": ["windows", "macos", "linux"],
+  "source": "local",
+  "skills": [
+    {
+      "name": "skill_builder",
+      "description": "Provides conceptual guidance for generating zero-exposure skills using MGC Blackbox",
+      "parameters": {}
+    }
+  ],
+  "mcp_tools": ["mgc_save", "mgc_run", "mgc_list", "mgc_find", "mgc_seal", "mgc_open_webui"],
+  "install": {
+    "pip": ["mgc-blackbox>=1.4.9"],
+    "mcp": ["mgc"]
+  },
+  "security": {
+    "zero_exposure": true,
+    "no_plaintext": true,
+    "no_executable_code": true,
+    "note": "AI agents must NEVER call mgc_get to retrieve credentials. Credentials are read by local scripts inside MGC blackbox execution via mgc_run; AI only sees operation results."
+  },
+  "changelog": [
+    {
+      "version": "1.3.0",
+      "changes": [
+        "Upgraded to adapt to MGC 1.4.10",
+        "Refactored zero-exposure flow: AI calls mgc_run, local script reads config via HTTP API; credentials never enter AI context",
+        "Replaced mgc_get with mgc_run for executing sealed scripts (1.4.7+ blackbox)",
+        "Added mgc_find (1.4.10 fuzzy search) and mgc_open_webui to mcp_tools; removed mgc_get",
+        "Documented mgc_seal returning {content, ext_01, ext_02, ext_03} dict, ext02 auto-parse, multi-line PEM requirement for ext04",
+        "Added update_if_exists=true for credential updates",
+        "Fixed Invalid key format troubleshooting (was incorrectly saying single-line, must be multi-line PEM)",
+        "Added 1.4.9 sandbox mode note",
+        "Updated MGC main skill doc reference to WebUI MGC Skills button (1.4.7+) and mgc --status",
+        "Templates updated with parse_known_args and HTTP API pattern",
+        "Added two anti-patterns (AI calling mgc_get, password as ext02)"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "changes": [
+        "Added complete example section with copy‑and‑paste templates",
+        "Added comprehensive FAQ section",
+        "Added anti‑patterns section with correct practices",
+        "Added troubleshooting section",
+        "Added when to use / when not to use sections",
+        "Restructured to recommended format",
+        "Added mgc_seal to mcp_tools"
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "changes": [
+        "Updated to emphasize MCP tools over CLI",
+        "Added install and mcp_tools fields"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "changes": [
+        "Initial release with conceptual workflow and USK v3 structure"
+      ]
+    }
+  ]
+}
