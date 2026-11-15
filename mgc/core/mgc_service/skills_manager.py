@@ -409,7 +409,7 @@ class SkillsManager:
 
             try:
                 request = Request(
-                    "https://api.github.com/repos/zkeviny/MirginCipher/releases/latest",
+                    "https://api.github.com/repos/zkeviny/MGC-Blackbox/releases/latest",
                     headers={'User-Agent': 'MirginCipher/1.0'}
                 )
                 
