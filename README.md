@@ -198,6 +198,29 @@ MGC exposes a local MCP tools interface:
 - `mgc_open_webui` — open the local WebUI  
 - `mgc_skill` — return the bundled skill document (`skill_spec.md`) for the agent  
 
+### Quick Start
+
+```bash
+pip install mgc-blackbox
+mgc --mcp
+```
+
+`mgc --mcp` starts the server in **stdio mode**. Add it to any MCP-compatible client with this config:
+
+```json
+{
+  "mcpServers": {
+    "mgc-blackbox": {
+      "command": "mgc",
+      "args": ["--mcp"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
+```
+
 Compatible with Copilot, Claude, Trae, IDE Agents.
 
 ---
