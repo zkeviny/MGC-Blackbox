@@ -4,9 +4,12 @@ Copyright © 2026 MirginCipher Team
 This software includes proprietary components owned by the MirginCipher Team.
 All rights are reserved unless explicitly granted in the LICENSE file.
 
-This project provides a local encrypted execution environment designed to protect
-sensitive human intent. No part of the MGC core system may be modified,
-redistributed, or used to create derivative works without official authorization.
+This project provides an encrypted task delivery and execution tool for multi-agent,
+cross-device workflows. It protects sensitive human intent, scripts, and
+credentials by ensuring that no plaintext leaves the device and that delegated scripts
+can only be executed — never read — by the target node. No part of the MGC core system
+may be modified, redistributed, or used to create derivative works without official
+authorization.
 
 Use of this software is subject to the terms described in:
 - LICENSE (legal terms and restrictions)

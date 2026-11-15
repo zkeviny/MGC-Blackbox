@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.6.0
+- **Chain mode — split one task across multiple devices**: one orchestrated task can now be split into one sealed sub-package per target node — each node receives only the files it was granted, and can decrypt and run only those. Useful when a single workflow needs several devices to cooperate, with each device seeing only its own part of the task. Producing nodes need mgc 1.6.0+; receiving nodes only need 1.5.4+.
+- **A2A protocol adaptation**: sealed packages can now be converted to and from A2A 1.0 structures, so a task package can travel over agent-to-agent messaging. MGC itself does not handle transport — the agent decides how the package travels.
+- **Skill spec updated**: new chain mode coverage in the skill document — when to use it, how to seal for multiple nodes, and how a receiving node imports and runs its sub-package.
+
+## 1.5.4
+- **Seal free mode**: a single script or workflow file can now be sealed without passing `node_pub`; the package stays encrypted but any mgc node can import it and run.
+- **Link authorization**: sealed packages are bound to the source node; any modification to the package prevents it from being decrypted and run again.
+- **New MCP tool: `mgc_delete`**: agents can delete a record stored in mgc by calling `mgc_delete` after the user has explicitly approved.
+- **Linux compatibility fixes**: several platform-specific bugs on Linux are resolved, so sealed workflows that already worked on macOS / Windows now behave the same on Linux.
+- **Cross-folder workflow auto-recognition**: same-folder script imports and cross-folder subprocess calls are now fully recognised when saving a workflow, so the whole package can be executed under sealed mode without plain text on disk.
+- **`mgc_run` no longer requires `diff_1`**
+- **`mgc_seal` exports a sealed capsule file**
+- **Breaking change**: output_dir is now required for all seal/package operations. Existing automations that relied on the default output location must be updated.
+
 ## 1.5.3
 - Improved first-time setup experience: introduced interactive CLI initialization flow and a strong random key generator for personal key / weight parameter, lowering the barrier for new users.
 

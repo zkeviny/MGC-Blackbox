@@ -1,10 +1,10 @@
 ---
-name: MGC Blackbox (Multi-Agent Cross-Node Privacy Execution Base)
+name: MGC Blackbox (Multi-Agent Cross-Device Task Encryption, Execution & Delivery Tool)
 id: mgc-blackbox
 usk: 3.0
-version: 1.5.3
+version: 1.6.0
 author: MirginCipher Team
-description: Local encrypted execution base for multi-agent, cross-node, privacy-preserving task execution. Zero-exposure layer for storing tokens, passwords, configs, and scripts — including sealed script packages for cross-device delegation.
+description: Encrypted task delivery and execution tool for multi-agent, cross-device workflows. Local encrypted storage for tokens, passwords, configs, and scripts — including sealed script packages for cross-device delegation.
 tags:
   - security
   - credentials
@@ -25,6 +25,8 @@ mcp_tools:
   - mgc_seal
   - mgc_seal_package
   - mgc_package
+  - mgc_delete
+  - mgc_skill
   - mgc_open_webui
 install: pip install mgc-blackbox
 runtime: mgc
@@ -277,6 +279,34 @@ You (Node A)                              Target Node B
 - The OS in `ext06` is in the supported list
 
 Otherwise the script may fail at runtime with `DEP_MISSING` or `PLATFORM_INCOMPAT`.
+
+## 2.6 Chain Mode (1.6.0+) — One Task, Several Devices
+
+Chain mode splits one task into **one sealed sub-package per target node**; each node can read and run only the files it was granted. Pass a JSON **array** of targets as `ext04` to `mgc_seal_package`:
+
+```json
+[
+  {"node_pub": "<Node B PEM>", "files": ["scripts/prepare.py", "data/input.csv"]},
+  {"node_pub": "<Node C PEM>", "files": ["scripts/analyze.py"]}
+]
+```
+
+- `files` must match the stored relative paths (`diff_3`) **exactly**. For long specs, write the JSON to a file and pass `@/absolute/path/targets.json` instead of inline. `ext04` is a sealing-time instruction only — never stored, never travels with the package.
+- Sealing produces one delivery folder: `task_package_NN/` per node, plus a master `README.md` and `distribution_index.json` (per-package `sha256` and granted file list — verify after transport).
+- Send each node only its own sub-package. The receiver imports it the usual way: `mgc_save_file(path="<the .mgc_file>")`, then `mgc_run(info_owner=<manifest's info_owner>)`.
+- Only scripts are encrypted; non-script files (text / data / config) stay plaintext inside their sub-package. Limits: 100 files / 50 MB per package.
+- Producing a chain package requires mgc 1.6.0+; receiving nodes only need 1.5.4+.
+
+**Three sealing modes** (`ext09`): `p2p mode` (default, bound to one node's `node_pub`), `free mode` (sealed without `ext04`, any MGC node can run it), `chain mode` (above).
+
+## 2.7 Carrying a Sealed Package over A2A
+
+MGC **does not implement any transport**. It produces a self-contained `.mgc_file`; how it reaches the other node — A2A message, HTTP upload, shared folder, email — is the agent's choice.
+
+1. **Keep the `.mgc_file` extension** — import dispatches on it.
+2. **Verify `sha256` before importing**, using `distribution_index.json`.
+3. **Never put a key in the transport message** — the receiver's public key is used at sealing time, so no symmetric key ever appears in transit.
+4. **Send a pointer, not the payload** — a URL or shared-path reference plus instructions; payloads embedded in message bodies can be truncated or re-encoded, and they consume the receiver's context budget.
 
 ---
 

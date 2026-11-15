@@ -1,6 +1,6 @@
-# MGC Blackbox — Multi‑Agent Cross‑Node Privacy Execution Base
+# MGC Blackbox — Multi‑Agent Cross‑Device Task Encryption, Execution & Delivery Tool
 
-> **Version 1.5.3** · Local encrypted execution base for AI agents, system scripts, and human users — store, execute, and delegate sensitive data, scripts, and entire workflows across trusted nodes **without ever exposing plaintext**. Auto-recognition, sealed cross-script imports, and 1.5.2 enhancements (first-run UX, sandbox mode).
+> **Version 1.6.0** · Encrypted task delivery and execution for AI agents, system scripts, and human users — store, execute, and delegate sensitive data, scripts, and entire workflows across trusted devices **without ever exposing plaintext**. Chain mode splits one task into one sealed sub-package per device; A2A adaptation lets packages travel over agent-to-agent messaging.
 
 ## What This Skill Is
 
@@ -126,7 +126,7 @@ mgc_run(info_owner="weather_report", ext02='["--city", "Shanghai"]')
 
 ---
 
-## MCP Tools (1.5.3)
+## MCP Tools (1.6.0)
 
 | Tool | Description |
 |------|-------------|
@@ -139,9 +139,14 @@ mgc_run(info_owner="weather_report", ext02='["--city", "Shanghai"]')
 | `mgc_seal` | Seal a single script for cross-node delegation |
 | `mgc_seal_package` | Seal a folder package for cross-node delegation |
 | `mgc_package` | Export a folder as a plaintext archive (same-trust-boundary backup) |
+| `mgc_delete` | Delete a stored entry (requires explicit user approval) |
+| `mgc_skill` | Return the installed skill document |
 | `mgc_open_webui` | Open WebUI in browser |
 
-### Notable 1.5.2 / 1.5.3 Notes
+### Notable 1.6.0 / 1.5.2 / 1.5.3 Notes
+
+- **Chain mode (1.6.0)** — `mgc_seal_package` accepts a JSON array of targets as `ext04`, producing one sealed sub-package per device plus `distribution_index.json` (per-package `sha256`). Each device can read and run only the files it was granted.
+- **A2A adaptation (1.6.0)** — sealed packages convert to and from A2A 1.0 structures. MGC still does not handle transport; the agent decides how the package travels.
 
 - **Cross-script auto-recognition (`ext08`)** — `import` / `from-import` / `Path(__file__).parent / "x.py"` / relative-`subprocess` patterns are statically parsed when you save a folder with `mgc_save_file`, and routed through sealed execution at runtime. Relative `open("sibling.json")` is *recognized* in `ext08` but **runtime routing is not yet supported** — if you need fully sealed config access, read the config inside your script logic rather than via `open()`.
 - **Sandbox-mode friendly** — MCP runs in the system environment if your sandbox isolates it; REST API is always available.

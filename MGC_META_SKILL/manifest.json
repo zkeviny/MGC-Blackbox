@@ -1,14 +1,14 @@
 {
   "id": "mgc-blackbox",
   "usk": "3.0",
-  "version": "1.5.3",
-  "name": "MGC Blackbox (Multi‑Agent Cross‑Node Privacy Execution Base)",
-  "description": "Local encrypted execution base for multi‑agent, cross‑node, privacy‑preserving task execution. Zero‑exposure layer for storing tokens, passwords, configs, and scripts — including sealed script packages for cross‑device delegation.",
+  "version": "1.6.0",
+  "name": "MGC Blackbox (Multi‑Agent Cross‑Device Task Encryption, Execution & Delivery Tool)",
+  "description": "Encrypted task delivery and execution tool for multi‑agent, cross‑device workflows. Local encrypted storage for tokens, passwords, configs, and scripts — including sealed script packages for cross‑device delegation.",
   "author": "MirginCipher Team",
   "license": "MIT",
   "tags": ["security", "credentials", "encryption", "zero-exposure", "multi-agent", "cross-node", "privacy", "sealed-package", "workflow-delegation"],
   "platform_compatibility": ["windows", "macos", "linux"],
-  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_open_webui"],
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_delete", "mgc_skill", "mgc_open_webui"],
   "install": "pip install mgc-blackbox",
   "runtime": "mgc",
   "port": 57219,
@@ -32,6 +32,16 @@
     "sealed cross-script import"
   ],
   "changelog": [
+    {
+      "version": "1.6.0",
+      "changes": [
+        "Synced SKILL.md to MGC 1.6.0",
+        "Added chain mode: one task split into one sealed sub-package per target device, with distribution_index.json (per-package sha256)",
+        "Added A2A adaptation notes: sealed packages convert to/from A2A 1.0 structures; MGC does not handle transport",
+        "Added mgc_delete and mgc_skill to the tool list",
+        "Repositioned as Multi-Agent Cross-Device Task Encryption, Execution & Delivery Tool"
+      ]
+    },
     {
       "version": "1.5.3",
       "changes": [

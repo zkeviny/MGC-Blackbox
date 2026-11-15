@@ -1,6 +1,6 @@
-# **MirginCipher Blackbox (MGC)** — Multi-Agent Cross-Node Privacy Execution Base
+# **MirginCipher Blackbox (MGC)** — Multi-Agent Cross-Device Task Encryption, Execution & Delivery Tool
 
-A local encrypted execution base for **multi-agent, cross-node, privacy-preserving task execution** — sensitive operations never leave the device in plaintext; scripts, files, and skill / workflow folders can be sealed and dispatched across trusted nodes without exposing source code.
+An encrypted task delivery and execution tool for **multi-agent, cross-device workflows** — sensitive operations never leave the device in plaintext; scripts, files, and skill / workflow folders can be encrypted, delivered, and executed across trusted devices without exposing source code.
 
 ![License](https://img.shields.io/badge/license-MGC--Custom--License-blue)
 ![Platform](https://img.shields.io/badge/platform-MacOS%20%7C%20Linux%20%7C%20Windows-blue)
@@ -12,14 +12,16 @@ A local encrypted execution base for **multi-agent, cross-node, privacy-preservi
 
 ## **What is MGC Blackbox?**
 
-MirginCipher Blackbox (MGC) is a **Multi-Agent Cross-Node Privacy Execution Base**. It is **not an agent itself** — it is the encrypted execution layer underneath your agents.
+MirginCipher Blackbox (MGC) is a **Multi-Agent Cross-Device Task Encryption, Execution & Delivery Tool**. It is **not an agent itself** — it is the encrypted task delivery and execution layer underneath your agents.
 
 MGC provides:
 
-- A local encrypted execution base for AI agents, system scripts, and human users
-- Cross-node task delegation via sealed, node-bound script capsules
-- Zero plaintext leakage: secrets stay inside the encrypted boundary
-- A trusted device-level boundary shared by Copilot / Claude / Trae / IDE Agents  
+- **100% local, never touches the cloud** — all data, scripts, and encryption keys stay on your device. No third-party servers, no telemetry.
+- **Store** sensitive data (tokens, passwords, configs) and scripts (logic, workflows, automation).
+- **Execute** stored scripts with structured args and auto-detected dependencies. No rewrites, no path tricks, no plaintext on disk.
+- **Delegate across nodes** — seal a script into a portable JSON capsule, hand it to another MGC node, and let it run there. No plaintext crosses the boundary. p2p mode binds it to one node's key; free mode opens it to any node while keeping the source encrypted; chain mode splits one task into one sealed sub-package per node, each containing only that node's granted files.
+- **Auto-recognize workflows** — MGC automatically discovers scripts' args, dependencies, compatible OS, and cross-script workflow relationships.
+- **Open WebUI** for human operations.
 
 ---
 
@@ -32,14 +34,14 @@ MGC provides:
   All execution and decryption happen on‑device. No cloud dependency, no plaintext leakage, no telemetry.
 
 - 🧩 **Sealed Script & Folder Execution (Unique)**  
-  Convert scripts, files, and skill / workflow folders into unreadable, node-bound execution capsules.  
-  Only the target node can decrypt & run them — neither sender nor third parties can read the source.
+  Convert scripts, files, and skill / workflow folders into unreadable execution capsules.  
+  **p2p mode** binds the capsule to one node's key; **free mode** opens it to any MGC node while keeping the source encrypted. Neither the recipient nor a third party can read the source.
 
 - ⚡ **Deterministic Local Execution**  
   Stable, reproducible behavior across macOS / Linux / Windows with a Cython‑compiled secure core.
 
 - 🛠️ **Native MCP / Skill Integration**  
-  Exposes mgc_save / mgc_get / mgc_list / mgc_run / mgc_find / mgc_package / mgc_seal_package / mgc_open_webui as standard MCP tools.  
+  Exposes mgc_save / mgc_save_file / mgc_get / mgc_list / mgc_run / mgc_find / mgc_seal / mgc_seal_package / mgc_package / mgc_delete / mgc_open_webui / mgc_skill as standard MCP tools.  
   Works out‑of‑the‑box with Copilot, Claude, Trae, IDE Agents.
 
 - 🔄 **Zero Integration Cost**  
@@ -53,28 +55,28 @@ MGC provides:
 ## **Use Cases**
 
 ### **1. Protect API Keys & Credentials from AI Agents**  
-Store secrets encrypted. Agents can use them, but never see plaintext.
+Store secrets encrypted in MGC. Scripts retrieve values at runtime by name — no plaintext in source code. The values are only released inside MGC's encrypted execution boundary.
 
-### **2. Secure Local Automation**  
-Run Python / Shell / Node scripts locally without exposing sensitive data to AI logs or cloud systems.
+### **2. Path-Independent Script Addressing**  
+Address scripts by MGC location name, not hardcoded file paths. The same name resolves on any machine where MGC has the entry.
 
-### **3. Sealed Script Distribution**  
-Share scripts with collaborators or devices **without exposing source code** — they can execute but cannot read.
+### **3. Source Code Protection**  
+Store scripts in MGC. The source stays encrypted on disk; an authorized node can execute it, but the plaintext is never exposed.
 
-### **4. Cross‑Node Execution**  
-Send sealed scripts to trusted remote nodes:
-- Sender cannot read the sealed content  
-- Recipient cannot read the sealed content  
-- Only the target node can decrypt and execute  
+### **4. Cross-Node Delegation Without a Cloud Broker**  
+Authorize another machine to run your script via local key exchange + sealing. No cloud trust broker, no third party — you only need the target machine's public key.
 
-### **5. Local‑First AI Agent Security Boundary**  
-Provides a local security layer for Copilot / Claude / Trae / IDE Agents.
+### **5. Multi-Script Workflow Portability**  
+Save a folder of scripts that call each other via `import` / `subprocess`. MGC auto-discovers call relationships and routes them at runtime — no source files needed on the target machine.
 
-### **6. Privacy‑Preserving AI Workflows**  
-Enables financial automation, personal data processing, and enterprise internal workflows with privacy protection.
+### **6. Node-Bound Execution (No Re-Sealing)**  
+Sealing binds the script to the recipient's device key. Only that device can decrypt and execute; the recipient cannot re-seal for someone else.
 
-### **7. Skill / Workflow Folder Sealing**  
-Bulk-import a skill / workflow folder via `mgc_save(info_type='file', content=<local folder path>)`, then ship it as a sealed `.mgc_file` via `mgc_seal_package` — the recipient node decrypts and runs each script in its own encrypted boundary, with no source code exposure.
+### **7. Public Skill Distribution (Free Mode)**  
+Publish a skill to a marketplace or community via free mode — seal without specifying a recipient. Any MGC node can execute, but the source never touches disk and cannot be read.
+
+### **8. One Task, Many Nodes (Chain Mode)**  
+Split one orchestrated task into one sealed sub-package per node — each node receives only the files it was granted, and can decrypt and run only those. A machine-readable distribution index makes automated dispatch straightforward.
 
 ---
 
@@ -126,8 +128,10 @@ The crypto layer is **Cython‑compiled** to:
 - Environment migration  
 - Cross‑agent availability  
 - Cross‑platform support  
-- No delete function (manual DB deletion only)  
-- Script sealing for cross‑node execution  
+- Script sealing for cross‑node execution (p2p + free mode)  
+- **Chain mode** — one task, one sealed sub-package per node (`mgc_seal_package` with a JSON array of targets); includes a machine-readable distribution index for automated dispatch  
+- Cross-script auto-recognition in skill / workflow folders — `mgc_save_file` parses the script call graph (`import` / `from-import` / relative-path subprocess) at save time; `mgc_run` then routes cross-script calls through sealed execution transparently.  
+- Sealed capsule import — `mgc_seal` writes a self-describing JSON capsule; any MGC node can import and run it.
 
 ---
 
@@ -150,6 +154,8 @@ mgc
 ```
 http://127.0.0.1:57218
 ```
+
+REST API available at `http://127.0.0.1:57219`.
 
 ### **4. Store a Secret**
 
@@ -179,14 +185,18 @@ print(get("openai_key"))
 
 MGC exposes a local MCP tools interface:
 
-- `mgc_save` — store secrets, scripts, files, or folder snapshots  
+- `mgc_save` — store a single secret / script / file by explicit content  
+- `mgc_save_file` — store by local file path; auto-detects single file vs folder; also auto-recognizes cross-script calls inside folder saves (`import` / `from-import` / relative-path subprocess)
 - `mgc_get` — retrieve encrypted content  
 - `mgc_list` — browse stored entries  
-- `mgc_run` — execute a stored script in the encrypted boundary  
-- `mgc_find` — fuzzy-search entries by `info_type` / `info_owner` / `diff_1..3`  
-- `mgc_package` — bundle a folder into a sealed `.mgc_file`  
-- `mgc_seal_package` — ship a sealed package to a trusted node  
+- `mgc_run` — execute a stored script in the encrypted boundary; cross-script calls inside a folder run transparently as sealed child processes  
+- `mgc_find` — fuzzy-search entries by `info_owner` / `diff_1..3` (no `info_type`)  
+- `mgc_seal` — seal a single script into a portable JSON capsule for cross-node delegation  
+- `mgc_package` — bundle a folder into a plaintext export archive  
+- `mgc_seal_package` — ship a sealed package to a trusted node (single PEM), to any node (free mode), or to many nodes at once (chain mode: JSON array of targets)  
+- `mgc_delete` — delete a stored record (permanent, audited)  
 - `mgc_open_webui` — open the local WebUI  
+- `mgc_skill` — return the bundled skill document (`skill_spec.md`) for the agent  
 
 Compatible with Copilot, Claude, Trae, IDE Agents.
 
@@ -209,7 +219,9 @@ External scripts can fetch encrypted items at runtime.
 - No plaintext logging  
 - Deterministic execution  
 - User‑controlled authorization  
-- Sandbox mode support (fallback hardware fingerprint for restricted environments)  
+- Sealed scripts can be executed on authorized nodes; the plaintext source is never exposed  
+- Folder packages inherit single-script guarantees: every file encrypted, only file structure visible  
+- **Scope of the guarantee**: MGC protects **content confidentiality**, not **runtime behaviour**. A sealed script runs with the full privileges of the user who runs it — MGC does not restrict which commands it invokes, which files it reads or writes, or which network endpoints it reaches. Treat a sealed capsule as executable code from an untrusted source.
 
 ---
 

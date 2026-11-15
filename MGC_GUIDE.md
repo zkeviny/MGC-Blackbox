@@ -1,10 +1,10 @@
 # 📘 MGC Blackbox — User Guide
 
-**Version 1.5.3**
+**Version 1.5.0**
 
-A local encrypted execution base for AI agents, system scripts, and human users to store, retrieve, run, and delegate sensitive data or scripts — without unauthorized plaintext exposure.
+An encrypted task delivery and execution tool for AI agents, system scripts, and human users to store, retrieve, run, and delegate sensitive data or scripts — without unauthorized plaintext exposure.
 
-For the full specification, see [`mgc/docs/skill_spec.md`](mgc/docs/skill_spec.md). This guide covers the essentials only.
+For the full specification, see [`docs/skill_spec.md`](docs/skill_spec.md). This guide covers the essentials only.
 
 ---
 
