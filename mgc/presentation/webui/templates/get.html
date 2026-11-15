@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - GET</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .btn-success {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: #1a1a2e;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .content {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .info-type {
+            background: #4ade80;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .info-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .info-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .info-field {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .info-field-label {
+            color: #94a3b8;
+            margin-right: 4px;
+        }
+        /* P1-6 v0.3.1（2026-08-30）：ext 行与基础行的视觉间距 */
+        .info-fields-ext {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+        .info-field-value {
+            color: #fff;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .modal-message {
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-align: left;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        /* 1.5.0: dependency / platform badges */
+        .info-row-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 8px 4px 0;
+            flex-wrap: wrap;
+        }
+        .info-badges {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .badge.mgc-badge {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+        }
+        .badge.mgc-platform {
+            background-color: rgba(167, 139, 250, 0.2);
+            color: #a78bfa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(167, 139, 250, 0.4);
+        }
+        /* 1.5.1 phase7: script_chains badges（与 dependencies/platforms 区分：绿色） */
+        .badge.mgc-script-chain {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            font-family: monospace;
+        }
+        /* seal_mode badges (p2p blue / free green / chain orange — distinct from script-chain green) */
+        .badge.mgc-seal-mode-p2p {
+            background-color: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+        }
+        .badge.mgc-seal-mode-free {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+        }
+        .badge.mgc-seal-mode-chain {
+            background-color: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+        }
+        /* P1-6 修复（2026-08-30）：folder 折叠样式 */
+        :root {
+            --mgc-folder-border: #4ade80;  /* folder 与子项同色（绿色） */
+        }
+        /* ext10: mgc run compatibility badges */
+        .badge.mgc-ext10-supported {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+        .badge.mgc-ext10-unsupported {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            cursor: help;
+        }
+        .folder-item {
+            border-left: 4px solid var(--mgc-folder-border);
+        }
+        .folder-badge {
+            background: var(--mgc-folder-border);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .folder-children {
+            margin-top: 12px;
+            padding: 8px 0 0 0;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .folder-children-divider {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            margin: 8px 0;
+            text-align: center;
+        }
+        /* folder 子项：复用 .info-item 样式，但加左侧 2px 同色细边表示归属同一 folder */
+        .folder-children .info-item {
+            border-left: 2px solid var(--mgc-folder-border);
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .folder-children .info-item:last-child {
+            margin-bottom: 0;
+        }
+        /* P1-6 v0.3.2（2026-08-30）：folder 展开后 file 子项底色略深（区分效果） */
+        .folder-children .info-item.file-child {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">MGC Blackbox</div>
+            <button class="btn btn-secondary" onclick="location.href='/skill'">← Back to Skill</button>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">LIST</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Stored Information</h1>
+        
+        <div id="infoList" class="info-list">
+            <div class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <!-- v1.4.10 新版: Run with Args Modal -->
+    <div class="modal" id="argsModal">
+        <div class="modal-content">
+            <div class="modal-title" style="margin-bottom: 4px;">Run with Arguments</div>
+            <p style="color: #94a3b8; font-size: 0.85em; margin: 4px 0 0 0; text-align: left;">
+                You can edit the args below for this run. Changes apply only to this execution and are not saved back to storage.
+            </p>
+            <textarea id="argsInput" rows="16" placeholder='["--flag1", "value1", "--flag2", "value with spaces"]'
+                      style="width: 100%; margin-top: 4px; padding: 8px; font-family: monospace; font-size: 13px; box-sizing: border-box; resize: vertical; word-break: break-all;"></textarea>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeArgsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmRunWithArgs()">Run</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="sealModal">
+        <div class="modal-content">
+            <div class="modal-title">Seal Script</div>
+            <div class="modal-message">
+                <p style="margin-bottom: 10px;">Enter the target node's <code>node_pub</code> to seal in <strong>p2p mode</strong>. Leave empty to seal in <strong>free mode</strong> (any mgc node can run).</p>
+                <textarea id="sealNodePub" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----&#10;(leave empty for free mode)" style="width: 100%; min-height: 104px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; font-family: monospace;"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeSealModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmSeal()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1.5.4 phase6: 密封结果仅提供下载，不再跳转 get_sealed_info 中转页 -->
+    <div class="modal" id="sealResultModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-title">Sealed Capsule Ready</div>
+            <div class="modal-message" id="sealResultBody"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="sealResultClose" style="display: none;">Close</button>
+                <button class="btn btn-primary" id="sealResultOk" style="display: none;">OK</button>
+                <button class="btn btn-primary" id="sealResultDownload">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PR-6 (1.5.0 phase2 / 技能授权) — Folder Package Modals
+         v1.5.0 phase3: 仿 Run with Args 弹框结构（无 .modal-header / .modal-message 容器）-->
+    <div class="modal" id="packageFolderModal">
+        <div class="modal-content">
+            <div class="modal-title" style="margin-bottom: 4px;">Package Folder</div>
+            <p style="color: #94a3b8; font-size: 0.85em; margin: 4px 0 0 0; text-align: left;">
+                Enter local output root directory:
+            </p>
+            <input id="packageFolderOutputDir" type="text" placeholder="/Users/you/Desktop/output"
+                   style="width: 100%; margin-top: 4px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; font-family: monospace;" />
+            <p style="margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.6); text-align: left;">
+                Please enter a real local directory. The MGC folder will be exported as plaintext under this directory after confirmation.
+            </p>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closePackageFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmPackageFolder(this)">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="sealPackageFolderModal">
+        <div class="modal-content">
+            <div class="modal-title" style="margin-bottom: 4px;">Seal Package Folder</div>
+            <p style="color: #94a3b8; font-size: 0.85em; margin: 4px 0 0 0; text-align: left;">
+                Enter the target node's <code>node_pub</code> to seal in <strong>p2p mode</strong>. Leave empty to seal in <strong>free mode</strong> (any mgc node can run).
+            </p>
+            <textarea id="sealPackageFolderNodePub" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----&#10;(leave empty for free mode)"
+                      style="width: 100%; margin-top: 4px; min-height: 230px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; font-family: monospace;"></textarea>
+            <p style="color: #94a3b8; font-size: 0.85em; margin: 4px 0 0 0; text-align: left;">
+                Local output root directory:
+            </p>
+            <input id="sealPackageFolderOutputDir" type="text" placeholder="/Users/you/Desktop/output"
+                   style="width: 100%; margin-top: 4px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; font-family: monospace;" />
+            <p style="margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.6); text-align: left;">
+                The package will be sealed under this directory and contain at least one script. Sealed files can be unsealed on the authorized node.
+            </p>
+            <div class="modal-buttons" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeSealPackageFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmSealPackageFolder(this)">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/mgc_actions.js?v=1.5.1"></script>
+    <script>
+        let tokenInitialized = false;
+        
+        async function initToken() {
+            try {
+                const response = await fetch('/api/token');
+                if (response.ok) {
+                    window.MGC_TOKEN = await response.text();
+                    tokenInitialized = true;
+                    console.log('Token initialized successfully, token:', window.MGC_TOKEN ? window.MGC_TOKEN.substring(0, 20) + '...' : 'EMPTY');
+                } else {
+                    console.error('Token fetch failed, status:', response.status);
+                    tokenInitialized = true;
+                }
+            } catch (e) {
+                console.error('Failed to get token:', e);
+                tokenInitialized = true;
+            }
+        }
+        initToken();
+        
+        async function waitForToken() {
+            while (!tokenInitialized) {
+                await new Promise(r => setTimeout(r, 100));
+            }
+        }
+        
+        async function loadInfoList() {
+            console.log('loadInfoList start, waiting for token, tokenInitialized:', tokenInitialized);
+            let waitCount = 0;
+            while (!tokenInitialized && waitCount < 100) {
+                await new Promise(r => setTimeout(r, 100));
+                waitCount++;
+            }
+            if (waitCount >= 100) {
+                console.error('Token wait timeout');
+            }
+            console.log('loadInfoList proceed, tokenInitialized:', tokenInitialized, 'MGC_TOKEN:', window.MGC_TOKEN ? window.MGC_TOKEN.substring(0, 20) + '...' : 'EMPTY');
+            try {
+                const response = await fetch('/api/mgc/proxy/get', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                const listDiv = document.getElementById('infoList');
+                
+                let items = [];
+                if (result.code === 200 && result.data) {
+                    items = Array.isArray(result.data) ? result.data : result.data.info_list || [];
+                } else if (result.code === 201 && result.data && result.data.info_list) {
+                    items = result.data.info_list;
+                }
+                
+                items = items.filter(item => item.info_owner !== 'system' && item.info_type !== '__DEFAULT_NODE_PUB__');
+                
+                if (items.length === 0) {
+                    listDiv.innerHTML = '<div class="empty-state">No stored information found</div>';
+                    return;
+                }
+                
+                // P1-6 修复（2026-08-30）：按 (info_owner, diff_2) 分组，folder 折叠渲染
+                const groups = new Map();
+                let singleIdx = 0;
+                for (const item of items) {
+                    if (!item.diff_2) {
+                        groups.set(`__single__::${singleIdx++}`, { kind: 'single', items: [item] });
+                        continue;
+                    }
+                    const key = `${item.info_owner}::${item.diff_2}`;
+                    if (!groups.has(key)) {
+                        groups.set(key, {
+                            kind: 'folder',
+                            info_owner: item.info_owner,
+                            diff_2: item.diff_2,
+                            items: [],
+                        });
+                    }
+                    groups.get(key).items.push(item);
+                }
+
+                listDiv.innerHTML = Array.from(groups.values()).map(group => {
+                    return group.kind === 'folder'
+                        ? _renderFolderItem(group)
+                        : _renderSingleItem(group.items[0]);
+                }).join('');
+
+                // P1-6：渲染完成后恢复 folder 折叠状态（sessionStorage）
+                _restoreFolderCollapsedState();
+                // v1.4.10: 列表渲染完成后恢复滚动位置
+                if (typeof window._restoreScrollPosition === 'function') {
+                    window._restoreScrollPosition();
+                }
+            } catch (error) {
+                console.error('API call failed:', error);
+                document.getElementById('infoList').innerHTML = '<div class="error">Failed to load information<br><small>' + (error.message || 'Connection failed') + '</small></div>';
+            }
+        }
+
+        // P1-6 修复（2026-08-30）：folder 折叠渲染所需工具函数
+        const FOLDER_EXPANDED_KEY = 'mgc_folder_expanded';
+
+        function _getExpandedSet() {
+            try {
+                const raw = sessionStorage.getItem(FOLDER_EXPANDED_KEY) || '';
+                return new Set(raw.split(',').filter(Boolean));
+            } catch (e) { return new Set(); }
+        }
+
+        function _saveExpandedSet(set) {
+            try {
+                sessionStorage.setItem(FOLDER_EXPANDED_KEY, Array.from(set).join(','));
+            } catch (e) {}
+        }
+
+        function _esc(s) {
+            return window.MGC_escapeHtml || ((v) => String(v == null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
+        }
+
+        function _short(s, n) {
+            s = String(s == null ? '' : s);
+            return s.length > n ? s.substring(0, n) + '...' : s;
+        }
+
+        // 生成单条记录的全部字段 HTML
+        // 第 1 行：type + owner + diff_1/2/3（基础字段，flex 横排）
+        // 第 2 行：ext01-07 + ext05/06 badges（ext 类字段，flex 横排）
+        // 两行之间用两个独立 <div class="info-fields"> 分开（用户反馈 2026-08-30）
+        // 注：flex 容器不识别 <br>，必须用分开的 flex 容器实现两行
+        function _buildFieldsHtml(item) {
+            const esc = _esc();
+            const short = _short;
+            // 第 1 行：基础字段
+            let baseHtml = '';
+            if (item.info_type) baseHtml += `<span class="info-field"><span class="info-field-label">type:</span><span class="info-field-value">${esc(short(item.info_type, 30))}</span></span>`;
+            if (item.info_owner) baseHtml += `<span class="info-field"><span class="info-field-label">owner:</span><span class="info-field-value">${esc(short(item.info_owner, 30))}</span></span>`;
+            if (item.diff_1) baseHtml += `<span class="info-field"><span class="info-field-label">diff_1:</span><span class="info-field-value">${esc(short(item.diff_1, 30))}</span></span>`;
+            if (item.diff_2) baseHtml += `<span class="info-field"><span class="info-field-label">diff_2:</span><span class="info-field-value">${esc(short(item.diff_2, 30))}</span></span>`;
+            if (item.diff_3) baseHtml += `<span class="info-field"><span class="info-field-label">diff_3:</span><span class="info-field-value">${esc(short(item.diff_3, 30))}</span></span>`;
+            // 第 2 行：ext 字段
+            let extHtml = '';
+            if (item.ext01) extHtml += `<span class="info-field"><span class="info-field-label">startup_command:</span><span class="info-field-value">${esc(short(item.ext01, 30))}</span></span>`;
+            if (item.ext02) extHtml += `<span class="info-field"><span class="info-field-label">args:</span><span class="info-field-value">${esc(short(item.ext02, 30))}</span></span>`;
+            if (item.ext03) {
+                const ext03Val = item.ext03.length > 15 ? item.ext03.substring(0, 15) + '...' : item.ext03;
+                extHtml += `<span class="info-field"><span class="info-field-label">script_key:</span><span class="info-field-value">${esc(ext03Val)}</span></span>`;
+            }
+            // ext04 不在前端展示
+            if (item.ext07) {
+                const ext07Val = item.ext07.length > 15 ? item.ext07.substring(0, 15) + '...' : item.ext07;
+                extHtml += `<span class="info-field"><span class="info-field-label">source_node_pub:</span><span class="info-field-value">${esc(ext07Val)}</span></span>`;
+            }
+            if (item.ext05) {
+                let deps = [];
+                try { deps = JSON.parse(item.ext05); } catch (e) { deps = []; }
+                if (Array.isArray(deps) && deps.length) {
+                    const badges = deps.map(d => `<span class="badge mgc-badge">${esc(String(d))}</span>`).join('');
+                    extHtml += `<div class="info-row-block"><span class="info-field-label">dependencies:</span><span class="info-badges">${badges}</span></div>`;
+                }
+            }
+            if (item.ext06) {
+                let platforms = [];
+                try { platforms = JSON.parse(item.ext06); } catch (e) { platforms = []; }
+                if (Array.isArray(platforms) && platforms.length) {
+                    const tags = platforms.map(p => `<span class="badge mgc-platform">${esc(String(p))}</span>`).join('');
+                    extHtml += `<div class="info-row-block"><span class="info-field-label">platforms:</span><span class="info-badges">${tags}</span></div>`;
+                }
+            }
+            // 1.5.1 phase7: ext08 展示（脚本串联调用关系，仿 dependencies/platforms badges）
+            if (item.ext08) {
+                let ext08Obj = {};
+                try { ext08Obj = JSON.parse(item.ext08); } catch (e) { ext08Obj = {}; }
+                if (ext08Obj && Array.isArray(ext08Obj.calls) && ext08Obj.calls.length) {
+                    // 去重保留顺序：target_diff_3 是同一 folder 内其他脚本的相对路径
+                    const seen = new Set();
+                    const targets = [];
+                    for (const c of ext08Obj.calls) {
+                        const t = c && c.target_diff_3;
+                        if (t && !seen.has(t)) { seen.add(t); targets.push(t); }
+                    }
+                    if (targets.length) {
+                        const badges = targets.map(t => `<span class="badge mgc-script-chain">${esc(String(t))}</span>`).join('');
+                        extHtml += `<div class="info-row-block"><span class="info-field-label">script_chains:</span><span class="info-badges">${badges}</span></div>`;
+                    }
+                }
+            }
+            // seal_mode badge: standalone row so it shows even when ext08 is empty.
+            if (item.ext09) {
+                const mode = String(item.ext09).trim();
+                if (mode) {
+                    const modeClass = mode === 'free mode' ? 'mgc-seal-mode-free'
+                                      : mode === 'chain mode' ? 'mgc-seal-mode-chain'
+                                      : 'mgc-seal-mode-p2p';
+                    extHtml += `<div class="info-row-block"><span class="info-field-label">seal_mode:</span><span class="info-badges"><span class="badge ${modeClass}">${esc(mode)}</span></span></div>`;
+                }
+            }
+            // ext10 badge: standalone row so it shows even when ext08 is empty.
+            if (item.ext10) {
+                const ext10Val = String(item.ext10).trim();
+                if (ext10Val) {
+                    const ext10Class = ext10Val === 'unsupported' ? 'mgc-ext10-unsupported'
+                                       : 'mgc-ext10-supported';
+                    extHtml += `<div class="info-row-block"><span class="info-field-label">mgc_run:</span><span class="info-badges"><span class="badge ${ext10Class}">${esc(ext10Val)}</span></span></div>`;
+                }
+            }
+            // 拼接：基础 flex 行 + （如有 ext 行）额外 ext flex 行
+            if (extHtml) {
+                return `<div class="info-fields">${baseHtml}</div><div class="info-fields info-fields-ext">${extHtml}</div>`;
+            }
+            return `<div class="info-fields">${baseHtml}</div>`;
+        }
+
+        // 单条记录渲染（diff_2 为空的记录保持原样式，按钮齐全）
+        function _renderSingleItem(item) {
+            const esc = _esc();
+            const hasExt01 = !!item.ext01;
+            const hasExt02 = !!item.ext02;
+            const hasExt03 = !!item.ext03;
+            // P1-6 v0.3.2（2026-08-30）：file 类型子项加 file-child class（folder 展开后底色略深）
+            const fileChildClass = item.info_type === 'file' ? ' file-child' : '';
+            return `
+                <div class="info-item${fileChildClass}">
+                    <div class="info-header">
+                        <span class="info-type">${esc(item.info_type || 'unknown')}</span>
+                        <div class="info-actions">
+                            ${hasExt01 && item.ext02 ? `<button class="btn btn-secondary" style="background-color: #CB7C2E; border-color: #CB7C2E;" data-owner="${encodeURIComponent(item.info_owner)}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff3="${encodeURIComponent(item.diff_3 || '')}" data-ext01="${encodeURIComponent(item.ext01)}" data-ext02="${encodeURIComponent(item.ext02)}" onclick="runScriptWithArgsFromBtn(this)">Run with Args</button>` : ''}
+                            ${hasExt01 ? `<button class="btn btn-success" data-owner="${encodeURIComponent(item.info_owner)}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff3="${encodeURIComponent(item.diff_3 || '')}" data-ext01="${encodeURIComponent(item.ext01)}" data-ext02="${encodeURIComponent(item.ext02 || '')}" onclick="runScriptFromBtn(this)">Run</button>` : ''}
+                            ${hasExt01 && !hasExt03 ? `<button class="btn btn-secondary" data-owner="${encodeURIComponent(item.info_owner)}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff3="${encodeURIComponent(item.diff_3 || '')}" data-ext01="${encodeURIComponent(item.ext01)}" data-type="${encodeURIComponent(item.info_type)}" onclick="sealScriptFromBtn(this)">Seal</button>` : ''}
+                            <button class="btn btn-primary" data-type="${encodeURIComponent(item.info_type)}" data-owner="${encodeURIComponent(item.info_owner)}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff3="${encodeURIComponent(item.diff_3 || '')}" onclick="getInfoFromBtn(this)">Get</button>
+                            ${item.info_type === '__NODE_PUB__' ? '' : `<button class="btn btn-danger" data-owner="${encodeURIComponent(item.info_owner)}" data-type="${encodeURIComponent(item.info_type)}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff3="${encodeURIComponent(item.diff_3 || '')}" onclick="deleteInfoFromBtn(this)">Delete</button>`}
+                            ${item.info_type === 'file' ? `<button class="btn btn-primary" data-owner="${encodeURIComponent(item.info_owner)}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-type="${encodeURIComponent(item.info_type)}" onclick="packageFolderFromBtn(this)">Package</button>` : ''}
+                            ${item.info_type === 'file' ? `<button class="btn btn-secondary" data-owner="${encodeURIComponent(item.info_owner)}" data-diff2="${encodeURIComponent(item.diff_2 || '')}" data-diff1="${encodeURIComponent(item.diff_1 || '')}" data-type="${encodeURIComponent(item.info_type)}" onclick="sealPackageFolderFromBtn(this)">Seal Package</button>` : ''}
+                        </div>
+                    </div>
+                    ${_buildFieldsHtml(item)}
+                </div>
+            `;
+        }
+
+        // folder-item 渲染（同 owner+diff_2 多条聚合）
+        // 顶层：复用 info-item 布局，仅展示 owner + diff_2 + 3 个按钮（Package/Seal Package/Expand）
+        // 子项：复用完整 _renderSingleItem 输出（带所有按钮，与非 folder 记录一致）
+        function _renderFolderItem(group) {
+            const esc = _esc();
+            const folderKey = `${group.info_owner}::${group.diff_2}`;
+            const n = group.items.length;
+            // 子项 HTML（保留后端顺序，复用 _renderSingleItem）
+            const childrenHtml = group.items.map(child => _renderSingleItem(child)).join('');
+            return `
+                <div class="info-item folder-item" data-folder-key="${esc(folderKey)}">
+                    <div class="info-header folder-header">
+                        <span class="folder-badge">📁 folder</span>
+                        <div class="info-actions">
+                            <button class="btn btn-primary" data-owner="${encodeURIComponent(group.info_owner)}" data-diff2="${encodeURIComponent(group.diff_2)}" data-diff1="" data-type="file" onclick="packageFolderFromBtn(this)">Package</button>
+                            <button class="btn btn-secondary" data-owner="${encodeURIComponent(group.info_owner)}" data-diff2="${encodeURIComponent(group.diff_2)}" data-diff1="" data-type="file" onclick="sealPackageFolderFromBtn(this)">Seal Package</button>
+                            <!-- 1.5.1 phase7: folder 级 Delete（按 info_owner + diff_2 批量删除，仿单条 delete 样式） -->
+                            <button class="btn btn-danger" data-owner="${encodeURIComponent(group.info_owner)}" data-diff2="${encodeURIComponent(group.diff_2)}" data-diff1="" data-type="file" onclick="deleteFolderFromBtn(this)">Delete Folder</button>
+                            <button class="btn btn-secondary" onclick="toggleFolder(this)">▼ Expand</button>
+                        </div>
+                    </div>
+                    <div class="info-fields">
+                        <span class="info-field"><span class="info-field-label">owner:</span><span class="info-field-value">${esc(group.info_owner)}</span></span>
+                        <span class="info-field"><span class="info-field-label">diff_2:</span><span class="info-field-value">${esc(group.diff_2)}</span></span>
+                        <span class="info-field"><span class="info-field-label">records:</span><span class="info-field-value">${n}</span></span>
+                    </div>
+                    <div class="folder-children" style="display:none;">
+                        <div class="folder-children-divider">--- ${n} record${n > 1 ? 's' : ''} ---</div>
+                        ${childrenHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 切换 folder 折叠状态（含 sessionStorage 持久化）
+        // 白名单机制：sessionStorage 只记录用户展开过的 folderKey
+        // - 默认所有 folder 折叠
+        // - 用户展开 → 加入 expandedSet
+        // - 用户折叠 → 从 expandedSet 删除
+        // - 二次渲染：expandedSet 内的 folder 展开，其他折叠
+        function toggleFolder(btn) {
+            const folderItem = btn.closest('.folder-item');
+            const folderKey = folderItem.dataset.folderKey;
+            const children = folderItem.querySelector('.folder-children');
+            const isHidden = children.style.display === 'none';
+            children.style.display = isHidden ? 'block' : 'none';
+            btn.textContent = isHidden ? '▲ Collapse' : '▼ Expand';
+            // 持久化：展开 → 加入；折叠 → 删除
+            const set = _getExpandedSet();
+            if (isHidden) set.add(folderKey);
+            else set.delete(folderKey);
+            _saveExpandedSet(set);
+        }
+
+        // 渲染完成后恢复 folder 折叠状态（与 v1.4.10 滚动位置风格一致）
+        // 默认所有 folder 折叠；白名单内的 folder 展开
+        function _restoreFolderCollapsedState() {
+            const expandedSet = _getExpandedSet();
+            document.querySelectorAll('.folder-item').forEach(item => {
+                const folderKey = item.dataset.folderKey;
+                const children = item.querySelector('.folder-children');
+                const btn = Array.from(item.querySelectorAll('button')).find(b => /Expand|Collapse/.test(b.textContent));
+                if (expandedSet.has(folderKey)) {
+                    if (children) children.style.display = 'block';
+                    if (btn) btn.textContent = '▲ Collapse';
+                } else {
+                    // 默认折叠（_renderFolderItem 内联 display:none 已是默认）
+                    if (children) children.style.display = 'none';
+                    if (btn) btn.textContent = '▼ Expand';
+                }
+            });
+        }
+
+        // v1.4.10: getInfoFromBtn / deleteInfoFromBtn 已抽取到 /static/js/mgc_actions.js（共享脚本）
+        
+        // v1.4.10: 按钮 handler 已抽取到 /static/js/mgc_actions.js（共享脚本）
+
+        // v1.4.10: 刷新后恢复滚动位置（sessionStorage，关闭 tab 即失效）
+        // 必须等 loadInfoList() 渲染完成后调用，否则 DOM reflow 会覆盖
+        (function() {
+            const KEY = 'mgc_get_scroll_y';
+            let saveTimer = null;
+            window.addEventListener('scroll', function() {
+                if (saveTimer) clearTimeout(saveTimer);
+                saveTimer = setTimeout(function() {
+                    try { sessionStorage.setItem(KEY, String(window.scrollY)); } catch (e) {}
+                }, 150);
+            });
+            window._restoreScrollPosition = function() {
+                try {
+                    const saved = sessionStorage.getItem(KEY);
+                    if (saved !== null) {
+                        const y = parseInt(saved, 10);
+                        if (!isNaN(y) && y > 0) window.scrollTo(0, y);
+                    }
+                } catch (e) {}
+            };
+        })();
+
+        loadInfoList();
+    </script>
+</body>
+</html>

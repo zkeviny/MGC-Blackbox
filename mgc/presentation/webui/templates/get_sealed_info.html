@@ -1,0 +1,353 @@
+<!-- 1.5.4 phase6: 已废弃（无入口）。密封成功后改为在弹框内直接下载胶囊 JSON，
+     不再跳转本页。本页保留仅为兼容旧书签，待后续清理。 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - SEALED INFO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .content-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .content-text {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        /* 1.5.0: dep / platform badges */
+        .badge.mgc-badge {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 2px 8px;
+            margin: 0 4px 0 0;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+        }
+        .badge.mgc-platform {
+            background-color: rgba(167, 139, 250, 0.2);
+            color: #a78bfa;
+            padding: 2px 8px;
+            margin: 0 4px 0 0;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(167, 139, 250, 0.4);
+        }
+        /* 1.5.1 phase7: script_chains badges（与 dependencies/platforms 区分：绿色 monospace） */
+        .badge.mgc-script-chain {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 2px 8px;
+            margin: 0 4px 0 0;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            font-family: monospace;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-copy {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .btn-copy:hover {
+            background: #2563eb;
+        }
+        .btn-download {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">MGC Blackbox</div>
+            <button class="btn btn-secondary" onclick="location.href='/list'">← Back</button>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">LIST</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Sealed Script</h1>
+        <p style="text-align: center; color: #f59e0b; font-size: 13px; margin-bottom: 20px;">Sealed successfully. Only the target node can run after saving to MGC. Ensure the node is trusted.</p>
+
+        <!-- 1.5.1 phase7: 两行副标题，居中（owner/type 一行 + diff_1/2/3 一行），行间间距加倍（2026-09-22 PM 调整）-->
+        <div id="sealedInfoSubtitle" class="subtitle-block" style="display: none; text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 14px;">
+            <div class="subtitle-row" style="line-height: 1.5; margin-bottom: 0.8em;">
+                <span class="subtitle-label" style="color: #64748b;">owner:</span><span id="sealedSubtitleOwner"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label" style="color: #64748b;">type:</span><span id="sealedSubtitleType"></span>
+            </div>
+            <div class="subtitle-row" style="line-height: 1.5;">
+                <span class="subtitle-label" style="color: #64748b;">diff_1:</span><span id="sealedSubtitleDiff1"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label" style="color: #64748b;">diff_2:</span><span id="sealedSubtitleDiff2"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label" style="color: #64748b;">diff_3:</span><span id="sealedSubtitleDiff3"></span>
+            </div>
+        </div>
+
+        <!-- 1.5.0: ext05 / ext06 badges from sealed data (auto-populated by JS) -->
+        <div id="mgc-sealed-badges" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin: 0 auto 14px auto;"></div>
+
+        <div class="content-box">
+            <div class="content-text" id="jsonContent">Loading...</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-copy" onclick="copyContent()">Copy</button>
+            <button class="btn btn-download" onclick="downloadContent()">Download</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let sealedData = null;
+
+        // 1.5.0: HTML escape for safe badge rendering
+        function esc(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
+        // Render ext05 / ext06 from sealed data as badges. The 1.5.4 contract
+        // uses unprefixed keys; we tolerate the legacy ext_05 / ext_06 aliases
+        // so older sealed payloads still render.
+        function renderSealedBadges() {
+            const container = document.getElementById('mgc-sealed-badges');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let deps = [];
+            let platforms = [];
+            let chains = [];
+            const rawDeps = sealedData && (sealedData.ext05 || sealedData.ext_05);
+            const rawPlat = sealedData && (sealedData.ext06 || sealedData.ext_06);
+            // 1.5.1 phase7: sealed 包内部 ext08 同样展示（target_diff_3 列表）
+            const rawChains = sealedData && (sealedData.ext08 || sealedData.ext_08);
+            if (rawDeps) {
+                try {
+                    const parsed = JSON.parse(rawDeps);
+                    if (Array.isArray(parsed)) deps = parsed.filter(x => typeof x === 'string' && x);
+                } catch (e) { /* empty */ }
+            }
+            if (rawPlat) {
+                try {
+                    const parsed = JSON.parse(rawPlat);
+                    if (Array.isArray(parsed)) platforms = parsed.filter(x => typeof x === 'string' && x);
+                } catch (e) { /* empty */ }
+            }
+            if (rawChains) {
+                try {
+                    const parsed = JSON.parse(rawChains);
+                    if (parsed && Array.isArray(parsed.calls)) {
+                        // 去重保留顺序
+                        const seen = new Set();
+                        for (const c of parsed.calls) {
+                            const t = c && c.target_diff_3;
+                            if (t && !seen.has(t)) { seen.add(t); chains.push(t); }
+                        }
+                    }
+                } catch (e) { /* empty */ }
+            }
+            if (!deps.length && !platforms.length && !chains.length) return;
+
+            if (deps.length) {
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'color:#94a3b8; font-size:12px; margin-right:6px;';
+                lbl.textContent = 'deps:';
+                container.appendChild(lbl);
+                deps.forEach(d => {
+                    const b = document.createElement('span');
+                    b.className = 'badge mgc-badge';
+                    b.textContent = String(d);  // textContent auto-escapes
+                    container.appendChild(b);
+                });
+            }
+            if (platforms.length) {
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'color:#94a3b8; font-size:12px; margin-right:6px; margin-left:8px;';
+                lbl.textContent = 'platforms:';
+                container.appendChild(lbl);
+                platforms.forEach(p => {
+                    const b = document.createElement('span');
+                    b.className = 'badge mgc-platform';
+                    b.textContent = String(p);  // textContent auto-escapes
+                    container.appendChild(b);
+                });
+            }
+            // 1.5.1 phase7: script_chains badges
+            if (chains.length) {
+                const lbl = document.createElement('span');
+                lbl.style.cssText = 'color:#94a3b8; font-size:12px; margin-right:6px; margin-left:8px;';
+                lbl.textContent = 'script_chains:';
+                container.appendChild(lbl);
+                chains.forEach(t => {
+                    const b = document.createElement('span');
+                    b.className = 'badge mgc-script-chain';
+                    b.textContent = String(t);  // textContent auto-escapes
+                    container.appendChild(b);
+                });
+            }
+        }
+
+        function init() {
+            const dataStr = localStorage.getItem('mgc_sealed_data');
+
+            if (!dataStr) {
+                document.getElementById('jsonContent').textContent = 'No sealed data found';
+                return;
+            }
+
+            try {
+                sealedData = JSON.parse(dataStr);
+                const formattedJson = JSON.stringify(sealedData, null, 2);
+                document.getElementById('jsonContent').textContent = formattedJson;
+                // 1.5.1 phase7: 渲染 owner/type/diff 副标题（仿 list 页）
+                renderSealedSubtitle(sealedData);
+                renderSealedBadges();
+            } catch (e) {
+                console.error('Failed to parse sealed data:', e);
+                document.getElementById('jsonContent').textContent = 'Error parsing sealed data';
+            }
+        }
+
+        // 1.5.1 phase7: sealed data 的 owner/type/diff 副标题渲染
+        function renderSealedSubtitle(data) {
+            const box = document.getElementById('sealedInfoSubtitle');
+            if (!box) return;
+            const owner = data && (data.info_owner || data.owner);
+            const type = data && (data.info_type || data.type);
+            const diff1 = data && (data.diff_1 || data.diff1);
+            const diff2 = data && (data.diff_2 || data.diff2);
+            const diff3 = data && (data.diff_3 || data.diff3);
+            if (!owner && !type) return;
+            document.getElementById('sealedSubtitleOwner').textContent = owner || '-';
+            document.getElementById('sealedSubtitleType').textContent = type || '-';
+            document.getElementById('sealedSubtitleDiff1').textContent = diff1 || '-';
+            document.getElementById('sealedSubtitleDiff2').textContent = diff2 || '-';
+            document.getElementById('sealedSubtitleDiff3').textContent = diff3 || '-';
+            box.style.display = 'block';
+        }
+
+        function copyContent() {
+            if (!sealedData) return;
+            const formattedJson = JSON.stringify(sealedData, null, 2);
+            navigator.clipboard.writeText(formattedJson).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Copy failed');
+            });
+        }
+
+        function downloadContent() {
+            if (!sealedData) return;
+            const formattedJson = JSON.stringify(sealedData, null, 2);
+            const blob = new Blob([formattedJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sealed_script_' + Date.now() + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        init();
+    </script>
+</body>
+</html>

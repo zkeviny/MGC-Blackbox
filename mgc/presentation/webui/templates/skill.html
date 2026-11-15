@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - Skill</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans', 'DejaVu Sans', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-protection {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: auto;
+        }
+        .logo {
+            width: 84px;
+            height: 50px;
+            border-radius: 12px;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #8b9dc3;
+            line-height: 1.4;
+        }
+        .version-row {
+            font-size: 12px;
+            color: #6c7a93;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .version-text {
+            color: #6c7a93;
+        }
+        .update-link {
+            color: #ff4757;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .update-link:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+        .info {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .info-text {
+            color: #c9d1d9;
+            line-height: 1.8;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 35px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,212,255,0.4);
+        }
+        .btn-settings {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+            color: #fff;
+        }
+        .btn-settings:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,140,0,0.4);
+        }
+        .btn-skills {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: #fff;
+        }
+        .btn-skills:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(30,136,229,0.4);
+        }
+        .btn-warning {
+            background: rgba(255,193,7,0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255,193,7,0.3);
+        }
+        .btn-warning:hover {
+            background: rgba(255,193,7,0.3);
+        }
+        .btn-info {
+            background: rgba(23,162,184,0.2);
+            color: #17a2b8;
+            border: 1px solid rgba(23,162,184,0.3);
+        }
+        .btn-info:hover {
+            background: rgba(23,162,184,0.3);
+        }
+        .btn-danger {
+            background: rgba(255,59,48,0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255,59,48,0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255,59,48,0.3);
+        }
+        .protection-label {
+            color: #c9d1d9;
+            font-size: 14px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #ff6b6b;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .settings-wrapper {
+            position: relative;
+        }
+        .settings-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            min-width: 240px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            z-index: 999;
+            overflow: hidden;
+        }
+        .settings-panel.open {
+            display: block;
+        }
+        .settings-header {
+            padding: 10px 16px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #8b9dc3;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+        }
+        .settings-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .settings-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .settings-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .settings-label {
+            flex: 1;
+        }
+        .settings-toggle-row {
+            cursor: default;
+        }
+        .settings-toggle-row:hover {
+            background: transparent;
+        }
+        .pem-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .pem-text {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            margin: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="https://github.com/zkeviny/MGC-Blackbox" target="_blank" title="Click to visit MGC project page">
+            <img src="/static/MGC_LOGO.png" class="logo" alt="MGC Logo">
+        </a>
+        <div>
+            <div class="slogan">
+                Multi‑Agent Cross‑Device Task Encryption, Execution &amp; Delivery Tool.
+            </div>
+            <div class="version-row">
+                <span class="version-text">Version: <span id="currentVersion">{{ current_version }}</span></span>
+                <a href="#" id="updateLink" class="update-link" style="display: none;" onclick="showUpdateDialog(event)">update</a>
+            </div>
+        </div>
+        <div class="header-right">
+            <button id="btn_save" class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button id="btn_list" class="btn btn-primary" onclick="location.href='/list'">LIST</button>
+            <button id="btn_mgc_skills" class="btn btn-skills" onclick="openMgcSkills()" title="Browse MGC skills on the official skill hub">MGC Skills</button>
+            <div class="settings-wrapper">
+                <button id="settingsBtn" class="btn btn-settings" onclick="toggleSettingsPanel(event)">Settings ⚙</button>
+                <div id="settingsPanel" class="settings-panel">
+                    <div class="settings-header">SETTINGS</div>
+                    <div class="settings-item" onclick="showUpdateDialog(event)" id="settingsVersionItem">
+                        <span class="settings-icon">📦</span>
+                        <span class="settings-label">Version: <span id="settingsCurrentVersion">-</span></span>
+                        <span id="settingsUpdateBadge" style="display:none; color:#ff4757; font-size:12px; font-weight:600;">Update</span>
+                    </div>
+                    <div class="settings-item" onclick="openChangeLog()">
+                        <span class="settings-icon">📋</span>
+                        <span class="settings-label">Change Log</span>
+                    </div>
+                    <div class="settings-item" onclick="showNodePub()">
+                        <span class="settings-icon">🔑</span>
+                        <span class="settings-label">Node Public Key</span>
+                    </div>
+                    <div class="settings-item" onclick="changeRootKey()">
+                        <span class="settings-icon">🔐</span>
+                        <span class="settings-label">Root Key Change</span>
+                    </div>
+                    <div class="settings-item" onclick="openDbAudit()">
+                        <span class="settings-icon">🔍</span>
+                        <span class="settings-label">Database Audit</span>
+                    </div>
+                    <div class="settings-item settings-toggle-row">
+                        <span class="settings-icon">🛡</span>
+                        <span class="settings-label">Protection Mode</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="protectionToggle" onchange="toggleProtection()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 class="title">MGC Blackbox - Skill Documentation</h1>
+        
+        <p style="color: #6c757d; font-size: 0.9em; margin-bottom: 20px;">
+            If you have ideas or questions about MGC, click the logo in the top left to visit our project page. We look forward to hearing from you!
+        </p>
+        
+        <div id="requiredWarning" style="display:none; color: #dc3545; padding: 15px; margin-bottom: 20px; border: 2px solid #dc3545; border-radius: 8px; background: rgba(220, 53, 69, 0.1);">
+            <strong>CRITICAL UPDATE REQUIRED:</strong> Your current version is no longer supported.<br>
+            Please upgrade manually: <code>pip install --upgrade mgc-blackbox</code>
+        </div>
+        
+        <div class="info">
+            <p class="info-text">
+                MGC provides AI/Agents/local scripts with local, controlled, zero-plaintext-exposure access to sensitive information and script execution capabilities.<br><br>
+                <strong>API Endpoint:</strong> http://127.0.0.1:57219<br>
+                <strong>Token Required:</strong> Header "X-MGC-Token"<br>
+                <strong>Token File:</strong> ~/.mgc/database/mgc_black_box/.mgc_token
+                <br><br>
+                Click the <strong>Copy Skill</strong> / <strong>Download Skill</strong> buttons below to get the full MGC Skill package — including the AI agent prompt, MCP config, and all MGC tools ready for use.
+            </p>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-primary" id="copySkillBtn" onclick="copySkill()">Copy Skill</button>
+            <button class="btn btn-info" id="copyMcpBtn" onclick="copyMcpConfig()">Copy MCP</button>
+            <a href="/api/skill/download" class="btn btn-primary" style="text-decoration:none;display:inline-block;">Download Skill</a>
+            <button class="btn btn-danger" id="stopButton" onclick="stop()">Stop MGC</button>
+        </div>
+    </div>
+
+    <script>
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.pushState(null, null, location.href);
+        };
+
+        // 全局变量保存 update info
+        let updateInfoCache = null;
+
+        // Check version and show upgrade hint on page load
+        async function checkVersionOnLoad() {
+            try {
+                const response = await fetch('/api/update/info');
+                const data = await response.json();
+                updateInfoCache = data;
+                if (data.has_update) {
+                    document.getElementById('currentVersion').textContent = data.current_version;
+                    document.getElementById('updateLink').style.display = 'inline';
+                } else {
+                    document.getElementById('currentVersion').textContent = data.current_version;
+                }
+                // Mirror header version into settings panel (reuses
+                // the same updateInfoCache so both stay in sync).
+                const settingsVer = document.getElementById('settingsCurrentVersion');
+                const settingsBadge = document.getElementById('settingsUpdateBadge');
+                if (settingsVer) settingsVer.textContent = data.current_version;
+                if (settingsBadge) settingsBadge.style.display = data.has_update ? 'inline' : 'none';
+                // Auto-open upgrade dialog when reached via a deep link
+                // (e.g. terminal-printed Open URL). The parameter is
+                // stripped from the URL after triggering so a manual
+                // page refresh doesn't re-pop the dialog.
+                if (data.has_update) {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('auto_update') === '1') {
+                        // Replace URL to clear the param without reload.
+                        const cleanUrl = window.location.pathname;
+                        window.history.replaceState(null, '', cleanUrl);
+                        showUpdateDialog();
+                    }
+                }
+            } catch (e) {
+                console.error('Version check failed:', e);
+            }
+        }
+
+        // Navigate to the change log page for the latest available version
+        // (falls back to current version when no update info is cached).
+        function openChangeLog() {
+            const version = (updateInfoCache && (updateInfoCache.latest_version || updateInfoCache.current_version))
+                || document.getElementById('currentVersion').textContent.trim()
+                || '1.5.1';
+            window.location.href = '/change-log?version=' + encodeURIComponent(version);
+        }
+
+        // Show update dialog
+        function showUpdateDialog(event) {
+            if (event) event.preventDefault();
+            if (!updateInfoCache || !updateInfoCache.has_update) {
+                alert('No update available');
+                return;
+            }
+            const modal = document.createElement('div');
+            modal.id = 'updateDialog';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            modal.innerHTML = `
+                <div style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:30px;text-align:center;max-width:420px;width:90%;">
+                    <h2 style="margin:0 0 20px 0;color:#fff;">Update Available</h2>
+                    <p style="color:#c9d1d9;margin:0 0 10px 0;">Current Version: <span style="color:#8b9dc3;">${updateInfoCache.current_version}</span></p>
+                    <p style="color:#c9d1d9;margin:0 0 20px 0;">Latest Version: <span style="color:#00d4ff;font-weight:600;">${updateInfoCache.latest_version}</span></p>
+                    <p style="color:#ff6b6b;background:rgba(255,107,107,0.1);padding:12px;border-radius:8px;margin:0 0 25px 0;font-size:13px;border:1px solid rgba(255,107,107,0.2);">
+                        Confirming will terminate MGC and automatically update. MGC will restart upon completion.
+                    </p>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button id="updateConfirmBtn" style="background:linear-gradient(135deg,#00d4ff 0%,#0099cc 100%);color:#fff;border:none;padding:12px 30px;border-radius:6px;cursor:pointer;font-weight:500;font-size:14px;">Update</button>
+                        <button onclick="document.getElementById('updateDialog').remove()" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);padding:12px 30px;border-radius:6px;cursor:pointer;font-size:14px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('updateConfirmBtn').onclick = startUpdate;
+        }
+
+        // Start update
+        function startUpdate() {
+            if (!updateInfoCache) return;
+            const targetVersion = updateInfoCache.latest_version;
+            const btn = document.getElementById('updateConfirmBtn');
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+
+            // 1. Remove dialog immediately so user sees feedback
+            const dialog = document.getElementById('updateDialog');
+            if (dialog) dialog.remove();
+
+            // 2. Kick off POST to /api/update/start asynchronously
+            //    (must NOT be awaited inline). Browser will wait for
+            //    in-flight fetch before executing the subsequent
+            //    window.location.href navigation, which would race
+            //    with the WebUI being killed and result in a no-op.
+            //    setTimeout(..., 0) detaches the fetch from the current
+            //    execution context so navigation proceeds immediately.
+            setTimeout(() => {
+                fetch('/api/update/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({target_version: targetVersion})
+                }).catch(() => {
+                    // Expected to fail when WebUI is killed; silent.
+                });
+            }, 0);
+
+            // 3. Navigate to installing page IMMEDIATELY so user sees
+            //    the updating spinner. The page polls /api/mgc/proxy/status
+            //    and auto-redirects to /skill when new mgc is up.
+            window.location.href = '/installing?updating=1';
+        }
+
+        // Run version check on page load
+        checkVersionOnLoad();
+
+        // Detect Safari
+        function isSafari() {
+            return /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+        }
+
+        // 下载函数（Safari 使用）
+        function downloadJson(content, filename) {
+            const blob = new Blob([content], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Safari 不支持 clipboard API，隐藏复制按钮
+        if (isSafari()) {
+            document.getElementById('copySkillBtn').style.display = 'none';
+            // copyMcpBtn 改为下载功能
+            document.getElementById('copyMcpBtn').textContent = 'Download MCP';
+        }
+
+        async function checkProtectionMode() {
+            try {
+                const response = await fetch('/api/protection_mode');
+                const data = await response.json();
+                if (data.protection_mode) {
+                    document.getElementById('btn_save').style.display = 'none';
+                    document.getElementById('btn_get').style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to check protection mode:', e);
+            }
+        }
+        checkProtectionMode();
+
+        async function copySkill() {
+            try {
+                const response = await fetch('/api/skill/content');
+                const text = await response.text();
+                if (isSafari()) {
+                    downloadJson(text, 'skill.json');
+                } else {
+                    await navigator.clipboard.writeText(text);
+                    alert('Skill copied to clipboard!');
+                }
+            } catch (e) {
+                alert('Failed to copy: ' + e);
+            }
+        }
+
+        async function copyMcpConfig() {
+            // 沙盒模式不阻断 MCP：MGC 侧服务照常运行，能不能用取决于 agent 自身的
+            // 运行环境。这里只提示，不拦截——拦了只会逼 agent 去手写 HTTP 调用，
+            // 反而绕开 mgc_save / mgc_run 已有的类型推断和 hint。
+            try {
+                const settingsRes = await fetch('/api/user/settings');
+                const settings = await settingsRes.json();
+                if (settings.sandbox_mode) {
+                    console.info('[MGC] Sandbox mode: MGC MCP is not blocked. '
+                        + 'If MCP cannot be used in your environment, call MGC '
+                        + 'through its FastAPI service instead.');
+                }
+            } catch (e) {}
+
+            try {
+                const response = await fetch('/api/mcp_config/content');
+                const text = await response.text();
+                if (isSafari()) {
+                    downloadJson(text, 'mcp_config.json');
+                } else {
+                    await navigator.clipboard.writeText(text);
+                    alert('MCP config copied to clipboard!');
+                }
+            } catch (e) {
+                alert('Failed to copy: ' + e);
+            }
+        }
+
+        async function changeRootKey() {
+            window.location.href = '/root-key-change';
+        }
+
+        function openMgcSkills() {
+            const lang = navigator.language || '';
+            if (lang.startsWith('zh')) {
+                window.open('https://skillhub.cn/user/user_46820e02', '_blank');
+            } else {
+                window.open('https://clawhub.ai/zkeviny', '_blank');
+            }
+        }
+
+        async function openDbAudit() {
+            const confirmed = confirm(
+                'Database Audit will require root key to generate a temporary database key.\n\n' +
+                'You need to prepare your own database viewer tool (e.g., DB Browser for SQLite with SQLCipher plugin).\n\n' +
+                'Please securely store the database key after retrieval.'
+            );
+            if (confirmed) {
+                window.location.href = '/root-key-change?action=audit';
+            }
+        }
+
+        async function loadProtectionMode() {
+            if (!window.MGC_TOKEN) {
+                const res = await fetch('/api/token');
+                window.MGC_TOKEN = await res.text();
+            }
+            try {
+                const res = await fetch('/api/user/settings', {
+                    headers: {'X-MGC-Token': window.MGC_TOKEN || ''}
+                });
+                const data = await res.json();
+                document.getElementById('protectionToggle').checked = data.protection_mode;
+                // Hide protection toggle in sandbox mode
+                if (data.sandbox_mode) {
+                    const protectionRow = document.querySelector('.settings-toggle-row');
+                    if (protectionRow) {
+                        protectionRow.style.display = 'none';
+                    }
+                    // 沙盒模式不阻断 MCP —— MGC 侧服务照常运行，能不能用取决于
+                    // agent 自身的运行环境。只提示，不置灰按钮：置灰会让 agent
+                    // 以为 MCP 不可用，转而去手写 HTTP 调用，反而绕开了
+                    // mgc_save / mgc_run 已有的类型推断和 hint。
+                    showNotification("Sandbox Mode is enabled. MGC's own MCP service is not blocked — if your agent cannot use MCP, call MGC through its FastAPI service instead.", "warning");
+                    const copyBtn = document.getElementById('copyMcpBtn');
+                    if (copyBtn) {
+                        copyBtn.title = "Sandbox Mode: MCP is not blocked. If your agent cannot use MCP, use the FastAPI service instead.";
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function toggleProtection() {
+            const toggle = document.getElementById('protectionToggle');
+            if (toggle.checked) {
+                const confirmed = confirm('Protection mode changes:\n1. MGC requires root key verification on every startup;\n2. WebUI Save/Get features disabled, use MCP or API instead;\n3. Database non-transferable, disable protection mode to migrate;\n4. Other features unchanged.');
+                if (!confirmed) {
+                    toggle.checked = false;
+                    return;
+                }
+                const modal = document.getElementById('protectionSwitchModal');
+                const countdown = document.getElementById('switchingCountdown');
+                modal.classList.add('show');
+                toggle.disabled = true;
+
+                let count = 3;
+                countdown.textContent = count + 's';
+                const countTimer = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdown.textContent = count + 's';
+                    } else {
+                        clearInterval(countTimer);
+                    }
+                }, 1000);
+
+                if (!window.MGC_TOKEN) {
+                    const res = await fetch('/api/token');
+                    window.MGC_TOKEN = await res.text();
+                }
+                try {
+                    await fetch('/api/user/settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-MGC-Token': window.MGC_TOKEN || ''
+                        },
+                        body: JSON.stringify({protection_mode: toggle.checked})
+                    });
+                } finally {
+                    setTimeout(() => {
+                        modal.classList.remove('show');
+                        toggle.disabled = false;
+                        location.reload();
+                    }, 3000);
+                }
+            } else {
+                const confirmed = confirm('Protection mode will be disabled on next restart.');
+                if (!confirmed) {
+                    toggle.checked = true;
+                    return;
+                }
+                if (!window.MGC_TOKEN) {
+                    const res = await fetch('/api/token');
+                    window.MGC_TOKEN = await res.text();
+                }
+                try {
+                    await fetch('/api/user/settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-MGC-Token': window.MGC_TOKEN || ''
+                        },
+                        body: JSON.stringify({protection_mode: toggle.checked})
+                    });
+                    location.reload();
+                } catch (e) {}
+            }
+        }
+
+        loadProtectionMode();
+
+        async function stop() {
+            const btn = document.getElementById('stopButton');
+            btn.disabled = true;
+            let countdown = 3;
+            btn.innerText = 'Stopping (' + countdown + 's)...';
+
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.innerText = 'Stopping (' + countdown + 's)...';
+                } else {
+                    clearInterval(timer);
+                    document.body.innerHTML = '<div style="text-align:center;margin-top:100px;color:#666;">MGC is stopping...</div>';
+                }
+            }, 1000);
+
+            try {
+                await fetch('http://127.0.0.1:57219/api/mgc/service/stop', {
+                    method: 'POST'
+                });
+            } catch (e) {
+                clearInterval(timer);
+                document.body.innerHTML = '<div style="text-align:center;margin-top:100px;color:#666;">MGC stopped. You can close this window.</div>';
+            }
+        }
+
+        // Settings panel: open/close toggle
+        function toggleSettingsPanel(event) {
+            if (event) event.stopPropagation();
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('open');
+        }
+
+        // Close settings panel on outside click
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('settingsPanel');
+            const btn = document.getElementById('settingsBtn');
+            if (!panel || !btn) return;
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ESC key: close panel first, then close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const panel = document.getElementById('settingsPanel');
+                if (panel && panel.classList.contains('open')) {
+                    panel.classList.remove('open');
+                    return;
+                }
+                const nodePubModal = document.getElementById('nodePubModal');
+                if (nodePubModal && nodePubModal.classList.contains('show')) {
+                    closeNodePubModal();
+                }
+            }
+        });
+
+        // Node Public Key modal logic
+        let currentNodePub = '';
+
+        async function showNodePub() {
+            const panel = document.getElementById('settingsPanel');
+            if (panel) panel.classList.remove('open');
+            openNodePubModal('loading');
+            try {
+                if (!window.MGC_TOKEN) {
+                    const t = await fetch('/api/token');
+                    window.MGC_TOKEN = await t.text();
+                }
+                const response = await fetch('/api/mgc/proxy/get', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify({
+                        info_type: '__NODE_PUB__',
+                        info_owner: '__NODE_PUB__'
+                    })
+                });
+                const result = await response.json();
+                if (result.code === 200 && result.data) {
+                    currentNodePub = result.data;
+                    openNodePubModal('success', result.data);
+                } else {
+                    openNodePubModal('error', result.msg || 'Unknown error');
+                }
+            } catch (e) {
+                openNodePubModal('error', e.message || 'Connection failed');
+            }
+        }
+
+        function openNodePubModal(state, payload) {
+            const modal = document.getElementById('nodePubModal');
+            const loadingEl = document.getElementById('nodePubLoading');
+            const successEl = document.getElementById('nodePubSuccess');
+            const errorEl = document.getElementById('nodePubError');
+            loadingEl.style.display = 'none';
+            successEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            if (state === 'loading') {
+                loadingEl.style.display = 'block';
+            } else if (state === 'success') {
+                document.getElementById('nodePubPemText').textContent = payload;
+                successEl.style.display = 'block';
+            } else if (state === 'error') {
+                document.getElementById('nodePubErrorMsg').textContent = payload;
+                errorEl.style.display = 'block';
+            }
+            modal.classList.add('show');
+        }
+
+        function closeNodePubModal() {
+            const modal = document.getElementById('nodePubModal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        function copyNodePub() {
+            if (!currentNodePub) return;
+            if (isSafari()) {
+                downloadJson(currentNodePub, 'node_pub_' + Date.now() + '.pem');
+            } else {
+                navigator.clipboard.writeText(currentNodePub).then(() => {
+                    alert('Copied to clipboard!');
+                }).catch(err => {
+                    alert('Copy failed: ' + err);
+                });
+            }
+        }
+
+        function retryNodePub() {
+            showNodePub();
+        }
+
+        // Close node pub modal on outside click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('nodePubModal');
+            if (!modal) return;
+            if (modal.classList.contains('show') && e.target === modal) {
+                closeNodePubModal();
+            }
+        });
+    </script>
+    <div class="modal" id="protectionSwitchModal">
+        <div class="modal-content">
+            <div style="font-size: 24px; margin-bottom: 15px;">⚙️</div>
+            <div id="switchingMessage">Protection mode switching...</div>
+            <div id="switchingCountdown" style="margin-top: 10px; color: #94a3b8;">3s</div>
+        </div>
+    </div>
+
+    <div class="modal" id="nodePubModal">
+        <div class="modal-content" style="max-width: 600px; text-align: left;">
+            <div id="nodePubLoading" style="text-align:center; padding: 30px;">
+                <div style="font-size: 24px; margin-bottom: 15px;">⏳</div>
+                <div>Fetching node public key...</div>
+            </div>
+            <div id="nodePubSuccess" style="display:none;">
+                <h2 style="margin-bottom: 10px;">🔑 Node Public Key</h2>
+                <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Public Key (PEM):</p>
+                <div class="pem-box">
+                    <pre id="nodePubPemText" class="pem-text"></pre>
+                </div>
+                <p style="color: #94a3b8; font-size: 12px; margin-top: 15px;">Share this key only with trusted nodes.</p>
+                <div class="actions" style="margin-top: 20px;">
+                    <button class="btn btn-info" onclick="copyNodePub()">Copy</button>
+                    <button class="btn btn-primary" onclick="closeNodePubModal()">Close</button>
+                </div>
+            </div>
+            <div id="nodePubError" style="display:none; text-align:center;">
+                <div style="font-size: 24px; margin-bottom: 15px; color: #ff6b6b;">❌</div>
+                <div id="nodePubErrorMsg" style="color: #ff6b6b; margin-bottom: 20px;"></div>
+                <div class="actions" style="justify-content: center;">
+                    <button class="btn btn-info" onclick="retryNodePub()">Retry</button>
+                    <button class="btn btn-primary" onclick="closeNodePubModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

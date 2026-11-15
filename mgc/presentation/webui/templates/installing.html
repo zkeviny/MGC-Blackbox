@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - Installing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans', 'DejaVu Sans', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .logo {
+            width: 84px;
+            height: 50px;
+            border-radius: 12px;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #8b9dc3;
+            line-height: 1.4;
+        }
+        .container {
+            text-align: center;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0,212,255,0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .text {
+            font-size: 24px;
+            color: #00d4ff;
+        }
+        .subtext {
+            margin-top: 10px;
+            color: #8b9dc3;
+        }
+        .progress-bar-container {
+            margin: 30px auto 0;
+            width: 280px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%);
+            transition: width 0.2s linear;
+            border-radius: 4px;
+        }
+        .progress-text {
+            margin-top: 10px;
+            color: #8b9dc3;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/MGC_LOGO.png" class="logo" alt="MGC Logo" onclick="window.open('https://github.com/zkeviny/MGC-Blackbox','_blank')" style="cursor:pointer"
+        <div class="slogan">
+            Multi-Agent Cross-Device Task Encryption, Execution &amp; Delivery Tool.
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="spinner"></div>
+        <div class="text" id="mainText">Installing...</div>
+        <div class="subtext" id="subText">Please wait while MGC is being configured.</div>
+        <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressText" class="progress-text">0%</div>
+    </div>
+    
+    <script>
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.pushState(null, null, location.href);
+        };
+
+        // 检测是否是升级场景
+        const urlParams = new URLSearchParams(window.location.search);
+        const isUpdating = urlParams.get('updating') === '1';
+        if (isUpdating) {
+            document.getElementById('mainText').textContent = 'Updating...';
+            document.getElementById('subText').textContent = 'MGC is restarting with the new version. Please wait.';
+        }
+
+        let retryCount = 0;
+        const maxRetries = 60;  // 升级场景 5 分钟（60 × 5s）
+
+        // Fake progress bar: linearly ramps from 0% to 99% over 2 minutes,
+        // then stalls at 99% until checkStatus redirects to /skill.
+        // This gives the user continuous feedback during the (otherwise
+        // silent) update window without blocking the real status poll.
+        const PROGRESS_START_MS = Date.now();
+        const PROGRESS_DURATION_MS = 120000;
+        const PROGRESS_TARGET_PCT = 99;
+        function tickProgress() {
+            const elapsed = Date.now() - PROGRESS_START_MS;
+            const pct = Math.min(
+                PROGRESS_TARGET_PCT,
+                (elapsed / PROGRESS_DURATION_MS) * 100
+            );
+            const bar = document.getElementById('progressBar');
+            const txt = document.getElementById('progressText');
+            if (bar) bar.style.width = pct + '%';
+            if (txt) txt.textContent = Math.floor(pct) + '%';
+            if (pct < PROGRESS_TARGET_PCT) {
+                setTimeout(tickProgress, 200);
+            }
+        }
+        tickProgress();
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/mgc/proxy/status', {
+                    method: 'GET'
+                });
+                if (response.ok) {
+                    const json = await response.json();
+                    retryCount = 0;
+                    if (json.data && json.data.status === 'running') {
+                        window.location.href = '/skill';
+                        return;
+                    }
+                }
+            } catch (e) {
+                // 主进程正在重启中，连接失败是预期的
+                console.log('Status check failed (expected during restart):', e);
+            }
+
+            retryCount++;
+            if (retryCount >= maxRetries) {
+                document.querySelector('.container').innerHTML =
+                    '<div style="color:#ff6b6b;text-align:center;">' +
+                    '<p style="font-size:18px;margin-bottom:15px;">' + (isUpdating ? 'Update timeout' : 'Failed to get MGC status') + '</p>' +
+                    '<p style="font-size:14px;">Please check if MGC started successfully</p>' +
+                    '<button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;cursor:pointer;">Retry</button>' +
+                    '</div>';
+                return;
+            }
+
+            setTimeout(checkStatus, 5000);
+        }
+
+        // Delay 5s before first poll: gives the caller (confirm button or
+        // initial install flow) time to transition server state (e.g.
+        // /api/update/start kicks off update_worker + schedules main
+        // process stop after 3s). Without this delay, the first poll
+        // would hit the still-healthy old mgc and immediately redirect
+        // back to /skill before the actual restart cycle begins.
+        setTimeout(checkStatus, 5000);
+    </script>
+</body>
+</html>

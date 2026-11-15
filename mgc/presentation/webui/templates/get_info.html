@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - GET INFO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .btn-success {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #cbd5e1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .subtitle-label {
+            color: #64748b;
+            margin-right: 4px;
+        }
+        .content-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .content-text {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-copy {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .btn-copy:hover {
+            background: #2563eb;
+        }
+        .btn-download {
+            background: #8b5cf6;
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: #7c3aed;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+        }
+        .error {
+            text-align: center;
+            padding: 60px;
+            color: #ef4444;
+        }
+        /* v1.4.10: modal 默认隐藏（与 get.html 一致） */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .modal-message {
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-align: left;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        /* 1.5.0: ext 行（仿 get.html 的 info-fields / info-fields-ext + deps/platforms badges） */
+        .info-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .info-fields-ext {
+            margin-top: 20px;
+        }
+        .info-field {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .info-field-label {
+            color: #94a3b8;
+            margin-right: 4px;
+        }
+        .info-field-value {
+            color: #fff;
+        }
+        .info-row-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 8px 4px 0;
+            flex-wrap: wrap;
+        }
+        .info-badges {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .badge.mgc-badge {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+        }
+        .badge.mgc-platform {
+            background-color: rgba(167, 139, 250, 0.2);
+            color: #a78bfa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(167, 139, 250, 0.4);
+        }
+        /* 1.5.1 phase7: script_chains badges（与 dependencies/platforms 区分：绿色 monospace） */
+        .badge.mgc-script-chain {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            font-family: monospace;
+        }
+        /* seal_mode badges (p2p blue / free green / chain orange — distinct from script-chain green) */
+        .badge.mgc-seal-mode-p2p {
+            background-color: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(96, 165, 250, 0.4);
+        }
+        .badge.mgc-seal-mode-free {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+        }
+        .badge.mgc-seal-mode-chain {
+            background-color: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(251, 146, 60, 0.4);
+        }
+        /* ext10: mgc run compatibility badges */
+        .badge.mgc-ext10-supported {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+        .badge.mgc-ext10-unsupported {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            cursor: help;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">MGC Blackbox</div>
+            <button class="btn btn-secondary" onclick="location.href='/skill'">← Back to Skill</button>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">LIST</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Sensitive Information</h1>
+        <p style="text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 8px;">Decrypted successfully. Sealed scripts are decrypted at runtime only. Please keep safe.</p>
+        <!-- 1.5.1 phase7: 两行副标题，居中（owner/type 一行 + diff_1/2/3 一行），行间间距加倍（2026-09-22 PM 调整）-->
+        <div id="infoSubtitle" class="subtitle-block" style="display: none; text-align: center; margin-bottom: 14px;">
+            <div class="subtitle-row" style="line-height: 1.5; margin-bottom: 0.8em;">
+                <span class="subtitle-label">owner:</span><span id="subtitleOwner"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label">type:</span><span id="subtitleType"></span>
+            </div>
+            <div class="subtitle-row" style="line-height: 1.5;">
+                <span class="subtitle-label">diff_1:</span><span id="subtitleDiff1"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label">diff_2:</span><span id="subtitleDiff2"></span>
+                &nbsp;&nbsp;
+                <span class="subtitle-label">diff_3:</span><span id="subtitleDiff3"></span>
+            </div>
+        </div>
+
+        <!-- 1.5.0: ext 行（仿 get.html，展示 ext01-07 + deps/platforms badges） -->
+        <div id="extFields" class="info-fields info-fields-ext" style="display:none;"></div>
+
+        <div id="contentArea">
+            <div class="loading">Loading...</div>
+        </div>
+
+        <!-- v1.4.10: 与 get 页共用的弹框（handler 在 mgc_actions.js） -->
+        <div class="modal" id="argsModal">
+            <div class="modal-content">
+                <div class="modal-title">Run with Arguments</div>
+                <p style="color: #94a3b8; font-size: 0.85em; margin: 2px 0 2px 0; text-align: left;">
+                    You can edit the args below for this run. Changes apply only to this execution and are not saved back to storage.
+                </p>
+                <textarea id="argsInput" rows="12"
+                          placeholder='["--flag1", "value1", "--flag2", "value with spaces"]'
+                          style="width: 100%; padding: 8px; margin-top: 2px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 13px; font-family: monospace; box-sizing: border-box; resize: vertical; word-break: break-all;"></textarea>
+                <div class="modal-buttons" style="margin-top: 4px;">
+                    <button class="btn btn-secondary" onclick="closeArgsModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="confirmRunWithArgs()">Run</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="sealModal">
+            <div class="modal-content">
+                <div class="modal-title">Seal Script</div>
+                <div class="modal-message">
+                    <p style="margin-bottom: 10px;">Enter the target node's <code>node_pub</code> to seal in <strong>p2p mode</strong>. Leave empty to seal in <strong>free mode</strong> (any mgc node can run).</p>
+                    <textarea id="sealNodePub" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----&#10;(leave empty for free mode)" style="width: 100%; min-height: 104px; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #fff; font-size: 12px; font-family: monospace;"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeSealModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="confirmSeal()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1.5.4 phase6: 密封结果仅提供下载，不再跳转 get_sealed_info 中转页 -->
+        <div class="modal" id="sealResultModal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-title">Sealed Capsule Ready</div>
+                <div class="modal-message" id="sealResultBody"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" id="sealResultClose" style="display: none;">Close</button>
+                    <button class="btn btn-primary" id="sealResultOk" style="display: none;">OK</button>
+                    <button class="btn btn-primary" id="sealResultDownload">Download</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="resultModal">
+            <div class="modal-content">
+                <div class="modal-title" id="modalTitle"></div>
+                <div class="modal-message" id="modalMessage"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions" id="actionButtons" style="display: none;">
+            <button class="btn btn-copy" onclick="copyContent()">Copy</button>
+            <button class="btn btn-download" onclick="downloadContent()">Download</button>
+            <!-- v1.4.10: Run/Seal/Delete 按钮（handler 在 mgc_actions.js） -->
+            <button class="btn btn-secondary" id="btnRunWithArgs" style="display: none; background-color: #CB7C2E; border-color: #CB7C2E;"
+                    data-owner="" data-ext01="" data-ext02=""
+                    onclick="runScriptWithArgsFromBtn(this)">Run with Args</button>
+            <button class="btn btn-success" id="btnRun" style="display: none;"
+                    data-owner="" data-ext01="" data-ext02=""
+                    onclick="runScriptFromBtn(this)">Run</button>
+            <button class="btn btn-secondary" id="btnSeal" style="display: none;"
+                    data-owner="" data-ext01="" data-type=""
+                    onclick="sealScriptFromBtn(this)">Seal</button>
+            <button class="btn btn-danger" id="btnDelete" style="display: none;"
+                    data-owner="" data-type="" data-diff1="" data-diff2="" data-diff3=""
+                    onclick="deleteInfoFromBtn(this)">Delete</button>
+            <!-- PR-6 (1.5.0 phase2 / 技能授权): Package / Seal Package for file type -->
+            <button class="btn btn-info" id="btnPackage" style="display: none; background-color:#2E8B57;border-color:#2E8B57;"
+                    data-owner="" data-diff2="" data-diff1="" data-type=""
+                    onclick="packageFolderFromBtn(this)">Package</button>
+            <button class="btn btn-warning" id="btnSealPackage" style="display: none; background-color:#B8860B;border-color:#B8860B;"
+                    data-owner="" data-diff2="" data-diff1="" data-type=""
+                    onclick="sealPackageFolderFromBtn(this)">Seal Package</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">Cancel</button>
+        </div>
+    </div>
+
+    <script src="/static/js/mgc_actions.js?v=1.5.1"></script>
+    <script>
+        let tokenInitialized = false;
+        let currentContent = '';
+        
+        async function initToken() {
+            try {
+                const response = await fetch('/api/token');
+                if (response.ok) {
+                    window.MGC_TOKEN = await response.text();
+                    tokenInitialized = true;
+                    console.log('Token initialized successfully');
+                } else {
+                    console.error('Token fetch failed, status:', response.status);
+                }
+            } catch (e) {
+                console.error('Failed to get token:', e);
+            }
+        }
+        initToken();
+        
+        async function waitForToken() {
+            while (!tokenInitialized) {
+                await new Promise(r => setTimeout(r, 100));
+            }
+        }
+        
+        async function loadContent() {
+            await waitForToken();
+            console.log('loadContent called, token:', window.MGC_TOKEN ? window.MGC_TOKEN.substring(0, 20) + '...' : 'EMPTY');
+            const paramsStr = localStorage.getItem('mgc_get_params');
+            if (!paramsStr) {
+                document.getElementById('contentArea').innerHTML = '<div class="error">No data to display</div>';
+                return;
+            }
+            
+            const params = JSON.parse(paramsStr);
+            console.log('loadContent params:', params);
+
+            // v1.4.10 + 1.5.1 phase7: 显示 owner/type/diff_1/2/3 副标题（仿 list 页）
+            if (params.info_owner || params.info_type) {
+                document.getElementById('subtitleOwner').textContent = params.info_owner || '-';
+                document.getElementById('subtitleType').textContent = params.info_type || '-';
+                document.getElementById('subtitleDiff1').textContent = params.diff_1 || '-';
+                document.getElementById('subtitleDiff2').textContent = params.diff_2 || '-';
+                document.getElementById('subtitleDiff3').textContent = params.diff_3 || '-';
+                document.getElementById('infoSubtitle').style.display = 'block';
+            }
+            
+            try {
+                const response = await fetch('/api/mgc/proxy/get', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify(params)
+                });
+                
+                console.log('loadContent response status:', response.status);
+                const result = await response.json();
+                console.log('loadContent result:', result);
+                
+                const contentArea = document.getElementById('contentArea');
+                
+                if (result.code === 200) {
+                    currentContent = result.data;
+                    contentArea.innerHTML = `
+                        <div class="content-box">
+                            <pre class="content-text">${escapeHtml(currentContent)}</pre>
+                        </div>
+                    `;
+                    document.getElementById('actionButtons').style.display = 'flex';
+                    // v1.4.10: 调 list 接口拿 ext01/ext02/ext03，按规则显隐 Run/Seal/Delete
+                    await loadScriptMetaAndShowButtons(params);
+                } else {
+                    contentArea.innerHTML = `<div class="error">${result.msg || 'Failed to get information'}</div>`;
+                }
+            } catch (error) {
+                console.error('Content load failed:', error);
+                document.getElementById('contentArea').innerHTML = '<div class="error">Failed to load content<br><small>' + (error.message || 'Connection failed') + '</small></div>';
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 1.5.0: render ext05 (deps) and ext06 (platforms) as badges
+        // - HTML-escapes every value to prevent XSS
+        // - JSON parse failure degrades to no rendering (safe fallback)
+        function renderExtFields(entry) {
+            const box = document.getElementById('extFields');
+            if (!box) return;
+            // 与 get.html 字段子集一致：ext01/02/03/07 + ext05/06 badges；ext04 不展示
+            const esc = (v) => {
+                const d = document.createElement('div');
+                d.textContent = v == null ? '' : String(v);
+                return d.innerHTML;
+            };
+            const short = (v, n) => {
+                const s = v == null ? '' : String(v);
+                return s.length > n ? s.substring(0, n) + '...' : s;
+            };
+            const parts = [];
+            if (entry.ext01) parts.push(`<span class="info-field"><span class="info-field-label">startup_command:</span><span class="info-field-value">${esc(short(entry.ext01, 30))}</span></span>`);
+            if (entry.ext02) parts.push(`<span class="info-field"><span class="info-field-label">args:</span><span class="info-field-value">${esc(short(entry.ext02, 30))}</span></span>`);
+            if (entry.ext03) {
+                const v = entry.ext03.length > 15 ? entry.ext03.substring(0, 15) + '...' : entry.ext03;
+                parts.push(`<span class="info-field"><span class="info-field-label">script_key:</span><span class="info-field-value">${esc(v)}</span></span>`);
+            }
+            if (entry.ext07) {
+                const v = entry.ext07.length > 15 ? entry.ext07.substring(0, 15) + '...' : entry.ext07;
+                parts.push(`<span class="info-field"><span class="info-field-label">source_node_pub:</span><span class="info-field-value">${esc(v)}</span></span>`);
+            }
+            if (entry.ext05) {
+                let deps = [];
+                try { deps = JSON.parse(entry.ext05); } catch (e) { deps = []; }
+                if (Array.isArray(deps) && deps.length) {
+                    const badges = deps.map(d => `<span class="badge mgc-badge">${esc(String(d))}</span>`).join('');
+                    parts.push(`<div class="info-row-block"><span class="info-field-label">dependencies:</span><span class="info-badges">${badges}</span></div>`);
+                }
+            }
+            if (entry.ext06) {
+                let platforms = [];
+                try { platforms = JSON.parse(entry.ext06); } catch (e) { platforms = []; }
+                if (Array.isArray(platforms) && platforms.length) {
+                    const tags = platforms.map(p => `<span class="badge mgc-platform">${esc(String(p))}</span>`).join('');
+                    parts.push(`<div class="info-row-block"><span class="info-field-label">platforms:</span><span class="info-badges">${tags}</span></div>`);
+                }
+            }
+            // 1.5.1 phase7: ext08 展示（脚本串联调用关系，仿 dependencies/platforms badges）
+            if (entry.ext08) {
+                let ext08Obj = {};
+                try { ext08Obj = JSON.parse(entry.ext08); } catch (e) { ext08Obj = {}; }
+                if (ext08Obj && Array.isArray(ext08Obj.calls) && ext08Obj.calls.length) {
+                    // 去重保留顺序
+                    const seen = new Set();
+                    const targets = [];
+                    for (const c of ext08Obj.calls) {
+                        const t = c && c.target_diff_3;
+                        if (t && !seen.has(t)) { seen.add(t); targets.push(t); }
+                    }
+                    if (targets.length) {
+                        const badges = targets.map(t => `<span class="badge mgc-script-chain">${esc(String(t))}</span>`).join('');
+                        parts.push(`<div class="info-row-block"><span class="info-field-label">script_chains:</span><span class="info-badges">${badges}</span></div>`);
+                    }
+                }
+            }
+            // seal_mode badge: standalone row so it shows even when ext08 is empty.
+            if (entry.ext09) {
+                const mode = String(entry.ext09).trim();
+                if (mode) {
+                    const modeClass = mode === 'free mode' ? 'mgc-seal-mode-free'
+                                      : mode === 'chain mode' ? 'mgc-seal-mode-chain'
+                                      : 'mgc-seal-mode-p2p';
+                    parts.push(`<div class="info-row-block"><span class="info-field-label">seal_mode:</span><span class="info-badges"><span class="badge ${modeClass}">${esc(mode)}</span></span></div>`);
+                }
+            }
+            // ext10 badge: standalone row so it shows even when ext08 is empty.
+            if (entry.ext10) {
+                const ext10Val = String(entry.ext10).trim();
+                if (ext10Val) {
+                    const ext10Class = ext10Val === 'unsupported' ? 'mgc-ext10-unsupported'
+                                       : 'mgc-ext10-supported';
+                    parts.push(`<div class="info-row-block"><span class="info-field-label">mgc_run:</span><span class="info-badges"><span class="badge ${ext10Class}">${esc(ext10Val)}</span></span></div>`);
+                }
+            }
+            if (!parts.length) {
+                box.style.display = 'none';
+                box.innerHTML = '';
+                return;
+            }
+            box.innerHTML = parts.join('');
+            box.style.display = '';
+        }
+
+        // 1.5.0: renderDepPlatformBadges 已并入 renderExtFields，不再单独渲染
+        // （平台/依赖 badges 现在由 renderExtFields 在 owner/type 副标题下展示）
+        function renderDepPlatformBadges_unused(entry) {
+            const area = document.getElementById('contentArea');
+            if (!area) return;
+            const existing = document.getElementById('mgc-dep-platform-block');
+            if (existing) existing.remove();
+
+            let deps = [];
+            let platforms = [];
+            if (entry && entry.ext05) {
+                try {
+                    const parsed = JSON.parse(entry.ext05);
+                    if (Array.isArray(parsed)) deps = parsed.filter(x => typeof x === 'string' && x);
+                } catch (e) { /* fall through with empty deps */ }
+            }
+            if (entry && entry.ext06) {
+                try {
+                    const parsed = JSON.parse(entry.ext06);
+                    if (Array.isArray(parsed)) platforms = parsed.filter(x => typeof x === 'string' && x);
+                } catch (e) { /* fall through with empty platforms */ }
+            }
+            if (!deps.length && !platforms.length) return;
+
+            const depBadges = deps.map(d => `<span class="badge mgc-badge">${escapeHtml(String(d))}</span>`).join('');
+            const platBadges = platforms.map(p => `<span class="badge mgc-platform">${escapeHtml(String(p))}</span>`).join('');
+
+            const block = document.createElement('div');
+            block.id = 'mgc-dep-platform-block';
+            block.className = 'mgc-dep-platform-block';
+            block.style.cssText = 'margin: 10px 0 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;';
+            if (deps.length) {
+                const depLabel = document.createElement('span');
+                depLabel.style.cssText = 'color:#94a3b8; font-size:12px;';
+                depLabel.textContent = 'deps:';
+                const depSpan = document.createElement('span');
+                depSpan.style.cssText = 'display:inline-flex; flex-wrap:wrap; gap:4px;';
+                depSpan.innerHTML = depBadges;
+                block.appendChild(depLabel);
+                block.appendChild(depSpan);
+            }
+            if (platforms.length) {
+                const platLabel = document.createElement('span');
+                platLabel.style.cssText = 'color:#94a3b8; font-size:12px;';
+                platLabel.textContent = 'platforms:';
+                const platSpan = document.createElement('span');
+                platSpan.style.cssText = 'display:inline-flex; flex-wrap:wrap; gap:4px;';
+                platSpan.innerHTML = platBadges;
+                block.appendChild(platLabel);
+                block.appendChild(platSpan);
+            }
+            // Insert after content-box (before action buttons)
+            const contentBox = area.querySelector('.content-box');
+            if (contentBox && contentBox.parentNode === area) {
+                area.insertBefore(block, contentBox.nextSibling);
+            } else {
+                area.appendChild(block);
+            }
+        }
+        
+        function copyContent() {
+            navigator.clipboard.writeText(currentContent).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy');
+            });
+        }
+        
+        function downloadContent() {
+            const blob = new Blob([currentContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mgc-info.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // v1.4.10: 调 list 接口拿 ext01/ext02/ext03，按 get 页规则显隐 Run/Seal/Delete
+        async function loadScriptMetaAndShowButtons(params) {
+            try {
+                const response = await fetch('/api/mgc/proxy/get', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify({})
+                });
+                const result = await response.json();
+                // 兼容 code=200 (result.data=[]) 或 code=201 (result.data.info_list=[])
+                let items;
+                if (result.code === 200 && Array.isArray(result.data)) {
+                    items = result.data;
+                } else if (result.code === 201 && result.data && Array.isArray(result.data.info_list)) {
+                    items = result.data.info_list;
+                } else {
+                    return;
+                }
+                const matched = items.find(it =>
+                    it.info_type === params.info_type &&
+                    it.info_owner === params.info_owner &&
+                    (it.diff_1 || '') === (params.diff_1 || '') &&
+                    (it.diff_2 || '') === (params.diff_2 || '') &&
+                    (it.diff_3 || '') === (params.diff_3 || '')
+                );
+                if (!matched) return;
+
+                // 注意：list 接口返回的字段名是 ext01/ext02/ext03（不带下划线）
+                const ext01 = matched.ext01 || '';
+                const ext02 = matched.ext02 || '';
+                const ext03 = matched.ext03 || '';
+                const owner = matched.info_owner;
+                const infoType = matched.info_type;
+                const diff1 = matched.diff_1 || '';
+                const diff2 = matched.diff_2 || '';
+                const diff3 = matched.diff_3 || '';
+
+                // Run: 有 ext01 即显示
+                if (ext01) {
+                    const btn = document.getElementById('btnRun');
+                    btn.dataset.owner = encodeURIComponent(owner);
+                    // 1.5.1 phase4 修复：传 diff1/2/3
+                    btn.dataset.diff1 = encodeURIComponent(diff1);
+                    btn.dataset.diff2 = encodeURIComponent(diff2);
+                    btn.dataset.diff3 = encodeURIComponent(diff3);
+                    btn.dataset.ext01 = encodeURIComponent(ext01);
+                    btn.dataset.ext02 = encodeURIComponent(ext02);
+                    btn.style.display = '';
+                }
+                // Run with Args: 有 ext02 才显示
+                if (ext01 && ext02) {
+                    const btnArgs = document.getElementById('btnRunWithArgs');
+                    btnArgs.dataset.owner = encodeURIComponent(owner);
+                    // 1.5.1 phase4 修复：传 diff1/2/3
+                    btnArgs.dataset.diff1 = encodeURIComponent(diff1);
+                    btnArgs.dataset.diff2 = encodeURIComponent(diff2);
+                    btnArgs.dataset.diff3 = encodeURIComponent(diff3);
+                    btnArgs.dataset.ext01 = encodeURIComponent(ext01);
+                    btnArgs.dataset.ext02 = encodeURIComponent(ext02);
+                    btnArgs.style.display = '';
+                }
+                // Seal: 有 ext01 且无 ext03
+                if (ext01 && !ext03) {
+                    const btn = document.getElementById('btnSeal');
+                    btn.dataset.owner = encodeURIComponent(owner);
+                    // 1.5.1 phase4 修复：传 diff1/2/3
+                    btn.dataset.diff1 = encodeURIComponent(diff1);
+                    btn.dataset.diff2 = encodeURIComponent(diff2);
+                    btn.dataset.diff3 = encodeURIComponent(diff3);
+                    btn.dataset.ext01 = encodeURIComponent(ext01);
+                    btn.dataset.type = encodeURIComponent(infoType);
+                    btn.style.display = '';
+                }
+                // Delete: 非 __NODE_PUB__
+                if (infoType !== '__NODE_PUB__') {
+                    const btn = document.getElementById('btnDelete');
+                    btn.dataset.owner = encodeURIComponent(owner);
+                    btn.dataset.type = encodeURIComponent(infoType);
+                    btn.dataset.diff1 = encodeURIComponent(diff1);
+                    btn.dataset.diff2 = encodeURIComponent(diff2);
+                    btn.dataset.diff3 = encodeURIComponent(diff3);
+                    btn.style.display = '';
+                }
+                // PR-6: Package / Seal Package: info_type === 'file' 时显示
+                if (infoType === 'file') {
+                    const btnPkg = document.getElementById('btnPackage');
+                    btnPkg.dataset.owner = encodeURIComponent(owner);
+                    btnPkg.dataset.diff1 = encodeURIComponent(diff1);
+                    btnPkg.dataset.diff2 = encodeURIComponent(diff2);
+                    btnPkg.dataset.type = encodeURIComponent(infoType);
+                    btnPkg.style.display = '';
+                    const btnSealPkg = document.getElementById('btnSealPackage');
+                    btnSealPkg.dataset.owner = encodeURIComponent(owner);
+                    btnSealPkg.dataset.diff1 = encodeURIComponent(diff1);
+                    btnSealPkg.dataset.diff2 = encodeURIComponent(diff2);
+                    btnSealPkg.dataset.type = encodeURIComponent(infoType);
+                    btnSealPkg.style.display = '';
+                }
+                // 1.5.0: owner/type 下方单独增加一行展示 ext 字段（仿 get.html 的 ext 行）
+                //        包含 ext01/02/03/07 + ext05/06 badges（deps/platforms）
+                renderExtFields(matched);
+            } catch (e) {
+                console.error('loadScriptMetaAndShowButtons failed:', e);
+            }
+        }
+
+        loadContent();
+    </script>
+</body>
+</html>

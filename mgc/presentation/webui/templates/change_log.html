@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - Change Log</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans', 'DejaVu Sans', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.25);
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .page-title {
+            font-size: 18px;
+            color: #00d4ff;
+            font-weight: 500;
+        }
+        .content {
+            flex: 1;
+            padding: 30px 50px;
+            overflow-y: auto;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .content-empty {
+            color: #8b9dc3;
+            font-style: italic;
+            padding: 60px 0;
+            text-align: center;
+        }
+        .markdown-body {
+            color: #c9d1d9;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+        .markdown-body h1 {
+            color: #00d4ff;
+            font-size: 24px;
+            margin: 20px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .markdown-body h2 {
+            color: #00d4ff;
+            font-size: 19px;
+            margin: 18px 0 10px;
+        }
+        .markdown-body h3 {
+            color: #8b9dc3;
+            font-size: 16px;
+            margin: 14px 0 8px;
+        }
+        .markdown-body p {
+            margin: 8px 0;
+        }
+        .markdown-body ul, .markdown-body ol {
+            margin: 8px 0 8px 24px;
+        }
+        .markdown-body li {
+            margin: 4px 0;
+        }
+        .markdown-body code {
+            background: rgba(0,0,0,0.4);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            color: #00d4ff;
+        }
+        .markdown-body pre {
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .markdown-body pre code {
+            padding: 0;
+            background: none;
+            color: #c9d1d9;
+        }
+        .markdown-body strong {
+            color: #fff;
+        }
+        .markdown-body blockquote {
+            border-left: 3px solid rgba(0,212,255,0.4);
+            padding-left: 14px;
+            margin: 10px 0;
+            color: #8b9dc3;
+        }
+        .loading {
+            color: #8b9dc3;
+            padding: 30px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='/skill'">&larr; Back</button>
+        <div class="page-title">Change Log</div>
+    </div>
+
+    <main class="content" id="content">
+        <div class="loading">Loading...</div>
+    </main>
+
+    <script>
+        async function loadChangelog() {
+            const content = document.getElementById('content');
+            try {
+                const res = await fetch('/api/changelog');
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        content.innerHTML = '<div class="content-empty">No change log available.</div>';
+                    } else {
+                        content.innerHTML = '<div class="content-empty">Failed to load change log.</div>';
+                    }
+                    return;
+                }
+                const text = await res.text();
+                content.innerHTML = '<div class="markdown-body">' + renderMarkdown(text) + '</div>';
+            } catch (e) {
+                content.innerHTML = '<div class="content-empty">Failed to load change log.</div>';
+            }
+        }
+
+        // Minimal markdown renderer (headings, lists, code, bold, blockquote, paragraphs).
+        // Avoids external dependencies for offline reliability.
+        function renderMarkdown(md) {
+            const lines = md.split(/\r?\n/);
+            const out = [];
+            let i = 0;
+            while (i < lines.length) {
+                const line = lines[i];
+                if (line.startsWith('```')) {
+                    const buf = [];
+                    i++;
+                    while (i < lines.length && !lines[i].startsWith('```')) {
+                        buf.push(escapeHtml(lines[i]));
+                        i++;
+                    }
+                    i++;
+                    out.push('<pre><code>' + buf.join('\n') + '</code></pre>');
+                    continue;
+                }
+                const h = line.match(/^(#{1,3})\s+(.*)$/);
+                if (h) {
+                    const level = h[1].length;
+                    out.push('<h' + level + '>' + inline(h[2]) + '</h' + level + '>');
+                    i++;
+                    continue;
+                }
+                if (line.startsWith('> ')) {
+                    const buf = [];
+                    while (i < lines.length && lines[i].startsWith('> ')) {
+                        buf.push(lines[i].slice(2));
+                        i++;
+                    }
+                    out.push('<blockquote>' + inline(buf.join(' ')) + '</blockquote>');
+                    continue;
+                }
+                if (/^[-*]\s+/.test(line)) {
+                    const buf = [];
+                    while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
+                        buf.push('<li>' + inline(lines[i].replace(/^[-*]\s+/, '')) + '</li>');
+                        i++;
+                    }
+                    out.push('<ul>' + buf.join('') + '</ul>');
+                    continue;
+                }
+                if (/^\d+\.\s+/.test(line)) {
+                    const buf = [];
+                    while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+                        buf.push('<li>' + inline(lines[i].replace(/^\d+\.\s+/, '')) + '</li>');
+                        i++;
+                    }
+                    out.push('<ol>' + buf.join('') + '</ol>');
+                    continue;
+                }
+                if (line.trim() === '') {
+                    i++;
+                    continue;
+                }
+                const buf = [line];
+                i++;
+                while (i < lines.length && lines[i].trim() !== '' && !/^(#{1,3}\s|[-*]\s|>\s|\d+\.\s|```)/.test(lines[i])) {
+                    buf.push(lines[i]);
+                    i++;
+                }
+                out.push('<p>' + inline(buf.join(' ')) + '</p>');
+            }
+            return out.join('');
+        }
+
+        function inline(s) {
+            let h = escapeHtml(s);
+            h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+            h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            h = h.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+            return h;
+        }
+
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        loadChangelog();
+    </script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/mgc_favicon.png" type="image/png">
+    <title>MGC Blackbox - SAVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            background: #22c55e;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .form-group select {
+            cursor: pointer;
+        }
+        .btn-save {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn-save:disabled {
+            background: #4b5563;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .btn-save.ready {
+            background: #f59e0b;
+            color: #1a1a2e;
+        }
+        .btn-save.ready:hover {
+            background: #d97706;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .modal-message {
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .modal-buttons .btn {
+            min-width: 100px;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-success {
+            background: #4ade80;
+            color: #1a1a2e;
+        }
+        .btn-success:hover {
+            background: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">MGC Blackbox</div>
+            <button class="btn btn-secondary" onclick="location.href='/skill'">← Back to Skill</button>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" onclick="location.href='/save'">SAVE</button>
+            <button class="btn btn-primary" onclick="location.href='/list'">LIST</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Save Sensitive Information</h1>
+        
+        <form id="saveForm">
+            <div class="form-group">
+                <label>Owner (info_owner)</label>
+                <input type="text" id="owner" placeholder="Enter owner and title (e.g., Mary's GitHub)" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Type (info_type)</label>
+                <input type="text" id="infoType" placeholder="token, password, api_key, script">
+                <small style="color:#94a3b8; font-size:0.85em; margin-top:4px; display:block; text-align:left;">
+                    To import a local file or folder, choose <strong>file</strong>.
+                </small>
+            </div>
+
+            <div class="form-group" id="platformGroup" style="display: none;">
+                <label>Startup Platform (ext01)</label>
+                <input type="text" id="platform" placeholder="python, bash, powershell">
+            </div>
+
+            <div class="form-group" id="argsGroup" style="display: none;">
+                <label>Arguments (ext02)</label>
+                <textarea id="args" rows="3"
+                          placeholder='["--start", "2026-08-08 00:00:00", "--verbose"]'
+                          style="width: 100%; padding: 8px; font-family: monospace; font-size: 13px; box-sizing: border-box; resize: vertical;"></textarea>
+                <small style="color: #666; font-size: 0.85em;">Optional. For script type, MGC can auto-extract and assemble; manual entry must be a valid JSON array string.</small>
+            </div>
+            
+            <div class="form-group" id="unsealKeyGroup" style="display: none;">
+                <label>Unseal Key (ext03)</label>
+                <input type="text" id="unsealKey" placeholder="RSA encrypted AES key">
+            </div>
+
+            <div class="form-group" id="sealModeGroup" style="display: none;">
+                <label>Seal Mode (ext09)</label>
+                <input type="text" id="sealMode" placeholder="p2p mode / free mode / chain mode">
+                <small style="color: #666; font-size: 0.85em;">Auto-filled from the sealed capsule. Must match the seal output or unseal will fail.</small>
+            </div>
+
+            <div class="form-group" id="sourceNodePubGroup" style="display: none;">
+                <label>Source Node Pub (ext07)</label>
+                <textarea id="sourceNodePub" rows="6"
+                          placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"
+                          style="width: 100%; padding: 8px; font-family: monospace; font-size: 12px; box-sizing: border-box; resize: vertical;"></textarea>
+                <small style="color: #666; font-size: 0.85em;">Auto-filled from the sealed capsule. Multi-line PEM — keep the line breaks intact.</small>
+            </div>
+
+            <div class="form-group" id="diff1Group" style="display: none;">
+                <label>Purpose (diff_1) - Only for script</label>
+                <input type="text" id="diff1" placeholder="backup database">
+            </div>
+
+            <div class="form-group" id="diff2Group" style="display: none;">
+                <label>Package (diff_2) - Only for script</label>
+                <input type="text" id="diff2" placeholder="QD运营技能集合full">
+            </div>
+
+            <div class="form-group" id="diff3Group" style="display: none;">
+                <label>Path (diff_3) - Only for script</label>
+                <input type="text" id="diff3" placeholder="script/汇总驱动.py">
+            </div>
+            
+            <div class="form-group">
+                <label>Content</label>
+                <textarea id="content" placeholder="Paste script or sealed JSON here. MGC will auto-detect. For sealed data, paste the complete sealed capsule JSON produced by mgc_seal (info_type / info_owner / diff_* / ext* / content) — every field is auto-extracted." required></textarea>
+            </div>
+            
+            <button type="button" id="btnReady" class="btn btn-primary btn-save" disabled>Ready for Save</button>
+            <button type="submit" id="btnSave" class="btn btn-primary btn-save" style="display: none;">SAVE</button>
+        </form>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-buttons" id="modalButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        let tokenInitialized = false;
+
+        // 1.5.4 phase6:识别规则搬到服务端 /sensitive/parse_sealed，
+        // 与 _sensitive_save 前置解析共用 sealed_payload_parser，
+        // 保证 WebUI 与 MCP / API 的识别结果不会漂移。
+        async function detectSealedData(input) {
+            if (!input || typeof input !== 'string') return null;
+            if (!input.trim().startsWith('{')) return null;
+            try {
+                const resp = await fetch('/api/mgc/parse_sealed', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({content: input})
+                });
+                const payload = await resp.json();
+                if (!payload || payload.msg !== 'SEALED_PAYLOAD_PARSED') return null;
+                return payload.data || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function detectScriptPlatform(content) {
+            if (!content) return null;
+
+            const firstLine = content.trim().split('\n')[0];
+
+            if (firstLine.startsWith('#!')) {
+                const shebang = firstLine.slice(2).toLowerCase();
+                if (shebang.includes('python3')) return 'python3';
+                if (shebang.includes('python')) return 'python';
+                if (shebang.includes('bash') || shebang.includes('/sh')) return 'bash';
+                if (shebang.includes('powershell') || shebang.includes('pwsh')) return 'powershell';
+                if (shebang.includes('cmd')) return 'bat';
+            }
+
+            const lower = content.toLowerCase();
+
+            if (/\$\w+|-eq\b|-ne\b|\bget-\w+|\bset-\w+/.test(lower)) return 'powershell';
+            if (/\bdef\s+\w+\(|\bimport\s+\w+|\bclass\s+\w+:/.test(lower)) return 'python';
+            if (/\bif\s+\[|\bfor\s+\w+|\$\(|\$\w+/.test(lower)) return 'bash';
+            if (/@echo\s+off|\bset\s+\w+=|%\w+%/.test(lower)) return 'bat';
+
+            return null;
+        }
+
+        function updateButtonState() {
+            const owner = document.getElementById('owner').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const btnReady = document.getElementById('btnReady');
+            const btnSave = document.getElementById('btnSave');
+
+            if (owner && content) {
+                btnReady.disabled = false;
+                btnReady.classList.add('ready');
+            } else {
+                btnReady.disabled = true;
+                btnReady.classList.remove('ready');
+            }
+
+            btnSave.style.display = 'none';
+            btnReady.style.display = 'block';
+        }
+
+        async function initToken() {
+            try {
+                const response = await fetch('/api/token');
+                if (response.ok) {
+                    window.MGC_TOKEN = await response.text();
+                    tokenInitialized = true;
+                    console.log('Token initialized successfully');
+                } else {
+                    console.error('Token fetch failed, status:', response.status);
+                }
+            } catch (e) {
+                console.error('Failed to get token:', e);
+            }
+        }
+        initToken();
+
+        async function waitForToken() {
+            while (!tokenInitialized) {
+                await new Promise(r => setTimeout(r, 100));
+            }
+        }
+
+        document.getElementById('owner').addEventListener('input', updateButtonState);
+        document.getElementById('content').addEventListener('input', updateButtonState);
+
+        document.getElementById('btnReady').addEventListener('click', async function() {
+            const rawContent = document.getElementById('content').value;
+            const sealed = await detectSealedData(rawContent);
+            
+            if (sealed) {
+                document.getElementById('content').value = sealed.content;
+                document.getElementById('infoType').value = sealed.info_type || 'script';
+                if (sealed.ext01) {
+                    document.getElementById('platform').value = sealed.ext01;
+                    document.getElementById('platformGroup').style.display = 'block';
+                }
+                if (sealed.ext02) {
+                    document.getElementById('args').value = sealed.ext02;
+                }
+                if (sealed.ext03) {
+                    document.getElementById('unsealKey').value = sealed.ext03;
+                    document.getElementById('unsealKeyGroup').style.display = 'block';
+                }
+                if (sealed.ext07) {
+                    document.getElementById('sourceNodePub').value = sealed.ext07;
+                    document.getElementById('sourceNodePubGroup').style.display = 'block';
+                }
+                if (sealed.ext09) {
+                    document.getElementById('sealMode').value = sealed.ext09;
+                    document.getElementById('sealModeGroup').style.display = 'block';
+                }
+                // info_owner 仅在用户未填时回填（用户已填说明想存到别的 owner）
+                const ownerEl = document.getElementById('owner');
+                if (!ownerEl.value.trim() && sealed.capsule_info_owner) {
+                    ownerEl.value = sealed.capsule_info_owner;
+                }
+                if (sealed.diff_1) {
+                    document.getElementById('diff1').value = sealed.diff_1;
+                }
+                if (sealed.diff_2) {
+                    document.getElementById('diff2').value = sealed.diff_2;
+                    document.getElementById('diff2Group').style.display = 'block';
+                }
+                if (sealed.diff_3) {
+                    document.getElementById('diff3').value = sealed.diff_3;
+                }
+                document.getElementById('diff1Group').style.display = 'block';
+                document.getElementById('diff3Group').style.display = 'block';
+                document.getElementById('argsGroup').style.display = 'block';
+            } else {
+                const platform = detectScriptPlatform(rawContent);
+                if (platform) {
+                    document.getElementById('platform').value = platform;
+                    document.getElementById('platformGroup').style.display = 'block';
+                    document.getElementById('argsGroup').style.display = 'block';
+                    document.getElementById('diff1Group').style.display = 'block';
+                    // v1.4.10: 检测到脚本时强制写入 info_type=script（仍可手动修改）
+                    document.getElementById('infoType').value = 'script';
+                }
+            }
+
+            document.getElementById('btnReady').style.display = 'none';
+            document.getElementById('btnSave').style.display = 'block';
+            document.getElementById('btnSave').classList.add('ready');
+        });
+
+        document.getElementById('saveForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await waitForToken();
+
+            const owner = document.getElementById('owner').value;
+            const infoType = document.getElementById('infoType').value;
+            const content = document.getElementById('content').value;
+            const diff1 = document.getElementById('diff1').value;
+            const diff2 = document.getElementById('diff2').value;
+            const diff3 = document.getElementById('diff3').value;
+            const platform = document.getElementById('platform').value;
+            const args = document.getElementById('args').value;
+            const unsealKey = document.getElementById('unsealKey').value;
+            const sealMode = document.getElementById('sealMode').value;
+            const sourceNodePub = document.getElementById('sourceNodePub').value;
+
+            const data = {
+                info_owner: owner,
+                content: content
+            };
+
+            if (infoType) data.info_type = infoType;
+            if (diff1) data.diff_1 = diff1;
+            if (diff2) data.diff_2 = diff2;
+            if (diff3) data.diff_3 = diff3;
+            if (platform) data.ext01 = platform;
+
+            // v1.4.10: ext02 must be a valid JSON array string if manually entered
+            if (args && args.trim()) {
+                const argsEl = document.getElementById('args');
+                try {
+                    const parsed = JSON.parse(args);
+                    if (!Array.isArray(parsed)) {
+                        showModal('Invalid ext02', 'ext02 must be a valid JSON array, e.g. ["--flag", "value"]', 'error');
+                        argsEl.style.border = '2px solid #e74c3c';
+                        return;
+                    }
+                    argsEl.style.border = '';
+                    data.ext02 = args;
+                } catch (e) {
+                    showModal('Invalid ext02', 'ext02 must be a valid JSON array, e.g. ["--flag", "value"]', 'error');
+                    argsEl.style.border = '2px solid #e74c3c';
+                    return;
+                }
+            }
+
+            if (unsealKey) data.ext03 = unsealKey;
+            if (sealMode) data.ext09 = sealMode;
+            if (sourceNodePub) data.ext07 = sourceNodePub;
+
+            try {
+                const response = await fetch('/api/mgc/proxy/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    // v1.4.10 统一为英文提示
+                    // P1-8 修复（2026-08-30）：改进 dynamic args / unrecognized args 文案，
+                    // 明确告知用户通过 mgc_save 的 update 模式更新脚本的静态 args。
+                    let successMsg = 'Save successful!';
+                    if (result.warning === 'args_recognized') {
+                        successMsg = 'Save successful!\n\nArgs auto-recognized from script.';
+                    } else if (result.warning === 'args_not_recognized') {
+                        successMsg = 'Save successful!\n\nWarning: dynamic args could not be auto-recognized from the script. Please re-save this script via mgc_save (update mode) with static argparse default values, so you can later launch it via mgc_run with args.';
+                    } else if (result.warning === 'dynamic_args_detected') {
+                        successMsg = 'Save successful!\n\nWarning: the script contains dynamic args that MGC cannot auto-extract into ext02. To enable mgc_run with custom args, please re-save this script via mgc_save (update mode) after replacing the dynamic defaults with static literals.';
+                    }
+                    showModal('Success', successMsg, 'confirm');
+                } else {
+                    if (result.msg === 'DUPLICATE_EXISTS') {
+                        showModal('Duplicate Entry', 'This entry already exists. Do you want to update it?', 'duplicate');
+                    } else {
+                        showModal('Error', result.msg || 'Save failed', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('API call failed:', error);
+                let errorMsg = 'Failed to connect to MGC\n\n';
+                errorMsg += 'Possible reasons:\n';
+                errorMsg += '1. MGC core service not running\n';
+                errorMsg += '2. Port 57219 not available\n';
+                errorMsg += '3. Token not initialized\n\n';
+                errorMsg += 'Details: ' + (error.message || 'Unknown error');
+                showModal('Error', errorMsg, 'error');
+            }
+        });
+
+        function showModal(title, message, type) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            
+            const buttonsDiv = document.getElementById('modalButtons');
+            buttonsDiv.innerHTML = '';
+            
+            if (type === 'confirm') {
+                buttonsDiv.innerHTML = '<button class="btn btn-success" onclick="closeModal()">OK</button>';
+            } else if (type === 'duplicate') {
+                buttonsDiv.innerHTML = '<button class="btn btn-danger" onclick="handleDuplicate(\'cancel\')">Cancel</button>' +
+                                      '<button class="btn btn-primary" onclick="handleDuplicate(\'update\')">Update</button>';
+            } else {
+                buttonsDiv.innerHTML = '<button class="btn btn-primary" onclick="closeModal()">OK</button>';
+            }
+            
+            document.getElementById('resultModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+            if (document.getElementById('modalTitle').textContent === 'Success') {
+                location.href = '/list';
+            }
+        }
+
+        function handleDuplicate(action) {
+            if (action === 'update') {
+                document.getElementById('saveForm').dataset.update = 'true';
+                const owner = document.getElementById('owner').value;
+                const infoType = document.getElementById('infoType').value;
+                
+                fetch('/api/mgc/proxy/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-MGC-Token': window.MGC_TOKEN || ''
+                    },
+                    body: JSON.stringify({
+                        info_owner: owner,
+                        info_type: infoType,
+                        content: document.getElementById('content').value,
+                        diff_1: document.getElementById('diff1').value || undefined,
+                        ext01: document.getElementById('platform').value || undefined,
+                        update_if_exists: true
+                    })
+                }).then(r => r.json()).then(result => {
+                    closeModal();
+                    if (result.code === 200) {
+                        showModal('Success', 'Updated successfully!', 'confirm');
+                    } else {
+                        showModal('Error', result.msg || 'Update failed', 'error');
+                    }
+                });
+            } else {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
