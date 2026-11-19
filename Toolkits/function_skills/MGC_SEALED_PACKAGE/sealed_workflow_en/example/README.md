@@ -1,6 +1,6 @@
 # example/ — Demo Script Set
 
-> 4 scripts demonstrating MGC 1.5.2's `ext08` auto-recognition and runtime sealed routing for all cross-script call patterns.
+> 4 scripts demonstrating MGC 1.5.4's `ext08` auto-recognition and runtime sealed routing for all cross-script call patterns.
 > Uses Python standard library only. Cross-platform: macOS / Linux / Windows.
 
 ## File structure
@@ -14,7 +14,7 @@ example/
 └── README.md          # this file
 ```
 
-## ext08 pattern demo matrix (verified on MGC 1.5.2)
+## ext08 pattern demo matrix (verified on MGC 1.5.2, carried forward by 1.5.4)
 
 | Call relation | Code pattern | ext08 edge type | Recognized |
 |--------------|---------------|-----------------|------------|
@@ -39,50 +39,37 @@ example/
 
 ## Recommended try-it-yourself flow (MGC MCP tools)
 
-### 1. Store
+### Method A · Free mode (try this first)
+
+No second node and no key exchange — just **omit `ext04`** when sealing.
 
 ```python
+# 1. Store
 mgc_save_file(
     path="./example",
     info_owner="demo_workflow",
     diff_2="example",
 )
 # Auto-builds ext08 call graph (verified 5 edges)
-```
 
-### 2. Get your own node_pub
-
-```python
-my_pub = mgc_get(info_type="__NODE_PUB__", info_owner="__NODE_PUB__")
-# Returns multi-line PEM public key
-```
-
-### 3. Seal to your own node
-
-```python
+# 2. Free-mode seal — note: no ext04
 mgc_seal_package(
     info_owner="demo_workflow",
     diff_2="example",
-    ext04=str(my_pub),                          # required: target node PEM
-    output_dir="./_demo_out",                   # required: output directory
+    output_dir="./_demo_out",                   # required from 1.5.4
 )
-# → generates example_delivery/example.mgc_file + README.md
-```
+# → generates _demo_out/example_delivery/example.mgc_file + README.md
+#   artifact ext09 = "free mode"
 
-### 4. Import the sealed package
-
-```python
+# 3. Import the package you just generated
 mgc_save_file(
     path="./_demo_out/example_delivery/example.mgc_file",
-    info_owner="demo_workflow",                 # required: must match sealing-time
+    info_owner="demo_workflow",                 # required; stored identity comes from the package
     diff_2="example",
 )
-# Decrypts into 5 records (including SKILL.md)
-```
+# Splits into 5 ciphertext records (including README.md)
 
-### 5. Black-box run
-
-```python
+# 4. Run
 mgc_run(
     info_type="script",
     info_owner="demo_workflow",
@@ -90,12 +77,42 @@ mgc_run(
     diff_3="script_d.py",
 )
 # → {"status": "started"}
-# AI sees no source code
 ```
 
-### 6. Verify results
+### Method B · p2p mode (targeted at one node)
+
+```python
+# 1. Store (same as above)
+
+# 2. Get the target node's node_pub
+my_pub = mgc_get(info_type="__NODE_PUB__", info_owner="__NODE_PUB__")
+# Returns multi-line PEM public key
+
+# 3. Seal to that node
+mgc_seal_package(
+    info_owner="demo_workflow",
+    diff_2="example",
+    ext04=str(my_pub),                          # required for p2p mode
+    output_dir="./_demo_out",                   # required from 1.5.4
+)
+
+# 4. Import + 5. Run (same as Method A)
+```
+
+### Verify the results
 
 After 5 seconds, check that all 4 files exist on the Desktop — `txt1.txt`, `txt2.txt`, `txt2_via_a.txt`, `combined.txt`. All 4 present = end-to-end success.
+
+Then verify "the source cannot be read":
+
+```python
+mgc_get(info_type="script", info_owner="demo_workflow", diff_2="example", diff_3="config_a.py")
+# → a long Base64 ciphertext string — no Python source visible; mgc_run still executes it
+```
+
+> ⚠️ **Two notes confirmed by testing**
+> 1. **Package records carry their own `info_owner`** — the value passed at import only satisfies the required-field check; the stored identity comes from the package, and later queries must use it.
+> 2. **Same node + same `info_owner` overwrites the source records** — re-importing the package on your own machine replaces the plaintext with ciphertext (irreversible). To keep both versions, store the folder under a different `info_owner`.
 
 > ⚠️ Known warning: MGC may misreport same-package `script_b` as an external dependency (`DEP_MISSING`) — ignore it; the scripts themselves run normally.
 
@@ -111,7 +128,9 @@ After 5 seconds, check that all 4 files exist on the Desktop — `txt1.txt`, `tx
 
 - Dynamic module name: `importlib.import_module(x)`
 - Absolute path: `open("/Users/.../config.py")`
-- Cross-subdirectory: `Path(__file__).parent.parent / "y.py"`
+- Subprocess literal containing `..`: `subprocess.run([..., "../y.py"])` — from 1.5.4, use the computed absolute path form `Path(__file__).resolve().parent.parent / "y.py"` instead
 - Function-level reference: `import helpers; helpers.some_func()` without a literal `Path`
 
-These **cannot be recognized by ext08**; details in SKILL.md "Recognizable cross-script patterns".
+> 💡 **Same-package cross-subdirectory references are recognized from 1.5.4** (e.g. `from helpers.fetch import get_weather`, `Path(__file__).resolve().parent.parent / "y.py"`). This example keeps the simplest same-directory shape; see SKILL.md §"Recognizable cross-script patterns" for the cross-subdirectory forms.
+
+Details in SKILL.md "Recognizable cross-script patterns".

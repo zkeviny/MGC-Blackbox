@@ -12,7 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# --- Same-package import: MGC 1.5.2 ext08 auto-recognition ---
+# --- Same-package import: MGC ext08 auto-recognition ---
 import config_a                                  # pattern: import
 from config_a import get_greeting, DEFAULT_USER  # pattern: from-import
 

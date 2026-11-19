@@ -1,22 +1,90 @@
+---
 spec: usk/3.0
 id: data-analyst-secure-suite
-version: 1.3.0
+version: 1.5.0
 name: Secure Data Analyst Skill Suite
-description: A secure data analysis workflow suite based on MGC Blackbox 1.5.2+, providing credential protection, zero-exposure script & workflow application, sealed-package collaboration, and knowledge management. Supports MGC 1.5.2 workflow auto-recognition (import / from-import / relative paths / subprocess runtime routing). Includes a Data Analyst Agent system prompt template.
+description: A secure data analysis workflow suite based on MGC Blackbox 1.6.0+, providing credential protection, zero-exposure script & workflow application, workflow / skill-package sealed-authorization collaboration, and knowledge management. Supports 1.5.4 double-layer encryption with link authorization and free-mode sealing, plus 1.6.0 chain mode for multi-node sealed distribution (one seal → multiple independent sub-packages + distribution_index.json). Includes a Data Analyst Agent system prompt template.
 author: MirginCipher Team
 license: MIT
-tags: security, data analysis, mgc, zero-exposure, local sandbox, credential management, workflow management, sealed collaboration, knowledge management, agent template, fuzzy search, auto-recognized workflow, sealed cross-script
-platform_compatibility: windows, macos, linux
-requires:
-  mgc_blackbox: ">=1.5.2"
+tags:
+  - security
+  - data analysis
+  - mgc
+  - zero-exposure
+  - local sandbox
+  - credential management
+  - workflow management
+  - sealed collaboration
+  - knowledge management
+  - agent template
+  - fuzzy search
+  - auto-recognized workflow
+  - sealed cross-script
+  - double-layer encryption
+  - link authorization
+  - free mode
+platform_compatibility:
+  - windows
+  - macos
+  - linux
+mcp_tools:
+  - mgc_save
+  - mgc_save_file
+  - mgc_get
+  - mgc_run
+  - mgc_find
+  - mgc_list
+  - mgc_seal
+  - mgc_seal_package
+  - mgc_package
+  - mgc_delete
+  - mgc_open_webui
+  - mgc_skill
+requirements:
+  mgc_version: ">=1.6.0"
+install: pip install mgc-blackbox>=1.6.0
+runtime: mgc
+port: 57219
+files:
+  skill: SKILL.md
+  readme: README.md
+  agent_template: agent_system_prompt.md
+  prompts:
+    - prompts/credential_management.md
+    - prompts/script_management.md
+    - prompts/collaboration_management.md
+    - prompts/knowledge_management.md
 changelog:
+  - version: 1.5.0
+    changes:
+      - Upgraded for MGC 1.6.0: added chain mode for multi-node sealed distribution — one seal produces N independent sub-packages.
+      - collaboration_management.md gained section 5.4: targets array, distribution_index.json, sub-package layout and receiver verification flow.
+      - Documented chain-mode hard constraints: flat directory only, files must match diff_3, files carry scripts only (data and credentials stay local), and the root causes of UNSEAL_FAILED at run time.
+      - Unified the version requirement across all documents to MGC Blackbox 1.6.0+.
+  - version: 1.4.0
+    changes:
+      - Upgraded for MGC 1.5.4: the sealing chain now uses double-layer encryption, with new ext07 source binding and ext09 sealing-mode fields.
+      - Added free mode: omit ext04 to seal, suitable for publicly distributed analysis workflows and skill packages.
+      - Added the "link authorization" chapter: ext07 / ext09 tamper-detection mechanism with a hands-on verification procedure.
+      - Fixed factual error: mgc_run must carry diff_3 for workflows, otherwise AMBIGUOUS_SCRIPT is raised.
+      - Fixed factual error: output_dir is required for mgc_seal_package and mgc_package since 1.5.4.
+      - Fixed factual error: mgc_find no longer accepts info_type since 1.5.0.
+      - Fixed factual error: reading SKILL.md inside a workflow package requires info_type="text", not "file".
+      - Fixed factual error: the record identity after importing a .mgc_file comes from the package manifest, not from the caller's info_owner.
+      - Documented the cross-folder workflow auto-recognition capability added in 1.5.4.
+      - Documented receiver version requirements: sealed packages need MGC 1.5.4+, ext08 auto-workflows need MGC 1.5.2+.
+      - Added the two new tools mgc_delete and mgc_skill; the MCP tool list is now complete at 12.
+      - Frontmatter upgraded to the usk/3.0 spec: requirements.mgc_version, block-list tags, full mcp_tools.
+      - manifest now carries the spec / requirements / files fields.
+      - Unified the version statement across all documents to MGC Blackbox 1.5.4+.
+      - Fixed the chapter-numbering gap (six) in the knowledge management document and the duplicated README title.
   - version: 1.3.0
     changes:
-      - Upgraded to MGC 1.5.2+: added mgc_save_file (workflow folder storage), mgc_seal_package (workflow sealing), mgc_package (plaintext packaging).
+      - Upgraded for MGC 1.5.2+: added mgc_save_file (workflow folder storage), mgc_seal_package (workflow sealing), mgc_package (plaintext packaging).
       - Script management refactor: upgraded from single-script to workflow-folder mode, with import / from-import / relative-path / subprocess auto-recognition.
       - Credential management: unified info_type from 'credential' to 'token' to align with skill_spec.
       - Added prompts/collaboration_management.md: dedicated workflow / skill-package sealed-authorization guide.
-      - Agent template: workflow examples upgraded from 5-step manual chain to find -> save_file -> run pattern.
+      - Agent template: workflow examples upgraded from 5-step manual chain to find → save_file → run pattern.
       - Added sealed-collaboration chapter (mgc_seal_package one-click seal of an entire workflow).
       - Added recognizable cross-script patterns table (from-import / import / Path / subprocess).
       - MCP tools list expanded to 10 (added mgc_save_file, mgc_seal_package, mgc_package).
@@ -47,11 +115,11 @@ changelog:
 
 # Overview
 
-**Secure Data Analyst Skill Suite** is a documentation skill suite built on **MGC Blackbox 1.5.2+** that helps data analysts securely manage, on the local machine:
+**Secure Data Analyst Skill Suite** is a documentation skill suite built on **MGC Blackbox 1.6.0+** that helps data analysts securely manage, on the local machine:
 
 - Sensitive credentials
 - User-owned scripts and workflows
-- Workflow / skill-package sealed authorization collaboration
+- Workflow / skill-package sealed-authorization collaboration
 - Analysis frameworks and knowledge
 
 This suite uses a **hybrid design**:
@@ -78,16 +146,22 @@ This suite is suitable for:
 
 # Prerequisites
 
-1. Install MGC Blackbox (≥ 1.5.2):
+1. Install MGC Blackbox (≥ 1.6.0):
    ```
-   pip install mgc-blackbox
+   pip install mgc-blackbox>=1.6.0
    ```
 2. Start the MGC service:
    ```
    mgc
    ```
-3. Available MCP tools: mgc_save, mgc_save_file, mgc_get, mgc_run, mgc_seal, mgc_seal_package, mgc_package, mgc_list, mgc_find, mgc_open_webui
+   WebUI: `http://127.0.0.1:57218`　API: `http://127.0.0.1:57219`
+3. Available MCP tools (12):
+   `mgc_save`, `mgc_save_file`, `mgc_get`, `mgc_run`, `mgc_find`, `mgc_list`, `mgc_seal`, `mgc_seal_package`, `mgc_package`, `mgc_delete`, `mgc_open_webui`, `mgc_skill`
 4. Token file: `~/.mgc/database/mgc_black_box/.mgc_token`
+
+> **Version requirement**: the receiving node must run **MGC 1.5.4+**. Earlier versions cannot unseal a sealed package that carries link authorization, and will fail with a link-authorization error.
+> **Workflow auto-recognition**: a workflow package carrying an `ext08` call graph requires the receiver to run **MGC 1.5.2+**. Older versions can still import the package, but cross-script calls will not be routed through sealed execution, and MGC returns a `TARGET_NODE_MAY_NOT_SUPPORT_AUTO_WORKFLOW` warning.
+> **Sandbox mode (1.4.9+)**: when running inside a sandbox agent (Trae Work / WorkBuddy), install MGC into the system environment — otherwise MCP tool calls may be blocked. In that case, call the FastAPI directly.
 
 ---
 
@@ -121,13 +195,13 @@ Manage user-owned query / clean / analyze scripts — both single-script and wor
 ### Scenarios
 - User wants to apply their own scripts or workflows
 - Scripts need safe access to credentials
-- Multi-script workflows need auto-recognition of import / subprocess call relationships (1.5.2+)
+- Multi-script workflows need auto-recognition of import / subprocess call relationships (1.5.1+, including 1.5.4 cross-folder recognition)
 - Workflows need cross-team collaboration (sealed)
 - Need to build a complete data-analysis chain (query → clean → analyze)
 
 ### What it provides
 - Single-script encrypted storage (`mgc_save`)
-- Workflow-folder encrypted storage with auto-recognition of import / subprocess (`mgc_save_file`, 1.5.2+)
+- Workflow-folder encrypted storage with auto-recognition of import / subprocess (`mgc_save_file`)
 - AI never sees script content
 - Scripts call credentials with zero exposure
 - Supports single-script sealing (`mgc_seal`) and workflow sealing (`mgc_seal_package`)
@@ -147,13 +221,19 @@ Seal-authorize workflows and skill packages to other nodes, enabling "usable but
 - Vendor analyst seals an analysis solution to a client
 - Cross-department sharing of analysis methodologies while protecting core logic
 - Independent license per client
+- Public distribution of a general-purpose analysis workflow (free mode)
+- Splitting one workflow across multiple nodes, each receiving only its own scripts (chain mode)
 
 ### What it provides
-- Workflow sealing (`mgc_seal_package`): seal the entire workflow in one call, AES-256 encryption
+- Workflow sealing (`mgc_seal_package`): seal the entire workflow in one call; the script portion is double-layer encrypted
 - Skill-package sealing: seal a complete skill package (with SKILL.md); receiving AI can read the instructions but cannot see source code
-- Node binding: AES key bound to the target node's RSA public key; cannot be re-sealed
+- Node binding (p2p mode): the key is bound to the target node's RSA public key, so the package cannot be re-sealed for a third party
+- Free mode (free mode): omit `ext04` — no public-key exchange needed, and any 1.5.4+ node can import and run it
+- Link authorization: the sealed package binds the source node and the sealing mode; tampering with `ext07` / `ext09` makes it unsealable
 - One-key-per-node: each client receives an independent key
 - No cloud: all encryption / decryption / execution happens locally
+- Multi-node distribution (chain mode, 1.6.0+): pass a targets array as `ext04` to `mgc_seal_package`; one seal produces one independent sub-package per target node plus `distribution_index.json` for dispatch and verification
+- Under chain mode, `files` carries scripts only; data and credentials stay in each node's local MGC and are read at run time through the REST API
 
 ### How the agent uses it
 After user authorization, the agent performs the sealing operation. The sealed package is delivered by the user manually — the agent does not participate in transport.
@@ -182,14 +262,136 @@ After user authorization, the agent reads knowledge and uses it to guide analysi
 
 ---
 
+# 1.5.4 Sealing Security Model
+
+## Double-layer encryption structure
+
+Since 1.5.4 every sealing goes through the double-layer chain:
+
+```
+Layer 1: content  = AES-256-CBC(script body, one-time AES_KEY_4)
+Layer 2: AES_KEY_4 = RSA-2048 encryption (p2p: target node public key / free mode: shared default public key)
+Layer 3: ext03    = AES-256-GCM(Layer-2 result, key = SHA256(ext07)[:32], AAD = ext09)
+```
+
+The Layer-3 key is derived from `ext07` (source node public key), and `ext09` (sealing mode) is bound as the AAD — this is where link authorization comes from.
+
+## Three sealing modes
+
+Whether `ext04` is passed — and in which shape — determines the sealing mode:
+
+| | p2p mode (default) | free mode | chain mode (1.6.0+) |
+|---|---|---|---|
+| How to seal | Pass `ext04=<target node multi-line PEM>` | **Omit** `ext04` | Pass `ext04=<JSON array of targets>` |
+| Resulting ext09 value | `p2p mode` | `free mode` | `chain mode` |
+| Sub-packages produced | 1 | 1 | **N (one per target)** |
+| Who can unseal and run it | Only the node holding the matching private key | **Any MGC 1.5.4+ node** | **Each target's own node only** |
+| Is the source script readable | No | No (decrypted in memory only) | No |
+| Does it need public-key exchange | Yes | **No** | Yes — collect every target's `node_pub` first |
+| Extra artifact | — | — | `distribution_index.json` |
+| Best for | Per-customer authorization, confidential delivery | Public distribution, skill marketplaces, general install packages | **Multi-node collaboration, task splitting across nodes** |
+
+> Free mode suits "give the general-purpose analysis tool to everyone". It is **not** suitable when authorization must be differentiated per customer.
+> The parameter name must be `ext04`. Writing it as `node_pub` / `target_pub` / `public_key` etc. immediately raises `UNKNOWN_PARAM` — there is no silent downgrade.
+
+### chain mode in practice
+
+Targets array (scripts only — data and credentials must not be included):
+
+```json
+[
+  {"node_pub": "<node A PEM>", "files": ["run_query.py", "shared_helper.py"]},
+  {"node_pub": "<node B PEM>", "files": ["run_analyze.py", "shared_helper.py"]}
+]
+```
+
+```python
+mgc_seal_package(
+    info_owner="monthly_sales_analysis",
+    diff_2="monthly_sales_analysis",
+    ext04="@/abs/path/chain_targets.json",   # or json.dumps(targets)
+    output_dir="./delivery",
+)
+```
+
+Output layout:
+
+```text
+./delivery/monthly_sales_analysis__monthly_sales_analysis/
+├── distribution_index.json      # package_index / dir_name / package_file_name / granted_files / sha256
+├── task_package_01/             # node A only
+│   └── ...__01.mgc_file
+└── task_package_02/             # node B only
+    └── ...__02.mgc_file
+```
+
+Each receiver imports only its own `.mgc_file`, verifies `granted_files` against the task card, and then runs it. `distribution_index.json` records every sub-package's `sha256`, so integrity can be checked both before dispatch and after download.
+
+chain-mode hard constraints:
+
+- **Flat directory only**: the sealed import hook resolves cross-script imports at the same level. Convert `helpers/query.py` into `query.py` (and `from query import ...`) before sealing.
+- **`files` must exactly match `diff_3`**: run `mgc_find` after `mgc_save_file` to confirm.
+- **Scripts only in `files`**: CSV / JSON / config files are plaintext inside the package. Keep data and credentials in each node's local MGC and read them from within the script.
+- **`UNSEAL_FAILED` at run time** means the sub-package was sent to the wrong node or the `.mgc_file` was renamed.
+
+## Link authorization
+
+Every sealed artifact produced in 1.5.4 carries the source node identity (`ext07`) and the sealing mode (`ext09`). On unsealing, MGC validates them in order:
+
+1. Derive the outer key `SHA256(ext07)[:32]` from `ext07`
+2. Use `ext09` as the AAD to verify ciphertext integrity
+3. On failure → `UNSEAL_FAILED`
+
+Therefore **any change to `ext07` or `ext09` (even adding a single space) makes the artifact unsealable**.
+
+### Hands-on verification
+
+The following steps can be completed on a single machine, no second node required. **Verifying with a single-script capsule is the most direct route** — the capsule is a self-describing JSON file, so fields are easy to edit:
+
+```python
+# 1. Seal a single script to produce a self-describing capsule
+sealed = mgc_seal(
+    info_owner="my_script",
+    output_dir="/tmp/probe",
+)
+# → /tmp/probe/my_script_<YYYYMMDD_HHMMSS>/sealed_capsule.json
+```
+
+```python
+# 2. Tamper with ext09: add a trailing space to the ext09 value in the capsule JSON, save as tampered.json
+```
+
+```python
+# 3. Import the tampered artifact and run it
+mgc_save_file(path="/tmp/probe/tampered.json", info_owner="probe_tampered")
+mgc_run(info_owner="probe_tampered", diff_3="my_script")
+```
+
+Observed result:
+
+```
+Error: UNSEAL_FAILED
+→ Hint: Double-layer unseal failed: AES-GCM auth tag mismatch:
+        source_node_pub (ext07) or mode (ext09) tampered, or wrong key.
+```
+
+For a workflow package (`.mgc_file`), `ext09` lives in the record inside the package's `MGCFILE.json` — a zip entry, so the same tamper test requires unzipping, editing, and re-packing. The mechanism is identical; only the carrier differs.
+
+Decrypting with a mismatched private key yields `Double-layer unseal failed: Incorrect decryption` — this is exactly the node-binding effect of p2p mode.
+
+> `ext07` is a plaintext identifier in the artifact, not a signature. It provides tamper detection and key binding; it does not replace identity verification. The receiver should still verify the source node public key through a trusted channel.
+
+---
+
 # Security boundary
 
 ## This suite provides
 
 - Local encrypted credential storage
 - Zero-exposure application of user-owned scripts
-- Workflow auto-recognition and sealed routing (1.5.2+, including subprocess literal-list runtime routing)
-- Sealed-authorization collaboration for workflows / skill packages (1.5.2+)
+- Workflow auto-recognition and sealed routing (including cross-folder subprocess calls)
+- Sealed-authorization collaboration for workflows / skill packages (p2p mode, free mode, and chain mode for multi-node distribution)
+- Verifiable artifact integrity thanks to link authorization and `distribution_index.json` sha256
 - Knowledge encryption management
 
 ## This suite does NOT provide
@@ -200,6 +402,8 @@ After user authorization, the agent reads knowledge and uses it to guide analysi
 - Script generation or modification
 
 All scripts must be user-provided and comply with organizational policy.
+
+> **Scope of the guarantee**: MGC protects **content confidentiality**. After unsealing, the script runs with the permissions of the user running it; which commands it invokes, which files it reads or writes, and which network endpoints it reaches are all outside MGC's control — those behaviors are the script author's responsibility.
 
 ---
 
@@ -258,15 +462,17 @@ After authorization, the agent may cite documents under `prompts/` as workflow g
 | Tool | Description | Authorization required |
 |------|-------------|------------------------|
 | `mgc_save` | Store credentials, single scripts, prompts | yes |
-| `mgc_save_file` | Store workflow folders (auto-recognize import / subprocess) | yes |
-| `mgc_get` | Retrieve a value / fetch node_pub | yes |
+| `mgc_save_file` | Store workflow folders (auto-recognize import / subprocess); import `.mgc_file` sealed packages | yes |
+| `mgc_get` | Retrieve a value / fetch node_pub / read a file inside a package | yes |
 | `mgc_run` | Run a script or workflow (black-box) | yes |
-| `mgc_seal` | Seal a single script for collaboration | yes |
-| `mgc_seal_package` | Seal an entire workflow folder | yes |
-| `mgc_package` | Plaintext packaging within the same trust zone | yes |
-| `mgc_list` | List stored entries (exact match) | optional |
-| `mgc_find` | Fuzzy-search entries by name | optional |
+| `mgc_find` | Fuzzy-search entries by name (**does not accept info_type**) | optional |
+| `mgc_list` | List stored entries | optional |
+| `mgc_seal` | Seal a single script (produces a self-describing capsule file) | yes |
+| `mgc_seal_package` | Seal an entire workflow folder (produces `.mgc_file` + README); pass a targets array as `ext04` for chain-mode multi-node distribution | yes |
+| `mgc_package` | Plaintext export of a folder (archive within the same trust zone) | yes |
+| `mgc_delete` | Delete stored records (folder deletion requires a second user confirmation) | yes |
 | `mgc_open_webui` | Open MGC WebUI | no |
+| `mgc_skill` | Read the official MGC skill documentation | no |
 
 ---
 
@@ -275,8 +481,13 @@ After authorization, the agent may cite documents under `prompts/` as workflow g
 1. **Zero exposure**: scripts and credentials execute locally; the AI receives only run status
 2. **Encrypted storage**: all content encrypted at rest
 3. **No plaintext leak**: the AI never sees script or credential content
-4. **Auto-recognized workflows**: import / from-import / relative-path / subprocess call chains auto-routed; nothing lands on disk (1.5.2+)
-5. **Sealed workflows / skill packages**: entire workflow or skill package sealed to the target node in one call; node-bound; cannot be resold (1.5.2+)
+4. **Auto-recognized workflows**: import / from-import / relative-path / subprocess call chains auto-routed; nothing lands on disk; 1.5.4 adds cross-folder subprocess call support
+5. **Sealed workflows / skill packages**: entire workflow or skill package sealed to the target node in one call; node-bound; cannot be resold
+6. **Free mode available**: omit `ext04` for free mode — any 1.5.4+ node can import and run it, and the source code remains unreadable
+7. **Link authorization**: a sealed package whose `ext07` / `ext09` was tampered with cannot be unsealed, so artifact integrity is verifiable
+8. **Deletion requires confirmation**: when `mgc_delete` removes folder-level records, the user must explicitly approve first — only then may the caller pass `confirm_folder_delete="true"`
+9. **Chain mode (1.6.0+)**: one seal produces N independent sub-packages, each unsealable only by its target node; `distribution_index.json` records `granted_files` and `sha256`, and unsealing failure at run time surfaces as `UNSEAL_FAILED`
+10. **Encryption boundary**: MGC encrypts script files only. CSV / JSON / config files are plaintext inside a sealed package — therefore `files` must carry scripts only, while data and credentials stay in local MGC
 
 ---
 
@@ -288,3 +499,5 @@ After authorization, the agent may cite documents under `prompts/` as workflow g
 ---
 
 > **Reminder**: This suite is for secure workflow management. All sensitive operations must have explicit user authorization. All scripts are user-owned; all execution happens locally through MGC Blackbox.
+
+---

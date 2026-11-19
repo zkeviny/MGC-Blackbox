@@ -1,16 +1,24 @@
 {
   "id": "cross_node_script_auth",
-  "version": "1.1.0",
+  "spec": "usk/3.0",
+  "version": "1.3.0",
   "name": "脚本跨设备加密授权（零暴露）",
-  "description": "使用 MGC Blackbox 密封功能实现零暴露跨设备脚本授权。脚本使用目标节点 RSA 公钥加密，以密文形式传输，仅在授权节点执行时解密。完整覆盖 1.4.10 的 mgc_run 黑盒执行、ext02 自动解析、mgc_find 模糊搜索等能力。",
+  "description": "使用 MGC Blackbox 实现零暴露跨设备脚本授权。脚本用目标节点 RSA 公钥密封，以密文形式交付，仅在授权节点内存中解密执行；也支持免公钥交换的自由模式公开分发。适配 MGC 1.5.4：双层加密、链接授权（link authorization）、胶囊文件交付。",
   "author": "MirginCipher Team",
   "license": "MIT",
-  "tags": ["安全", "跨设备", "加密", "零暴露", "mgc", "授权", "密封", "RSA"],
+  "tags": ["安全", "跨设备", "加密", "零暴露", "mgc", "授权", "密封", "RSA", "双层加密", "自由分发", "链接授权", "黑盒执行", "加密交付", "public-distribution"],
   "platform_compatibility": ["windows", "macos", "linux"],
-  "mcp_tools": ["mgc_save", "mgc_run", "mgc_seal", "mgc_list", "mgc_find", "mgc_open_webui"],
-  "install": "pip install mgc-blackbox>=1.4.9",
+  "mcp_tools": ["mgc_save", "mgc_save_file", "mgc_get", "mgc_run", "mgc_find", "mgc_list", "mgc_seal", "mgc_seal_package", "mgc_package", "mgc_delete", "mgc_open_webui", "mgc_skill"],
+  "requirements": {
+    "mgc_version": ">=1.5.4"
+  },
+  "install": "pip install mgc-blackbox>=1.5.4",
   "runtime": "mgc",
   "port": 57219,
+  "files": {
+    "skill": "SKILL.md",
+    "readme": "README.md"
+  },
   "links": {
     "homepage": "https://github.com/zkeviny/MGC-Blackbox",
     "issues": "https://github.com/zkeviny/MGC-Blackbox/issues",
@@ -23,19 +31,48 @@
     "零信任",
     "委托",
     "RSA",
-    "黑盒执行"
+    "黑盒执行",
+    "双层加密",
+    "链接授权",
+    "link authorization",
+    "自由模式",
+    "free mode",
+    "公开分发",
+    "public distribution",
+    "胶囊交付",
+    "sealed capsule",
+    "节点绑定",
+    "node binding"
   ],
   "changelog": [
+    {
+      "version": "1.3.0",
+      "changes": [
+        "升级至 MGC 1.5.4：密封机制改为双层加密，新增 ext09 模式字段与 ext07 源节点绑定",
+        "重写核心概念章节：从单层 RSA 绑定改为「双层加密 + 链接授权」，并新增自由模式对照表",
+        "修正密封流程：ext04 自 1.5.4 起改为可选（省略即自由模式），ext04 为空不再报错",
+        "修正存储流程：改用 mgc_save_file(path=胶囊文件) 一次导入，自动解析全部 ext 字段",
+        "修正安全说明：第 3 条「其它节点均无法解密」在自由模式下不成立，第 6 条「不校验完整性」已过时",
+        "新增链接授权章节：ext07 / ext09 篡改即不可还原，含实测验证步骤",
+        "修正 mgc_run 参数：diff_1 自 1.5.4 起改为可选，diff_3 最可靠，新增 AMBIGUOUS_SCRIPT 错误码",
+        "修正密封包结构：由 4 字段改为 8 字段（新增 ext05 / ext06 / ext07 / ext09），键名去掉下划线",
+        "补充 ext05 依赖清单 / ext06 平台清单 / ext10 可运行性徽章说明",
+        "补充 output_dir 必填说明与密封产物目录结构",
+        "修复失效的 Windows 绝对路径链接",
+        "措辞规范化：改为「调用方」等中性表述，安全边界按内容机密性与责任归属重新表述",
+        "mcp_tools 补齐为 12 个，新增 mgc_delete 与 mgc_skill"
+      ]
+    },
     {
       "version": "1.1.0",
       "changes": [
         "升级至适配 MGC 1.4.10",
         "执行密封脚本改用 mgc_run（1.4.7+）替代 mgc_get(action=run)",
         "补充 ext02 自动解析（1.4.10）：密封时 argparse 默认参数会打包到 ext_02",
-        "补充 mgc_seal 必填参数修正：info_type 改为可选，ext04 必须为多行 PEM",
-        "新增 mgc_find 模糊搜索工具（1.4.10）",
+        "修正 mgc_seal 必填参数：info_type 改为可选，ext04 必须为多行 PEM",
+        "新增 mgc_find 模糊搜索工具",
         "WebUI 获取 node_pub 流程更新：Settings → Node Public Key 可直接查看",
-        "新增 update_if_exists 参数说明，目标节点可覆盖同名脚本",
+        "新增 update_if_exists 覆盖同名脚本",
         "新增 1.4.9 沙箱模式简要提示"
       ]
     },

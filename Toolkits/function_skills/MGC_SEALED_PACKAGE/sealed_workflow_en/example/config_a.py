@@ -6,7 +6,7 @@ function, and an argparse entry point so it can be invoked standalone (used by
 `script_b` via `import` and `from-import`).
 
 Demonstrates: it can be either a Python module (import / from-import) or an
-executable script (subprocess invocation) — MGC 1.5.2's ext08 recognizes both.
+executable script (subprocess invocation) — MGC's ext08 recognizes both.
 """
 
 import argparse

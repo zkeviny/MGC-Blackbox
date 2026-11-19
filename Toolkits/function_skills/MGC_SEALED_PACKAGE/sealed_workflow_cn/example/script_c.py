@@ -23,7 +23,7 @@ def _resolve_desktop():
 
 def fetch_greeting_via_subprocess(user, greeting, output_path):
     """用 subprocess 启动 config_a.py，传入 --user / --greeting / --output。"""
-    # ── 同包 subprocess：MGC 1.5.1 ext08 自动识别 ────────────────────
+    # ── 同包 subprocess：MGC ext08 自动识别 ──────────────────────────
     completed = subprocess.run(
         [
             sys.executable,           # Python 解释器路径

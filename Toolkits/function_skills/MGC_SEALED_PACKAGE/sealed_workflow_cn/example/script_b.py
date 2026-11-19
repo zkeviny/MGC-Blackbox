@@ -12,7 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# ── 同包 import：MGC 1.5.1 ext08 自动识别 ─────────────────────────────
+# ── 同包 import：MGC ext08 自动识别 ──────────────────────────────────
 import config_a                              # 模式：import
 from config_a import get_greeting, DEFAULT_USER  # 模式：from-import
 

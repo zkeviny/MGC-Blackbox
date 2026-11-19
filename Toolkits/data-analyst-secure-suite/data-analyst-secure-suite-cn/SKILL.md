@@ -1,16 +1,24 @@
 ---
 spec: usk/3.0  
 id: data-analyst-secure-suite  
-version: 1.3.0  
+version: 1.5.0  
 name: 数据分析师安全技能套件  
-description: 基于 MGC Blackbox 1.5.2+ 的数据分析安全工作流套件，提供凭据保护、零暴露脚本与工作流应用、工作流/技能包密封授权协作和知识管理。支持 1.5.2 工作流自动识别（import/from-import/相对路径/subprocess 运行时路由），包含数据分析师 Agent 系统提示词模板。  
+description: 基于 MGC Blackbox 1.6.0+ 的数据分析安全工作流套件，提供凭据保护、零暴露脚本与工作流应用、工作流/技能包密封授权协作和知识管理。支持 1.5.4 双层加密与链路授权、free 模式，以及 1.6.0 新增的 chain mode 多节点密封分发（一次密封产出多个独立子包 + distribution_index.json），包含数据分析师 Agent 系统提示词模板。  
 author: MirginCipher Team
 license: MIT
 tags: 安全, 数据分析, mgc, 零暴露, 本地沙箱, 凭据管理, 工作流管理, 密封授权协作, 知识管理, Agent 模板, 模糊搜索, 工作流自动识别, 密封跨脚本
 platform_compatibility: windows, macos, linux  
 requires:
-  mgc_blackbox: ">=1.5.2"
+  mgc_blackbox: ">=1.6.0"
 changelog:
+  - version: 1.5.0
+    changes:
+      - 升级适配 MGC 1.6.0：新增 chain mode 多节点密封分发，一次密封产出 N 个独立子包
+      - collaboration_management.md 新增 3.3 节：target 数组、distribution_index.json、子包结构与接收方核对流程
+      - 补充 chain mode 硬约束：只支持平级目录、files 必须与 diff_3 一致、files 只放脚本（数据与凭证不出域）、运行期 UNSEAL_FAILED 的成因
+      - 同步英文版 1.4.0 基线：双层加密与 ext07 / ext09 链路授权、free 模式、mgc_delete 与 mgc_skill 工具
+      - MCP 工具列表补齐至 12 个，与英文版对齐
+      - 全文版本声明统一为 MGC Blackbox 1.6.0+
   - version: 1.3.0
     changes:
       - 升级适配 MGC 1.5.2+：新增 mgc_save_file（工作流文件夹存储）、mgc_seal_package（工作流密封）、mgc_package（明文打包）
@@ -48,7 +56,7 @@ changelog:
 
 # 概述
 
-**数据分析师安全技能套件**是一个基于 **MGC Blackbox 1.5.2+** 的文档技能套件，用于帮助数据分析师在本地安全地管理：
+**数据分析师安全技能套件**是一个基于 **MGC Blackbox 1.6.0+** 的文档技能套件，用于帮助数据分析师在本地安全地管理：
 
 - 敏感凭据  
 - 用户自有脚本与工作流  
@@ -79,9 +87,9 @@ changelog:
 
 # 前置条件
 
-1. 安装 MGC Blackbox（>=1.5.2）：  
+1. 安装 MGC Blackbox（>=1.6.0）：  
    ```
-   pip install mgc-blackbox
+   pip install mgc-blackbox>=1.6.0
    ```
 2. 启动 MGC 服务：  
    ```
@@ -155,6 +163,8 @@ Agent 在用户授权后通过 MGC 运行脚本或工作流。工作流模式下
 - 节点绑定：AES 密钥绑定目标节点 RSA 公钥，无法转封给第三方
 - 一次一密：每个客户独立密封，互不影响
 - 无云端：全部加密/解密/运行在本地完成
+- 多节点分发（`chain mode`，1.6.0+）：`mgc_seal_package` 的 `ext04` 传 target 数组，一次密封产出每个目标节点各自独立的子包，并生成 `distribution_index.json` 供分发与校验
+- chain mode 下 targets 的 `files` 只放脚本；数据与凭证留在各节点本地 MGC，由脚本运行时通过 REST API 读取
 
 ### Agent 如何使用
 Agent 在用户授权后执行密封操作。密封包由用户手动传输，Agent 不参与传输过程。
@@ -190,7 +200,8 @@ Agent 在用户授权后可读取知识，并用于指导分析结构或生成�
 - 本地凭据加密存储
 - 用户自有脚本的零暴露应用
 - 工作流自动识别与密封路由（1.5.2+，含 subprocess 字面量列表运行时路由）
-- 工作流/技能包密封授权协作（1.5.2+）
+- 工作流/技能包密封授权协作（1.5.2+；1.6.0+ 支持 chain mode 多节点分发）
+- 产物完整性校验：链路授权 + `distribution_index.json` 的 sha256
 - 知识加密管理  
 
 ## 本技能套件不提供
@@ -263,10 +274,12 @@ Agent 可在用户授权后引用 prompts/ 中的文档作为工作流指导。
 | mgc_get | 获取值 / 取 node_pub | 是 |
 | mgc_run | 运行脚本或工作流（黑盒执行）| 是 |
 | mgc_seal | 密封单个脚本用于协作 | 是 |
-| mgc_seal_package | 密封整个工作流文件夹 | 是 |
+| mgc_seal_package | 密封工作流文件夹；`ext04` 传 target 数组即为 chain mode 多节点分发 | 是 |
 | mgc_package | 同信任区内的明文打包 | 是 |
+| mgc_delete | 删除存储项 | 是 |
 | mgc_list | 列出存储项（精确匹配）| 可选 |
 | mgc_find | 按名称模糊搜索条目 | 可选 |
+| mgc_skill | 读取技能说明 | 否 |
 | mgc_open_webui | 打开 MGC WebUI | 否 |
 
 ---
@@ -278,6 +291,8 @@ Agent 可在用户授权后引用 prompts/ 中的文档作为工作流指导。
 3. **无明文泄露**：AI 永不看到脚本或凭据内容  
 4. **工作流自动识别**：import/from-import/相对路径/subprocess 调用链自动路由，磁盘无文件落盘（1.5.2+）
 5. **工作流/技能包密封**：整个工作流或技能包一次性密封给目标节点，节点绑定，不可转售（1.5.2+）
+6. **多节点 chain mode**：一次密封产出多个独立子包，每个子包只对目标节点可解；`distribution_index.json` 记录 `granted_files` 与 `sha256`，运行期解封失败报 `UNSEAL_FAILED`（1.6.0+）
+7. **加密边界**：MGC 只加密脚本文件；CSV / JSON / 配置文件在密封包内为明文。因此 `files` 只放脚本，数据与凭证留在本地 MGC
 
 ---
 

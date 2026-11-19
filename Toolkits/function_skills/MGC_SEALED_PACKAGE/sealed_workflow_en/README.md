@@ -1,215 +1,175 @@
 # Seal and License Workflows or Skill Packages
 
-> **Anti-Piracy, Node-Authorized Delivery** · For small systems and workflows delivered locally.
+> **Version 1.3.0** · For script sales and local delivery — turn a Python workflow into a source-bound local package. The authorized node runs it, the source stays encrypted end to end. Zero cloud, zero code rewrite.
 
-Ship your Python scripts and small systems to customers as **sealed packages** — they can run, but cannot read the source, modify it, or resell it. Everything stays local: no cloud, no server, no internet required.
+---
 
-## Why this skill
+## What this skill solves
 
-| If you are … | Pain | This skill solves it by |
-|--------------|------|----------------------|
-| Selling a data-processing / report / scraper script | Buyer can copy and resell it | One AES key per buyer; the key is bound to their node — they can't re-seal |
-| Delivering a small internal system to a client | Client can modify code or hand it to a third party | Source is encrypted; any tampering invalidates execution |
-| Selling an automation workflow to enterprises | Each enterprise needs its own license | `mgc_seal_package` ties each package to one node's RSA public key |
-| Selling a paid "tool pack" with knowledge product | Need to let users run it without exposing core methods | Core logic lives in scripts (sealed); instructions live in SKILL.md (plaintext by design) |
+| Your situation | The problem with the usual approach | What this skill does |
+|----------------|-----------------------------------|------------------------|
+| You sell scripts and customers forward them | One copy sold = one copy given away | One key per recipient, bound to the named node |
+| You deliver a small system to a client | The client edits the code, or resells it to a peer | You deliver a sealed package — the source never lands in plaintext |
+| You publish a universal tool pack on a marketplace | Publishing the source means giving up ownership | A free-mode package: installable and runnable anywhere, source still stays sealed |
+| Teams share scripts internally but fear leaks | Approval workflows kill throughput | Sealed package + link authorization — provenance is traceable, tampering invalidates |
 
-## The three promises
+---
 
-1. **No read** — Source is AES-256 encrypted; nothing on the customer's disk is plaintext.
-2. **No modify** — Any tampering invalidates the AES signature.
-3. **No resell** — AES key is sealed by the customer's RSA-2048 public key; only their node can decrypt, and they cannot re-seal for anyone else.
+## Core capabilities
 
-## How it works (one-screen mental model)
+### Double-layer encryption + link authorization (MGC 1.5.4)
 
-```
-Author node                              Customer node
-───────────                              ────────────
-mgc_save_file(path="./workflow")         
-mgc_seal_package(ext04=customer_pub)     
-        │
-        ▼
-   sealed capsule (.mgc_file)
-        │
-        └──── any channel ─────►       mgc_save_file(path="./received.mgc_file")
-                                     mgc_run(...)
-```
+Sealing encrypts the content with AES-256-GCM, wraps the AES key with the target node's RSA-2048 public key, then wraps that result again with an AES-GCM key derived from the **author's source_node_pub** (AAD = seal mode).
 
-100% local. No cloud, no external endpoint. The capsule can travel via email, USB, IM, GitHub Releases, or any private channel.
+- `ext03` — the doubly-wrapped ciphertext
+- `ext07` — the author's node_pub (plaintext identifier, participates in encryption)
+- `ext09` — seal mode (`p2p mode` / `free mode`)
 
-## Prerequisites
+**Changing `ext07` or `ext09` — even one space — makes the whole package unrestorable.** The source identity is the integrity anchor.
 
-- **Python 3.10+** (macOS 14+ Apple Silicon does NOT support Python 3.12)
-- **MGC Blackbox ≥ 1.5.2** (the auto-recognized workflow + sealed cross-script import require 1.5.2)
-- Install: `pip install mgc-blackbox`
-- Run: `mgc` (API at `http://127.0.0.1:57219`, WebUI at `http://127.0.0.1:57218`)
+### Two seal modes
 
-## Three steps to deliver (author side)
+| | p2p mode | Free mode |
+|---|---|---|
+| How to seal | Pass `ext04=target node PEM` | **Omit** `ext04` |
+| Who can unseal and run it | Only the node holding the matching private key | **Any MGC 1.5.4+ node** |
+| The source | Never lands in plaintext | Never lands in plaintext |
+| Best for | Single-customer licensing, private delivery | **Skill marketplace, public demos, universal installers** |
 
-### Step 1 — Store the workflow folder into MGC
+### Zero-rewrite sealing
 
-```python
-mgc_save_file(
-    path="./my_workflow",
-    info_owner="my_workflow",
-    diff_2="my_workflow",
-)
-```
+Scripts stay exactly as written, and MGC recognizes the cross-script relationships at save time:
 
-MGC automatically:
-- Parses each script's `argparse` and writes `ext02`
-- Scans imports and writes `ext05` (dependency list)
-- Infers `ext06` (platform list)
-- Builds `ext08` (cross-script call graph)
+- `from helpers.fetch import get_weather` ✅
+- `import config` ✅
+- `Path(__file__).parent / "settings.json"` ✅
+- `subprocess.run([sys.executable, "helper.py"])` ✅
+- **Same-package cross-subdirectory** `Path(__file__).resolve().parent.parent / "y.py"` ✅ (new in 1.5.4)
+- **Subprocess with a computed absolute path** `subprocess.run([sys.executable, str(base_dir / "y.py")])` ✅ (new in 1.5.4)
 
-### Step 2 — Get the customer's RSA public key
+Execution is routed through sealed execution — **no files on disk, no plaintext, no rewrites**.
+
+---
+
+## Quick start
+
+### 1 · Store (author side)
 
 ```python
-# Customer runs this on their own machine (WebUI or MCP):
-node_pub = mgc_get(
-    info_type="__NODE_PUB__",
-    info_owner="__NODE_PUB__",
-)
-# They send you the multi-line PEM (public key is not secret; any channel works)
+mgc_save_file(path="./my_workflow", info_owner="my_workflow", diff_2="my_workflow")
 ```
 
-> **WebUI path (1.4.7+ recommended)**: WebUI → Skill page → Settings dropdown → Node Public Key → copy multi-line PEM.
->
-> ⚠️ `ext04` must contain real `\n` newlines; do not concatenate into a single line.
+### 2 · Get the target node's public key
 
-### Step 3 — Seal for that customer
+```python
+node_pub = mgc_get(info_type="__NODE_PUB__", info_owner="__NODE_PUB__")
+```
+
+### 3 · Seal
 
 ```python
 mgc_seal_package(
     info_owner="my_workflow",
     diff_2="my_workflow",
-    ext04=node_pub,         # customer's PEM
-    output_dir="./delivery",  # MGC 1.5.2 requires explicit output_dir
+    ext04=node_pub,           # omit this line for free mode
+    output_dir="./delivery",  # required from 1.5.4
 )
-# → generates .mgc_file
+# → delivery/my_workflow_delivery/{ my_workflow.mgc_file, README.md }
 ```
 
-Send the `.mgc_file` to the customer through any channel.
-
-## Three steps to receive (customer side)
-
-### Step 1 — Import the capsule
+### 4 · Import (receiving side)
 
 ```python
-mgc_save_file(path="./received.mgc_file", info_owner="my_workflow", diff_2="my_workflow")
-# MGC decrypts the capsule into local records
+mgc_save_file(
+    path="./my_workflow_delivery/my_workflow.mgc_file",
+    info_owner="my_workflow",
+    diff_2="my_workflow",
+)
 ```
 
-### Step 2 — Browse the structure
+### 5 · Run
 
 ```python
-# List package entries (metadata only, no plaintext)
-mgc_find(info_owner="my_workflow", diff_2="my_workflow")
-
-# Read manifest (plaintext — describes the package layout)
-mgc_get(info_type="file", info_owner="my_workflow", diff_2="my_workflow")
-
-# Read SKILL.md (plaintext — your routing instructions)
-mgc_get(info_type="file", info_owner="my_workflow", diff_2="my_workflow", diff_3="SKILL.md")
-```
-
-### Step 3 — Run black-box
-
-```python
-mgc_run(info_owner="my_workflow", diff_2="my_workflow", diff_3="script_d.py")
+mgc_run(info_type="script", info_owner="my_workflow", diff_2="my_workflow")
 # → {"pid": 12345, "status": "started"}
-# AI only sees the launch status — never the source
 ```
 
-## Three critical rules
+> 💡 `diff_1` is optional from 1.5.4; `diff_3` (the script's path inside the package) is the most reliable way to target a single script.
 
-### Rule 1 — Same-package paths are OK; cross-package calls use the MGC API
+---
 
-Scripts inside the **same folder package** can freely use `import / relative paths / subprocess` — MGC 1.5.2's `ext08` auto-recognizes and routes them through sealed execution at runtime. **No need to rewrite as API calls.**
+## Environment requirements
 
-Cross-package calls (different `info_owner + diff_2`) require the MGC REST API. See SKILL.md for details.
+- **Python 3.10+** (macOS 14+ Apple Silicon does NOT support Python 3.12)
+- **MGC Blackbox ≥ 1.5.4**
+- `pip install mgc-blackbox>=1.5.4` → run `mgc` (API `127.0.0.1:57219` / WebUI `127.0.0.1:57218`)
 
-### Rule 2 — Author's SKILL.md is plaintext (by design)
+> ⚠️ From 1.5.4, `mgc_seal` / `mgc_seal_package` / `mgc_package` **require `output_dir`** (absolute path) — there is no desktop fallback.
 
-The author's SKILL.md must be plaintext — it is the **routing instruction** for the customer: which script to call in which scenario, in what order, with what parameters. Without it, the customer cannot use the package at all.
+---
 
-> This is the public API contract, not implementation detail. Core logic goes in the scripts (see Rule 3).
+## Example
 
-### Rule 3 — Put the algorithm in scripts, not in prompts
+`example/` provides 4 zero-dependency scripts covering every recognizable call pattern:
 
-Both SKILL.md and prompts are **plaintext** — the customer can read them. So:
+```
+example/
+├── config_a.py     # config script
+├── script_b.py     # gets values from A via import
+├── script_c.py     # calls A via subprocess
+└── script_d.py     # driver, drives B + C
+```
 
-| ✅ Do this | ❌ Don't do this |
-|-----------|------------------|
-| Put core algorithm in `run.py` | Put core algorithm in SKILL.md |
-| SKILL.md says "when to call run.py, what args to pass" | SKILL.md says "the full business flow is…" |
-| Business thresholds, formulas → in scripts | Business thresholds written in prompts |
+### Try it: seal example/ in free mode
 
-> The prompt is the customer-visible manual. **The algorithm is what you're selling** — must live inside the sealed scripts.
+No second node, no key exchange — four steps to the full chain:
 
-## Compatible cross-script patterns (MGC 1.5.2)
+```python
+# 1 · Store into MGC
+mgc_save_file(path="./example", info_owner="demo_free", diff_2="example")
 
-The full list of patterns that MGC's `ext08` auto-recognizes. See SKILL.md §"Recognizable cross-script patterns" for the complete table.
+# 2 · Free-mode seal (no ext04)
+mgc_seal_package(
+    info_owner="demo_free",
+    diff_2="example",
+    output_dir="./_demo_out",
+)
 
-Supported patterns include:
+# 3 · Import the package you just generated
+mgc_save_file(
+    path="./_demo_out/example_delivery/example.mgc_file",
+    info_owner="demo_free",
+    diff_2="example",
+)
 
-| Pattern | Example |
-|---------|---------|
-| `from` import | `from config import DEFAULT_CITY` |
-| `from` import with alias | `from helpers.fetch import get_weather as gw` |
-| Plain `import` | `import helpers.parse` |
-| Relative path via `Path` | `Path(__file__).parent / "config.py"` |
-| Subprocess with relative path | `subprocess.run([sys.executable, str(Path(__file__).parent / "config.py"), ...])` |
-| Subprocess with literal list | `subprocess.run(['helper.py', '--x'])` |
-| **Subprocess with `[sys.executable, "x.py"]`** (1.5.2+) | `subprocess.run([sys.executable, "x.py", "--arg"])` |
+# 4 · Run the driver
+mgc_run(info_type="script", info_owner="demo_free", diff_2="example", diff_3="script_d.py")
+```
 
-Unsupported patterns (will fall back to standard Python import, typically `ModuleNotFoundError`):
+Four files appear on the Desktop — `txt1.txt` / `txt2.txt` / `txt2_via_a.txt` / `combined.txt` — and the whole chain works. Fetching a script with `mgc_get` then returns a long Base64 ciphertext — **it runs, but the source cannot be read**.
 
-- Dynamic import: `importlib.import_module(x)`
-- Absolute paths: `open("/Users/alice/scripts/config.py")`
-- Cross-subdirectory relative paths
-- Function-level calls without `import` / `from-import` / `Path` literal
+> ⚠️ Package records carry their own `info_owner`; the value passed at import only satisfies the required-field check. Same node + same `info_owner` overwrites the source records.
 
-## Error codes
+Full walkthrough in [example/README.md](example/README.md).
 
-| Code | Meaning | Resolution |
-|------|---------|------------|
-| `DIFF2_MISMATCH` | `from-import` referenced a script outside the caller's package | Save both scripts into the same `mgc_save_file` package, or use MGC API for cross-package calls |
-| `DEP_MISSING` | A dependency in `ext05` is not installed on the target | `pip install <missing dep>` (MGC does NOT auto-install) |
-| `PLATFORM_INCOMPAT` | The `ext06` platform list doesn't include the current OS | Re-save on a supported platform, or extend the platform branches in code |
-| `args_not_recognized` | `argparse` parsing failed | Check `add_argument` usage; ensure literal `default=` |
-| `dynamic_args_detected` | Default value uses dynamic computation (e.g. `datetime.now()`) | Use literal defaults, or pass via `ext02` explicitly |
-| `Invalid PEM format` | `ext04` is not multi-line PEM | Copy from `mgc_get(info_type='__NODE_PUB__')` verbatim, preserving `\n` |
+---
 
-## When to use vs. when not to use
+## Security boundary
 
-| ✅ Good fit | ❌ Not a good fit |
-|-----------|------------------|
-| Selling or licensing Python small tools | Open-source scripts (just use GitHub) |
-| Delivering internal small systems to clients | Large SaaS products (use cloud solutions) |
-| Cross-node execution of automation workflows | Single-machine personal scripts (no need to seal) |
-| Paid "tool packs" within knowledge products | Customer machines with full source environment for re-development |
+MGC protects **content confidentiality**, not runtime behavior:
 
-## Comparison with alternatives
+- Data is encrypted at rest; sealed source is decrypted only in memory, at execution time
+- Runtime behavior belongs to the script's author — MGC cannot guarantee the trustworthiness of the author, and what the script does at run time is the author's responsibility
+- Before importing, verify the source node's public key against a trusted channel; link authorization detects any modification of the source identity
 
-| Dimension | GitHub private repo | SaaS encryption service | License server | **MGC Sealed Delivery** |
-|-----------|------------------------|-------------------------|-----------------|------------------------|
-| Requires cloud | Yes | Yes | Yes | **No** |
-| Monthly cost | Medium | High | Medium | **None** |
-| Prevents source leak | ❌ Private but visible | ⚠️ Service-dependent | ❌ Server-side visible | ✅ **Completely invisible** |
-| Prevents resell | ❌ | ⚠️ Service-dependent | ⚠️ Service-dependent | ✅ **Node-locked, cannot resell** |
-| Offline delivery | ❌ | ❌ | ❌ | ✅ **Any channel** |
-| Good for small systems | ⚠️ | ❌ Heavy | ⚠️ Heavy | ✅ **Light** |
-
-## Try it locally
-
-The skill ships with `example/` — 4 scripts that demonstrate all 5 auto-recognized patterns (import + from-import + subprocess literal list). End-to-end test produces 4 files on your Desktop.
-
-See `example/README.md` for the full walkthrough.
+---
 
 ## Related skills
 
-- **MGC Blackbox (Cross-Device Script Authorization)** — Single-script sealing (lighter weight)
-- **MGC Blackbox Meta Skill** — Full reference for all MGC capabilities
+- **MGC Blackbox (Cross-Device Script Authorization)** — single-script sealing (lighter weight)
+- **MGC Blackbox Meta Skill** — full reference for all MGC capabilities
+
+---
 
 ## Links
 

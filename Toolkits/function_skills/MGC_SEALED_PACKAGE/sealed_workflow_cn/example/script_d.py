@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-# ── 同包 import：MGC 1.5.1 ext08 自动识别 ─────────────────────────────
+# ── 同包 import：MGC ext08 自动识别 ──────────────────────────────────
 import script_b                              # 模式：import
 
 

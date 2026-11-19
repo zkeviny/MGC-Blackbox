@@ -1,6 +1,6 @@
 # Knowledge Management
 
-This document guides data analysts on how to securely manage knowledge assets — analysis frameworks, prompt templates, business rules, methodologies — in **MGC Blackbox ≥ 1.5.1**, implementing local encrypted storage and zero-exposure access.
+This document guides data analysts on how to securely manage knowledge assets — analysis frameworks, prompt templates, business rules, methodologies — in **MGC Blackbox ≥ 1.6.0**, implementing local encrypted storage and zero-exposure access.
 
 All sensitive operations must be explicitly authorized by the user before proceeding.
 
@@ -35,7 +35,7 @@ All knowledge content must be provided by the user; this suite does not generate
 
 # 3. How to Securely Store Knowledge Content
 
-Knowledge storage is recommended via **MGC WebUI** or **mgc_save** tool.
+Knowledge storage is recommended via **MGC WebUI** or the **mgc_save** tool.
 
 ---
 
@@ -49,7 +49,7 @@ Knowledge storage is recommended via **MGC WebUI** or **mgc_save** tool.
    ```
    http://127.0.0.1:57218
    ```
-3. Navigate to **Save page**
+3. Navigate to the **Save page**
 4. Fill in fields:
 
 ```
@@ -97,7 +97,7 @@ knowledge = mgc_get(
 )
 ```
 
-### Locating Knowledge Entries (Recommended Workflow, v1.4.10+)
+### Locating Knowledge Entries by Name (Recommended Workflow)
 
 Before reading knowledge, locate it with **mgc_find** (fuzzy search by name):
 
@@ -105,20 +105,19 @@ Before reading knowledge, locate it with **mgc_find** (fuzzy search by name):
 # Fuzzy search for knowledge by name
 matches = mgc_find(
     info_owner="framework",  # partial name; substring match by default
-    info_type="prompt",
+    # Note: since 1.5.0 mgc_find does not accept info_type —
+    # pass only info_owner / diff_1..3
 )
-# Returns metadata list — never the knowledge plain_text.
-# After locating the exact (info_type, info_owner), call mgc_get to read.
+# Returns a metadata list — never the knowledge plaintext.
+# After locating the exact info_owner, call mgc_get to read it.
 ```
 
 **Security features**:
-- `mgc_find` never returns knowledge plain_text — only metadata
+- `mgc_find` never returns knowledge plaintext — only metadata
 - After locating, `mgc_get` decrypts locally
 - All access still requires user authorization
 
----
-
-## Security Features
+### Security Features
 
 - AI cannot see knowledge plaintext
 - All access completed locally
@@ -148,7 +147,23 @@ User: "Use the monthly sales analysis framework to analyze this data."
 
 ---
 
-# 6. Authorization Template (AI Must Ask)
+# 6. Combining Knowledge with Scripts
+
+Knowledge assets and sealed scripts can work together, forming a "plaintext knowledge + encrypted algorithm" combination:
+
+| Asset Type | Storage Method | Visibility |
+|---|---|---|
+| Analysis frameworks / prompts / business rules | `mgc_save` (info_type="prompt" / "knowledge") | Visible to AI after authorization |
+| Analysis algorithm scripts | `mgc_save_file` as a workflow, or `mgc_seal` into a capsule | Never visible |
+
+**Division of labor in a collaboration scenario**:
+- Non-script files such as `SKILL.md` inside a skill package are distributed as **plaintext**, so the recipient AI can understand the routing rules
+- Core algorithm scripts are distributed as **ciphertext**, and the recipient can only run them
+- The recipient uses the combination of `mgc_get` (read plaintext files) + `mgc_run` (run encrypted scripts)
+
+---
+
+# 7. Authorization Template (AI Must Ask)
 
 When AI needs to read knowledge, it must ask the user:
 
@@ -164,7 +179,7 @@ AI must not read any knowledge without user authorization.
 
 ---
 
-# 7. Best Practices
+# 8. Best Practices
 
 ### ✔ 1. Use Descriptive Knowledge Names
 For example:
@@ -184,19 +199,28 @@ AI cannot protect sensitive content.
 ### ✔ 4. All Reading Requires Authorization
 AI must not automatically read knowledge.
 
+### ✔ 5. Clean Up Outdated Knowledge Promptly
+When a knowledge entry is no longer used or has become outdated, delete the local record with `mgc_delete` (irreversible, and requires user authorization).
+
+### ✔ 6. Keep Knowledge and Scripts Separate
+Knowledge stays in plaintext for easy reuse and collaboration; algorithms stay in scripts so they remain invisible.
+
 ---
 
-# 8. FAQ
+# 9. FAQ
 
 | Issue | Solution |
 |-------|----------|
 | Cannot read knowledge | Check whether `info_owner` matches |
 | Knowledge is empty | Check whether WebUI stored correctly |
-| Sealing failed | Check whether the target node has MGC 1.4.6+ installed |
+| `mgc_find` reports a parameter error | `mgc_find` does not accept `info_type` (removed since 1.5.0) — pass only `info_owner` / `diff_1..3` |
+| `mgc_find` matches several records with the same name | Inspect the returned metadata (diff_1 / diff_2 / diff_3), then narrow it down with a more precise `diff_*` |
+| Sealing failed | Check whether the target node has MGC 1.5.4+ installed (a sealed package requires the receiver to run ≥ 1.5.4) |
+| `mgc_delete` is rejected | Protected records cannot be deleted; confirm that `info_type` and `info_owner` match exactly |
 
 ---
 
-# 9. Summary
+# 10. Summary
 
 This knowledge management document provides:
 
@@ -204,5 +228,6 @@ This knowledge management document provides:
 - Zero-exposure reading
 - User authorization mechanism
 - Analysis framework and prompt reuse capabilities
+- Combined use of knowledge and sealed scripts (1.5.4)
 
 This is the core capability for building reusable analysis systems.

@@ -1,7 +1,7 @@
 """C · script_c.py
 
 Launches `config_a.py` as a subprocess (literal-list style recognized by MGC
-1.5.2 ext08) and writes a summary to `~/Desktop/txt2.txt`.
+ext08) and writes a summary to `~/Desktop/txt2.txt`.
 
 Demonstrates one ext08-recognized pattern:
   - `subprocess.run([sys.executable, "config_a.py", ...])`  (subprocess, literal list)
@@ -27,7 +27,7 @@ def run(user: str = "MirginCipher Demo User",
     here = Path(__file__).resolve().parent
     target = here / "config_a.py"
 
-    # ── subprocess: literal list form (MGC 1.5.2 ext08 recognizes this) ──
+    # ── subprocess: literal list form (MGC ext08 recognizes this) ──
     proc = subprocess.run(
         [sys.executable, str(target), "--user", user, "--greeting", greeting, "--print"],
         capture_output=True, text=True,

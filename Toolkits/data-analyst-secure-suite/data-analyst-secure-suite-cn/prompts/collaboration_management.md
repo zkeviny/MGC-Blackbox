@@ -1,6 +1,6 @@
 # 工作流与技能包密封授权协作（Collaboration Management）
 
-本文档用于指导数据分析师在 **MGC Blackbox ≥ 1.5.2** 中安全地将工作流和技能包密封授权给其他节点，实现"可用不可读、可运行不可转卖"的跨团队/跨组织协作。
+本文档用于指导数据分析师在 **MGC Blackbox ≥ 1.6.0** 中安全地将工作流和技能包密封授权给其他节点，实现"可用不可读、可运行不可转卖"的跨团队/跨组织协作。
 
 所有敏感操作必须由用户明确授权后才能进行。
 
@@ -85,6 +85,59 @@ MGC 支持两种密封协作模式：
 - **节点绑定**：密钥绑定目标节点，对方无法转封给第三方
 - **无云端**：全部加密/解密/运行在本地完成，MGC 不连任何云
 - **任意渠道传输**：加密包可邮件、U盘、IM、网盘送达，被截获也无法解密
+
+---
+
+## 3.3 多节点 chain mode（1.6.0 新增）
+
+当一个工作流需要交付给**多个节点**（把分析任务拆给两台机器或两个团队）时，p2p 模式需要逐个节点交换公钥并逐个密封；chain mode 一次密封即可产出每个目标节点各自独立的子包。
+
+| | p2p 模式 | free 模式 | chain 模式（1.6.0+） |
+|---|---|---|---|
+| `ext04` | 单个 PEM | 不传 | **target 数组** |
+| 产出的子包数 | 1 | 1 | **N（每目标一个）** |
+| 谁能解封运行 | 该 PEM 对应节点 | 任意 1.5.4+ 节点 | **各目标节点自己** |
+| 公钥交换 | 逐个 | 无需 | 先收集全部 `node_pub` |
+| distribution_index.json | ❌ | ❌ | ✅ |
+| 适用 | 商业交付、客户隔离 | 公开分发、通用工具 | **多节点协作、任务拆分** |
+
+targets 规格（只放脚本；数据与凭证留在各节点本地）：
+
+```json
+[
+  {"node_pub": "<节点 A 的 PEM>", "files": ["run_query.py", "shared_helper.py"]},
+  {"node_pub": "<节点 B 的 PEM>", "files": ["run_analyze.py", "shared_helper.py"]}
+]
+```
+
+```python
+mgc_seal_package(
+    info_owner="monthly_sales_analysis",
+    diff_2="monthly_sales_analysis",
+    ext04="@/abs/path/chain_targets.json",   # 或 json.dumps(targets)
+    output_dir="./delivery",
+)
+```
+
+产物结构：
+
+```text
+./delivery/monthly_sales_analysis__monthly_sales_analysis/
+├── distribution_index.json      # package_index / dir_name / package_file_name / granted_files / sha256
+├── task_package_01/             # 仅节点 A
+│   └── ...__01.mgc_file
+└── task_package_02/             # 仅节点 B
+    └── ...__02.mgc_file
+```
+
+各接收方只导入自己的 `.mgc_file`，运行前用 `granted_files` 核对授权清单。`distribution_index.json` 记录每个子包的 `sha256`，发送前与接收后都可校验完整性。
+
+chain mode 硬约束：
+
+- **只支持平级目录**：密封态跨脚本 import 在同一层解析。原有 `helpers/query.py` 结构需先扁平化为 `query.py`（并改成 `from query import ...`）再密封。
+- **`files` 必须与 `diff_3` 完全一致**：`mgc_save_file` 后用 `mgc_find` 确认。
+- **`files` 只放脚本**：CSV / JSON / 配置文件在包内是明文。数据与凭证留在各节点本地 MGC，由脚本运行时读取。
+- **运行期报 `UNSEAL_FAILED`**：说明子包发错了节点，或 `.mgc_file` 被改名。
 
 ---
 

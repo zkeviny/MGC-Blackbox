@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-# --- D → B: import (MGC 1.5.2 ext08 auto-recognizes) ---
+# --- D → B: import (MGC ext08 auto-recognizes) ---
 import script_b  # pattern: import
 
 

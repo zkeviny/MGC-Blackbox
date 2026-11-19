@@ -83,7 +83,7 @@ def main():
     if output_path is not None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(message + "\n", encoding="utf-8")
-        # 这一行不会被 AI / 上层捕获，仅写 stderr 方便调试
+        # 这一行不会被上层捕获，仅写 stderr 方便调试
         print(f"[config_a] wrote to: {output_path}", file=sys.stderr, flush=True)
 
     return 0
